@@ -1,0 +1,48 @@
+{
+  "name": "bankai",
+  "version": "1.0.0",
+  "description": "DIY development server",
+  "main": "index.js",
+  "scripts": {
+    "deps": "dependency-check . && dependency-check . --extra --no-dev",
+    "test": "standard && npm run deps && NODE_ENV=test node test",
+    "test:cov": "standard && npm run deps && NODE_ENV=test istanbul cover test.js"
+  },
+  "repository": "yoshuawuyts/bankai",
+  "keywords": [
+    "server",
+    "dev",
+    "development",
+    "browserify",
+    "sheetify",
+    "html",
+    "css",
+    "js",
+    "stream"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "bl": "^1.0.0",
+    "inject-lr-script-stream": "^1.1.1",
+    "readable-stream": "^2.0.5",
+    "simple-html-index": "^1.1.2",
+    "watchify": "^3.6.1",
+    "watchify-request": "^2.0.0",
+    "xtend": "^4.0.1"
+  },
+  "devDependencies": {
+    "browserify": "^12.0.1",
+    "concat-stream": "^1.5.1",
+    "dependency-check": "^2.5.1",
+    "get-server-port": "^1.0.0",
+    "is-html": "^1.0.0",
+    "istanbul": "^0.4.1",
+    "sheetify": "^3.3.0",
+    "standard": "^5.4.1",
+    "tape": "^4.2.2"
+  },
+  "files": [
+    "index.js",
+    "bin/*"
+  ]
+}
