@@ -14,23 +14,24 @@ $ npm install bankai
 ## Usage
 ```js
 const sheetify = require('sheetify/stream')
-const serverRouter = require('wayfarer')
+const wayfarer = require('wayfarer')
 const browserify = require('browserify')
 const bankai = require('bankai')
 const http = require('http')
 
-const router = serverRouter()
+const router = wayfarer()
 http.createServer(function (req, res) {
-  router(req, res).pipe(res)
+  router(req.url)(req, res).pipe(res)
 }).listen(1337)
 
-const js = bankai.js(browserify, '/src/index.js', { transform: 'babelify' })
-const css = bankai.css(sheetify, '/src/index.css')
 const html = bankai.html()
+router.on('/', () => html)
 
-router('/bundle.css', css)
-router('/bundle.js', js)
-router('/', html)
+const js = bankai.js(browserify, '/src/index.js', { transform: 'babelify' })
+router.on('/bundle.js', () => js)
+
+const css = bankai.css(sheetify, '/src/index.css')
+router.on('/bundle.css', () => css)
 ```
 
 ## API
