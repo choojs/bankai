@@ -1,7 +1,7 @@
 {
   "name": "bankai",
   "version": "1.0.1",
-  "description": "DIY development server",
+  "description": "DIY asset server",
   "main": "index.js",
   "scripts": {
     "deps": "dependency-check . && dependency-check . --extra --no-dev",
@@ -13,6 +13,7 @@
     "server",
     "dev",
     "development",
+    "asset",
     "browserify",
     "sheetify",
     "html",

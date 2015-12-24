@@ -2,7 +2,7 @@
 [![npm version][2]][3] [![build status][4]][5] [![test coverage][6]][7]
 [![downloads][8]][9] [![js-standard-style][10]][11]
 
-DIY development server. Serves HTML, CSS and JS as streams. Sets proper
+DIY asset server. Serves HTML, CSS and JS as streams. Sets proper
 `Content-Type` encodings and buffers where possible for sub-milisecond response
 times in production and development.
 
@@ -14,8 +14,8 @@ $ npm install bankai
 ## Usage
 ```js
 const sheetify = require('sheetify/stream')
-const wayfarer = require('wayfarer')
 const browserify = require('browserify')
+const wayfarer = require('wayfarer')
 const bankai = require('bankai')
 const http = require('http')
 
