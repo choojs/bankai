@@ -5,6 +5,7 @@ const stream = require('readable-stream')
 const watchify = require('watchify')
 const assert = require('assert')
 const xtend = require('xtend')
+const path = require('path')
 const bl = require('bl')
 
 // create html stream
@@ -30,7 +31,8 @@ exports.css = function css (sheetify, src, opts) {
   assert.equal(typeof src, 'string', 'src should be a location')
 
   opts = opts || {}
-  const defaultOpts = { basedir: __dirname }
+  src = path.resolve(src)
+  const defaultOpts = { basedir: path.dirname(src) }
   opts = xtend(defaultOpts, opts)
 
   return function (req, res) {
