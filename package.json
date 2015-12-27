@@ -1,6 +1,6 @@
 {
   "name": "bankai",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "DIY asset server",
   "main": "index.js",
   "scripts": {
