@@ -8,15 +8,18 @@ const xtend = require('xtend')
 const path = require('path')
 const bl = require('bl')
 
+const env = process.env.NODE_ENV
+
 // create html stream
 // obj? -> (req, res) -> rstream
 exports.html = function html (opts) {
   opts = opts || {}
   const defaultOpts = { entry: '/bundle.js', css: '/bundle.css' }
   const htmlOpts = xtend(defaultOpts, opts)
-  const htmlBuf = htmlIndex(htmlOpts)
-    .pipe(lrScript())
-    .pipe(bl())
+  const html = htmlIndex(htmlOpts)
+  const htmlBuf = (env === 'development')
+    ? html.pipe(lrScript()).pipe(bl())
+    : html.pipe(bl())
 
   return function (req, res) {
     res.setHeader('Content-Type', 'text/html')

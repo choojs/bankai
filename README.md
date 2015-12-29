@@ -36,7 +36,8 @@ router.on('/bundle.css', () => css)
 
 ## API
 ### bankai.html(opts)
-Return an `html` stream. Cached by default. Takes the following options:
+Return an `html` stream. Cached by default. Includes livereload if
+`NODE_ENV=development`. Takes the following options:
 - __opts.entry:__ `js` entry point. Defaults to `/bundle.js`
 - __opts.css:__ `css` entry point. Defaults to `/bundle.css`
 
@@ -52,6 +53,7 @@ Return a `js` stream. Uses `watchify` for incremental builds if
 
 ## See Also
 - [budo](https://www.npmjs.com/package/budo)
+- [tiny-lr](https://github.com/mklabs/tiny-lr)
 
 ## License
 [MIT](https://tldrlegal.com/license/mit-license)
