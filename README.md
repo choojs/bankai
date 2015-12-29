@@ -20,18 +20,20 @@ const bankai = require('bankai')
 const http = require('http')
 
 const router = wayfarer()
-http.createServer(function (req, res) {
-  router(req.url)(req, res).pipe(res)
-}).listen(1337)
+const server = http.createServer(function (req, res) {
+  router(req.url, req, res).pipe(res)
+})
+server.on('close', bankai.close)
+server.listen(1337)
 
 const html = bankai.html()
-router.on('/', () => html)
+router.on('/', (params, req, res) => html(req, res))
 
 const js = bankai.js(browserify, '/src/index.js', { transform: 'babelify' })
-router.on('/bundle.js', () => js)
+router.on('/bundle.js', (params, req, res) => js(req, res))
 
 const css = bankai.css(sheetify, '/src/index.css')
-router.on('/bundle.css', () => css)
+router.on('/bundle.css', (params, req, res) => css(req, res))
 ```
 
 ## API
