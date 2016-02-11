@@ -82,6 +82,7 @@ exports.js = function js (browserify, src, opts) {
     const ts = new stream.PassThrough()
     handler(req, res, function (err, js) {
       if (err) return ts.emit('error', err)
+      cssBuf.end()
       res.setHeader('Content-Type', 'application/javascript')
       ts.end(js)
     })
