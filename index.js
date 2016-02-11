@@ -10,6 +10,10 @@ const bl = require('bl')
 
 const env = process.env.NODE_ENV
 
+var jsStarted = false
+var cssBuf = null
+var cssOpts = null
+
 // create html stream
 // obj? -> (req, res) -> rstream
 exports.html = function html (opts) {
@@ -28,19 +32,16 @@ exports.html = function html (opts) {
 }
 
 // create css stream
-// (fn, str, obj?) -> (req, res) -> rstream
-exports.css = function css (sheetify, src, opts) {
-  assert.equal(typeof sheetify, 'function', 'sheetify should be a fn')
-  assert.equal(typeof src, 'string', 'src should be a location')
-
+// obj? -> (req, res) -> rstream
+exports.css = function css (opts) {
   opts = opts || {}
-  src = path.resolve(src)
-  const defaultOpts = { basedir: path.dirname(src) }
-  opts = xtend(defaultOpts, opts)
+  cssOpts = opts
+
+  if (jsStarted) throw new Error('css must be registered before js to work')
 
   return function (req, res) {
     res.setHeader('Content-Type', 'text/css')
-    return sheetify(src, opts)
+    return cssBuf.duplicate()
   }
 }
 
@@ -59,8 +60,19 @@ exports.js = function js (browserify, src, opts) {
   }
   var b = browserify(xtend(defaultOpts, opts))
 
+  // enable css if registered
+  if (cssOpts) {
+    cssBuf = bl()
+    const styleOpts = xtend(cssOpts, {
+      out: cssBuf,
+      basedir: path.dirname(module.parent)
+    })
+    b.transform('sheetify/transform', styleOpts)
+  }
+
   if (process.env.NODE_ENV === 'development') b = watchify(b)
   const handler = watchifyRequest(b)
+  jsStarted = true
 
   return function (req, res) {
     const ts = new stream.PassThrough()
