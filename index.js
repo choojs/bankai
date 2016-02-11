@@ -2,6 +2,7 @@ const watchifyRequest = require('watchify-request')
 const lrScript = require('inject-lr-script-stream')
 const htmlIndex = require('simple-html-index')
 const stream = require('readable-stream')
+const errorify = require('errorify')
 const watchify = require('watchify')
 const assert = require('assert')
 const xtend = require('xtend')
@@ -70,7 +71,10 @@ exports.js = function js (browserify, src, opts) {
     b.transform('sheetify/transform', styleOpts)
   }
 
-  if (process.env.NODE_ENV === 'development') b = watchify(b)
+  if (process.env.NODE_ENV === 'development') {
+    b.plugin(errorify)
+    b = watchify(b)
+  }
   const handler = watchifyRequest(b)
   jsStarted = true
 
