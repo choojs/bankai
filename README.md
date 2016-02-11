@@ -13,25 +13,24 @@ $ npm install bankai
 
 ## Usage
 ```js
-const sheetify = require('sheetify/stream')
+const serverRouter = require('server-router')
 const browserify = require('browserify')
-const wayfarer = require('wayfarer')
 const bankai = require('bankai')
 const http = require('http')
 
-const router = wayfarer()
+const router = serverRouter()
 http.createServer(function (req, res) {
-  router(req.url)(req, res).pipe(res)
+  router(req, res).pipe(res)
 }).listen(1337)
 
 const html = bankai.html()
-router.on('/', () => html)
+router.on('/', html)
+
+const css = bankai.css({ use: [ 'sheetify-cssnext' ] })
+router.on('/bundle.css', css)
 
 const js = bankai.js(browserify, '/src/index.js', { transform: 'babelify' })
-router.on('/bundle.js', () => js)
-
-const css = bankai.css(sheetify, '/src/index.css')
-router.on('/bundle.css', () => css)
+router.on('/bundle.js', js)
 ```
 
 ## API
@@ -41,11 +40,11 @@ Return an `html` stream. Cached by default. Includes livereload if
 - __opts.entry:__ `js` entry point. Defaults to `/bundle.js`
 - __opts.css:__ `css` entry point. Defaults to `/bundle.css`
 
-### bankai.css(sheetify, src, opts)
-Return a `css` stream. `sheetify` doesn't support incremental builds yet.
+### bankai.css(opts)
+Return a `css` stream.
 Cached if `NODE_ENV=production`. Takes the following options:
 - __use:__ array of transforms. Empty by default.
-- __basedir:__ project base directory. Defaults to the dir part of `src`.
+- __basedir:__ project base directory. Defaults to `process.cwd()`
 
 ### bankai.js(browserify, src, opts)
 Return a `js` stream. Uses `watchify` for incremental builds if
@@ -54,6 +53,8 @@ Return a `js` stream. Uses `watchify` for incremental builds if
 ## See Also
 - [budo](https://www.npmjs.com/package/budo)
 - [tiny-lr](https://github.com/mklabs/tiny-lr)
+- [sheetify](https://github.com/sheetify/sheetify)
+- [browserify](https://github.com/substack/node-browserify)
 
 ## License
 [MIT](https://tldrlegal.com/license/mit-license)
