@@ -24,6 +24,7 @@
   "license": "MIT",
   "dependencies": {
     "bl": "^1.0.0",
+    "errorify": "^0.3.1",
     "inject-lr-script-stream": "^1.1.1",
     "readable-stream": "^2.0.5",
     "simple-html-index": "^1.1.2",
