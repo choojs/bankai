@@ -1,4 +1,3 @@
-const sheetify = require('sheetify/stream')
 const getPort = require('get-server-port')
 const browserify = require('browserify')
 const concat = require('concat-stream')
@@ -25,14 +24,14 @@ test('html returns data', function (t) {
 })
 
 test('css asserts input types', function (t) {
-  t.plan(2)
-  t.throws(bankai.css, /sheetify/)
-  t.throws(bankai.css.bind(null, sheetify), /src/)
+  t.plan(1)
+  t.throws(bankai.css.bind(null, 'foo'), /object/)
 })
 
 test('css returns data', function (t) {
   t.plan(2)
-  const css = bankai.css(sheetify, './test/fixture.css')
+  const css = bankai.css({ basedir: __dirname })
+  bankai.js(browserify, './test/css.js')
   const server = http.createServer(function (req, res) {
     css(req, res).pipe(res)
   })
