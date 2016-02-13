@@ -37,13 +37,15 @@ test('css returns data', function (t) {
   })
   server.listen()
 
-  http.get('http://localhost:' + getPort(server), function (res) {
-    res.pipe(concat(function (buf) {
-      const str = String(buf)
-      t.equal(res.headers['content-type'], 'text/css')
-      t.ok(/\.foo {}/.test(str), 'css is equal')
-      server.close()
-    }))
+  process.nextTick(function () {
+    http.get('http://localhost:' + getPort(server), function (res) {
+      res.pipe(concat(function (buf) {
+        const str = String(buf)
+        t.equal(res.headers['content-type'], 'text/css')
+        t.ok(/\.foo {}/.test(str), 'css is equal')
+        server.close()
+      }))
+    })
   })
 })
 
