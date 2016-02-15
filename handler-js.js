@@ -36,8 +36,10 @@ function js (state) {
         state.cssBuf = bl()
         state.cssReady = false
       }
+
+      state.cssStream.pipe(state.cssBuf)
       const styleOpts = xtend(state.cssOpts, {
-        out: state.cssBuf,
+        out: state.cssStream,
         basedir: path.dirname(module.parent)
       })
       b.transform('sheetify/transform', styleOpts)
@@ -82,6 +84,10 @@ function wreq (state, bundler, startFn) {
   // run the bundler and cache output
   function update () {
     var p = pending = new Emitter()
+    state.cssReady = false
+    state.cssStream.unpipe(state.cssBuf)
+    state.cssBuf = bl()
+    state.cssStream.pipe(state.cssBuf)
 
     const r = bundler.bundle()
     if (!started) {

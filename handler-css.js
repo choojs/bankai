@@ -27,7 +27,6 @@ function css (state) {
       if (!state.cssReady) {
         const ts = new stream.PassThrough()
         state.once('css:ready', function () {
-          console.log('css:ready')
           state.cssBuf.duplicate().pipe(ts)
         })
         return ts
