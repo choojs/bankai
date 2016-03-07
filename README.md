@@ -18,19 +18,25 @@ const browserify = require('browserify')
 const bankai = require('bankai')
 const http = require('http')
 
-const router = serverRouter()
+const router = createRouter()
 http.createServer(function (req, res) {
   router(req, res).pipe(res)
 }).listen(1337)
 
-const html = bankai.html()
-router.on('/', html)
+function createRouter () {
+  const router = serverRouter()
 
-const css = bankai.css({ use: [ 'sheetify-cssnext' ] })
-router.on('/bundle.css', css)
+  const html = bankai.html()
+  router.on('/', html)
 
-const js = bankai.js(browserify, '/src/index.js', { transform: 'babelify' })
-router.on('/bundle.js', js)
+  const css = bankai.css({ use: [ 'sheetify-cssnext' ] })
+  router.on('/bundle.css', css)
+
+  const js = bankai.js(browserify, '/src/index.js', { transform: 'babelify' })
+  router.on('/bundle.js', js)
+
+  return router
+}
 ```
 
 ## API
