@@ -12,7 +12,11 @@ module.exports = html
 function html (state) {
   return function (opts) {
     opts = opts || {}
-    const defaultOpts = { entry: '/bundle.js', css: '/bundle.css' }
+    const defaultOpts = {
+      entry: '/bundle.js',
+      css: '/bundle.css',
+      favicon: true
+    }
     const htmlOpts = xtend(defaultOpts, opts)
     const html = htmlIndex(htmlOpts)
     const htmlBuf = (env === 'development')
