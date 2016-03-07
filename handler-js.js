@@ -1,10 +1,11 @@
+const sheetify = require('sheetify/transform')
+const cssExtract = require('css-extract')
 const stream = require('readable-stream')
 const errorify = require('errorify')
 const watchify = require('watchify')
 const Emitter = require('events')
 const assert = require('assert')
 const xtend = require('xtend')
-const path = require('path')
 const bl = require('bl')
 
 module.exports = js
@@ -38,11 +39,12 @@ function js (state) {
       }
 
       state.cssStream.pipe(state.cssBuf)
-      const styleOpts = xtend(state.cssOpts, {
-        out: state.cssStream,
-        basedir: path.dirname(module.parent)
+      b.transform(sheetify, state.cssOpts)
+      b.plugin(cssExtract, {
+        out: function () {
+          return state.cssStream
+        }
       })
-      b.transform('sheetify/transform', styleOpts)
     }
 
     if (process.env.NODE_ENV === 'development') {
@@ -51,7 +53,6 @@ function js (state) {
     }
 
     const handler = wreq(state, b, function () {
-      state.cssBuf.end()
     })
 
     return function (req, res) {

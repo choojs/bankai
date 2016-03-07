@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "deps": "dependency-check . && dependency-check . --extra --no-dev",
-    "test": "standard && npm run deps && NODE_ENV=test node test",
-    "test:cov": "standard && npm run deps && NODE_ENV=test istanbul cover test.js"
+    "test": "standard && npm run deps && NODE_ENV=test node test/index.js",
+    "test:cov": "standard && npm run deps && NODE_ENV=test istanbul cover test/index.js"
   },
   "repository": "yoshuawuyts/bankai",
   "keywords": [
@@ -24,6 +24,7 @@
   "license": "MIT",
   "dependencies": {
     "bl": "^1.0.0",
+    "css-extract": "^1.0.0",
     "errorify": "^0.3.1",
     "inject-lr-script-stream": "^1.1.1",
     "readable-stream": "^2.0.5",

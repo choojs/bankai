@@ -3,8 +3,9 @@ const browserify = require('browserify')
 const concat = require('concat-stream')
 const isHtml = require('is-html')
 const http = require('http')
+const path = require('path')
 const test = require('tape')
-const bankai = require('./')
+const bankai = require('../')
 
 test('html', function (t) {
   t.test('returns data', function (t) {
@@ -34,7 +35,7 @@ test('css', function (t) {
   t.test('returns data', function (t) {
     t.plan(2)
     const css = bankai.css({ basedir: __dirname })
-    bankai.js(browserify, './test/css.js')
+    bankai.js(browserify, path.join(__dirname, './fixture.js'))
     const server = http.createServer(function (req, res) {
       css(req, res).pipe(res)
     })
