@@ -40,7 +40,7 @@
     "is-html": "^1.0.0",
     "istanbul": "^0.4.1",
     "sheetify": "^3.3.0",
-    "standard": "^5.4.1",
+    "standard": "^6.0.8",
     "tape": "^4.2.2"
   },
   "files": [
