@@ -39,7 +39,7 @@
     "get-server-port": "^1.0.0",
     "is-html": "^1.0.0",
     "istanbul": "^0.4.1",
-    "sheetify": "^4.1.1",
+    "sheetify": "^4.1.2",
     "standard": "^6.0.8",
     "tape": "^4.2.2"
   },
