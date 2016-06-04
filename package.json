@@ -28,6 +28,7 @@
     "errorify": "^0.3.1",
     "inject-lr-script-stream": "^1.1.1",
     "readable-stream": "^2.0.5",
+    "sheetify": "^5.0.0",
     "simple-html-index": "^1.2.0",
     "watchify": "^3.6.1",
     "xtend": "^4.0.1"
@@ -39,7 +40,6 @@
     "get-server-port": "^1.0.0",
     "is-html": "^1.0.0",
     "istanbul": "^0.4.1",
-    "sheetify": "^4.1.2",
     "standard": "^7.1.2",
     "tape": "^4.2.2"
   },
