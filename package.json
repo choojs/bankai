@@ -26,6 +26,7 @@
     "bl": "^1.0.0",
     "css-extract": "^1.0.0",
     "errorify": "^0.3.1",
+    "hyperstream": "^1.2.2",
     "inject-lr-script-stream": "^1.1.1",
     "readable-stream": "^2.0.5",
     "sheetify": "^5.0.0",
