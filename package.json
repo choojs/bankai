@@ -42,7 +42,7 @@
     "is-html": "^1.0.0",
     "istanbul": "^0.4.1",
     "standard": "^7.1.2",
-    "tape": "^4.2.2"
+    "tape": "^4.6.0"
   },
   "files": [
     "index.js",
