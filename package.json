@@ -35,7 +35,7 @@
     "xtend": "^4.0.1"
   },
   "devDependencies": {
-    "browserify": "^13.0.0",
+    "browserify": "^13.0.1",
     "concat-stream": "^1.5.1",
     "dependency-check": "^2.5.1",
     "get-server-port": "^1.0.0",
