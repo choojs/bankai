@@ -24,7 +24,7 @@
   "license": "MIT",
   "dependencies": {
     "bl": "^1.0.0",
-    "css-extract": "^1.0.0",
+    "css-extract": "^1.0.4",
     "errorify": "^0.3.1",
     "hyperstream": "^1.2.2",
     "inject-lr-script-stream": "^1.1.1",
