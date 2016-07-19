@@ -37,7 +37,7 @@
   "devDependencies": {
     "browserify": "^13.0.0",
     "concat-stream": "^1.5.1",
-    "dependency-check": "^2.5.1",
+    "dependency-check": "^2.5.3",
     "get-server-port": "^1.0.0",
     "is-html": "^1.0.0",
     "istanbul": "^0.4.1",
