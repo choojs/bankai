@@ -79,6 +79,7 @@ function wreq (state, bundler, startFn) {
 
   update()
   bundler.on('update', update)
+  state.cssStream.on('finish', onCssStreamFinish)
 
   return handler
 
@@ -106,6 +107,12 @@ function wreq (state, bundler, startFn) {
       buffer = _buffer
       pending.emit('ready', prevError = err, pending = false)
     }))
+  }
+
+  function onCssStreamFinish () {
+    state.cssStream = new stream.PassThrough()
+    state.cssStream.on('finish', onCssStreamFinish)
+    state.cssStream.pipe(state.cssBuf)
   }
 
   // call the handler function
