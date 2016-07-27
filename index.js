@@ -4,6 +4,9 @@ const Emitter = require('events')
 const state = new Emitter()
 
 state.cssStream = new stream.PassThrough()
+
+state.cssStream.end = function () {}
+
 state.jsRegistered = false
 state.cssReady = false
 state.cssOpts = null
