@@ -1,32 +1,47 @@
-const sheetify = require('sheetify/transform')
-const cssExtract = require('css-extract')
-const stream = require('readable-stream')
-const errorify = require('errorify')
-const watchify = require('watchify')
-const Emitter = require('events')
 const assert = require('assert')
-const xtend = require('xtend')
 const bl = require('bl')
+const cssExtract = require('css-extract')
+const Emitter = require('events')
+const errorify = require('errorify')
+const sheetify = require('sheetify/transform')
+const stream = require('readable-stream')
+const watchify = require('watchify')
+const xtend = require('xtend')
 
 module.exports = js
 
 // create js stream
 // obj -> (fn, str, obj?) -> (req, res) -> rstream
 function js (state) {
-  return function (browserify, src, opts) {
+  return (browserify, src, opts) => {
     opts = opts || {}
 
     assert.equal(typeof opts, 'object', 'bankai/js: opts should be an object')
     assert.equal(typeof browserify, 'function', 'bankai/js: browserify should be a fn')
     assert.equal(typeof src, 'string', 'bankai/js: src should be a location')
 
+    // signal to CSS that browserify is registered
+    state.jsRegistered = true
+    state.jsOpts = {
+      src: src,
+      opts: opts
+    }
+
+    const resolvedSrc = require.resolve(src)
+
     const baseBrowserifyOpts = {
+      id: 'bankai-app',
       cache: {},
       packageCache: {},
-      entries: [ require.resolve(src) ],
+      entries: [resolvedSrc],
       fullPaths: true
     }
-    var b = browserify(xtend(baseBrowserifyOpts, opts))
+    const browserifyOpts = xtend(baseBrowserifyOpts, opts)
+    var b = browserify(browserifyOpts)
+
+    b.require(resolvedSrc, {
+      expose: browserifyOpts.id
+    })
 
     // enable css if registered
     if (state.cssOpts) {
@@ -37,11 +52,7 @@ function js (state) {
 
       state.cssStream.pipe(state.cssBuf)
       b.transform(sheetify, state.cssOpts)
-      b.plugin(cssExtract, {
-        out: function () {
-          return state.cssStream
-        }
-      })
+      b.plugin(cssExtract, { out: () => state.cssStream })
     }
 
     if (!state.optimize) {
@@ -49,12 +60,15 @@ function js (state) {
       b = watchify(b)
     }
 
-    const handler = wreq(state, b, function () {
-    })
+    const handler = wreq(state, b, () => {})
 
-    return function (req, res) {
+    return (req, res) => {
       const ts = new stream.PassThrough()
-      handler(req, res, function (err, js) {
+      if (b.close && !b.closing) {
+        b.closing = true
+        req.connection.server.on('close', () => b.close())
+      }
+      handler(req, res, (err, js) => {
         if (err) return ts.emit('error', err)
         state.cssBuf.end()
         res.setHeader('Content-Type', 'application/javascript')
@@ -94,12 +108,12 @@ function wreq (state, bundler, startFn) {
       r.once('end', startFn)
     }
 
-    r.once('end', function () {
+    r.once('end', () => {
       state.cssReady = true
       state.emit('css:ready')
     })
 
-    r.pipe(bl(function (err, _buffer) {
+    r.pipe(bl((err, _buffer) => {
       if (p !== pending) return
       buffer = _buffer
       pending.emit('ready', prevError = err, pending = false)
@@ -115,7 +129,7 @@ function wreq (state, bundler, startFn) {
   // call the handler function
   function handler (req, res, next) {
     if (pending) {
-      pending.once('ready', function (err) {
+      pending.once('ready', err => {
         if (err) return next(err)
         handler(req, res, next)
       })
