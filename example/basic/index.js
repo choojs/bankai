@@ -26,7 +26,7 @@ function createApplication () {
   `
 
   const testView = (state, prev, send) => html`
-    <main class="${sheet}" id="lapse-root">
+    <main class="${sheet}">
       <h1>Test: ${state.title}</h1>
       <input
         type="text"
