@@ -78,3 +78,15 @@ test('js', function (t) {
     })
   })
 })
+
+// Needed because watchify does not reliably clean up all handles behind itself
+// * https://github.com/substack/watchify/issues/22#issuecomment-88115610
+// * https://github.com/substack/watchify/blob/master/test/zzz.js
+test('zzz', function (t) {
+  t.on('end', function () {
+    setTimeout(function () {
+      process.exit()
+    }, 100)
+  })
+  t.end()
+})

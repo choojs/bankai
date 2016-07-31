@@ -57,6 +57,12 @@ function js (state) {
 
     return function (req, res) {
       const ts = new stream.PassThrough()
+      if (b.close && !b.closing) {
+        b.closing = true
+        req.connection.server.on('close', function () {
+          b.close()
+        })
+      }
       handler(req, res, function (err, js) {
         if (err) return ts.emit('error', err)
         state.cssBuf.end()
