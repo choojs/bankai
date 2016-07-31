@@ -1,5 +1,6 @@
-const stream = require('readable-stream')
 const assert = require('assert')
+const sse = require('sse-stream')
+const stream = require('readable-stream')
 
 module.exports = css
 
@@ -18,9 +19,23 @@ function css (state) {
 
     return function (req, res) {
       res.setHeader('Content-Type', 'text/css')
+
       if (!state.cssBuf) {
         throw new Error('no css found, did you register bankai.js?')
       }
+
+      if (!state.cssSse) {
+        state.cssSse = sse('/' + state.htmlOpts.css)
+        state.cssSse.install(req.connection.server)
+        const eventStream = new stream.PassThrough()
+        state.on('css:ready', function () {
+          eventStream.push(JSON.stringify({update: ['css']}))
+        })
+        state.cssSse.on('connection', function (client) {
+          eventStream.pipe(client)
+        })
+      }
+
       // either css hasn't been updated, and is ready to serve
       // or attach a listener to when css will be updated
       // and send when ready

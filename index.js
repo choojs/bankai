@@ -6,9 +6,12 @@ const state = new Emitter()
 state.env = process.env.NODE_ENV === 'production' ? 'production' : 'development'
 state.cssStream = new stream.PassThrough()
 state.jsRegistered = false
+state.htmlOpts = null
+state.jsOpts = null
 state.cssReady = false
 state.cssOpts = null
 state.cssBuf = null
+state.cssSse = null
 
 exports.html = require('./handler-html')(state)
 exports.css = require('./handler-css')(state)

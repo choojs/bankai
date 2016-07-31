@@ -57,7 +57,10 @@ function getHtmlHandler (htmlSettings, entryFile, id) {
         _appendHtml: [
           '<script>',
           'var application = require(\'' + entryFile + '\')',
-          'var tree = application().start(\'[data-bankai="' + id + '"]\')',
+          'var app = application(window.__BANKAI_GLOBAL_STATE_HOOK__, {',
+          '  onStateChange: function(data, state) { window.__BANKAI_GLOBAL_STATE_HOOK__ = state }',
+          '})',
+          'var tree = app.start(\'[data-bankai="' + id + '"]\')',
           'if (tree) {',
           '  document.body.appendChild(tree)',
           '}',
@@ -89,7 +92,7 @@ function start (options, cb) {
   if (settings.html) {
     const id = ['bankai'].concat(projectNameGenerator().raw).join('-')
     const html = getHtmlHandler(settings.html, entryFile, id)
-    router.on('/', html)
+    router.on('/:path', html)
   }
 
   if (settings.css) {
