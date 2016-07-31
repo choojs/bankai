@@ -4,6 +4,7 @@ const browserify = require('browserify')
 const getServerPort = require('get-server-port')
 const hyperstream = require('hyperstream')
 const projectNameGenerator = require('project-name-generator')
+const resolve = require('resolve')
 const serverRouter = require('server-router')
 const stringToStream = require('string-to-stream')
 const xtend = require('xtend')
@@ -63,7 +64,7 @@ function getHtmlHandler (htmlSettings, entryFile, id) {
 function start (options, cb) {
   const settings = xtend({}, defaults, options)
   const callback = cb || function () {}
-  const entryFile = require.resolve(path.resolve(cwd, settings.entry))
+  const entryFile = resolve.sync(settings.entry, {basedir: cwd})
   const relativeEntry = path.relative(cwd, entryFile)
   const id = ['bankai'].concat(projectNameGenerator().raw).join('-')
 
@@ -74,7 +75,7 @@ function start (options, cb) {
   const css = bankai.css(settings.css)
   router.on('/bundle.css', css)
 
-  const browserifyOpts = xtend(settings.js, {require: [relativeEntry]})
+  const browserifyOpts = xtend(settings.js, {require: [entryFile]})
   const js = bankai.js(browserify, entryFile, browserifyOpts)
   router.on('/bundle.js', js)
 
