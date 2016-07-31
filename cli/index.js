@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+'use strict'
+
 const fs = require('fs')
 const path = require('path')
 const meow = require('meow')
@@ -58,20 +60,22 @@ const aliasNames = Object.keys(alias)
   }, [])
 
 function main (commandName, options, cb) {
+  let error
+
   if (typeof commandName !== 'string') {
-    const error = new Error('Missing command parameter. Available commands: ' + commandList)
+    error = new Error('Missing command parameter. Available commands: ' + commandList)
     error.cli = true
     return cb(error)
   }
 
   if ((commandName in commands) === false) {
-    const error = new Error('Unknown command ' + commandName + '.', 'Available commands: ' + commandList)
+    error = new Error('Unknown command ' + commandName + '.', 'Available commands: ' + commandList)
     error.cli = true
     return cb(error)
   }
 
   if (unknowns.length > 0) {
-    const error = new Error('Unkown flags detected: ' + unknowns.join(', '))
+    error = new Error('Unkown flags detected: ' + unknowns.join(', '))
     error.cli = true
     return cb(error)
   }
