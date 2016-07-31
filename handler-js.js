@@ -33,7 +33,7 @@ function js (state) {
 
     // enable css if registered
     if (state.cssOpts) {
-      if (!state.cssBuf || process.env.NODE_ENV === 'development') {
+      if (!state.cssBuf || state.env === 'development') {
         state.cssBuf = bl()
         state.cssReady = false
       }
@@ -47,7 +47,7 @@ function js (state) {
       })
     }
 
-    if (process.env.NODE_ENV === 'development') {
+    if (state.env === 'development') {
       b.plugin(errorify)
       b = watchify(b)
     }

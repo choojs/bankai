@@ -3,6 +3,7 @@ const Emitter = require('events')
 
 const state = new Emitter()
 
+state.env = process.env.NODE_ENV === 'production' ? 'production' : 'development'
 state.cssStream = new stream.PassThrough()
 state.jsRegistered = false
 state.cssReady = false
