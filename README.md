@@ -109,6 +109,18 @@ $ bankai --help
     $ bankai start --js.fullPaths=false
 ```
 
+## Examples
+Projects showing exemplary usage are provided. Install root project dependencies,
+example project dependencies and execute `npm start` to start an example.
+
+- [Basic](./example/basic) - Showing default settings, Hot Module Replacement
+  ```
+  npm install
+  cd example/basic
+  npm install
+  npm start
+  ```
+
 ## See Also
 - [budo](https://www.npmjs.com/package/budo)
 - [tiny-lr](https://github.com/mklabs/tiny-lr)
