@@ -20,6 +20,7 @@ function html (state) {
     }
     const htmlOpts = xtend(defaultOpts, opts)
     const html = htmlIndex(htmlOpts).pipe(createMetaTag())
+
     const htmlBuf = state.env === 'development'
       ? html.pipe(lrScript()).pipe(bl())
       : html.pipe(bl())

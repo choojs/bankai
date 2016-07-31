@@ -30,6 +30,7 @@
     "hyperstream": "^1.2.2",
     "inject-lr-script-stream": "^1.1.1",
     "meow": "^3.7.0",
+    "opn": "^4.0.2",
     "project-name-generator": "^2.1.2",
     "readable-stream": "^2.1.4",
     "resolve": "^1.1.7",

@@ -3,6 +3,7 @@ const path = require('path')
 const browserify = require('browserify')
 const getServerPort = require('get-server-port')
 const hyperstream = require('hyperstream')
+const opn = require('opn')
 const projectNameGenerator = require('project-name-generator')
 const resolve = require('resolve')
 const serverRouter = require('server-router')
@@ -12,6 +13,7 @@ const bankai = require('../')
 
 const defaults = {
   port: 1337,
+  open: false,
   entry: '.',
   html: {},
   css: {},
@@ -85,7 +87,17 @@ function start (options, cb) {
 
   server.listen(settings.port, function () {
     const port = getServerPort(server)
-    console.log('Started bankai for', relativeEntry, 'on http://localhost:' + port)
+    const address = ['http://localhost', port].join(':')
+    console.log('Started bankai for', relativeEntry, 'on', address)
+
+    if (settings.open) {
+      const app = typeof settings.open === 'string' ? settings.open : null
+      opn(address, {app: app})
+        .catch(function (error) {
+          console.error(error)
+        })
+    }
+
     callback()
   })
 }
