@@ -1,9 +1,9 @@
-const choo = require('choo');
-const html = require('choo/html');
-const sheetify = require('sheetify');
+const choo = require('choo')
+const html = require('choo/html')
+const sheetify = require('sheetify')
 
-sheetify('normalize.css');
-const sheet = sheetify('./index.css');
+sheetify('normalize.css')
+const sheet = sheetify('./index.css')
 
 function createApplication () {
   const application = choo()
@@ -43,4 +43,4 @@ function createApplication () {
   return application
 }
 
-module.exports = createApplication;
+module.exports = createApplication

@@ -57,24 +57,6 @@ const aliasNames = Object.keys(alias)
     return r.concat(alias[i])
   }, [])
 
-function normalizeNamespace (value) {
-  if (Array.isArray(value)) {
-    return normalizeNamespace(value[value.length - 1])
-  }
-
-  if (typeof value === 'object' || typeof value === 'boolean') {
-    return value
-  }
-
-  if (value === 'false') {
-    return false
-  }
-
-  if (value === 'true') {
-    return true
-  }
-}
-
 function main (commandName, options, cb) {
   if (typeof commandName !== 'string') {
     const error = new Error('Missing command parameter. Available commands: ' + commandList)
