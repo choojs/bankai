@@ -3,6 +3,9 @@
   "version": "2.0.7",
   "description": "DIY asset server",
   "main": "index.js",
+  "bin": {
+    "bankai": "cli/index.js"
+  },
   "scripts": {
     "deps": "dependency-check . && dependency-check . --extra --no-dev",
     "test": "standard && npm run deps && NODE_ENV=test node test/index.js",

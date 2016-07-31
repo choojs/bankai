@@ -4,8 +4,6 @@ const hyperstream = require('hyperstream')
 const xtend = require('xtend')
 const bl = require('bl')
 
-const env = process.env.NODE_ENV
-
 module.exports = html
 
 // create html stream
