@@ -28,15 +28,21 @@ function js (state) {
       opts: opts
     }
 
+    const resolvedSrc = require.resolve(src)
+
     const baseBrowserifyOpts = {
+      id: 'bankai-app',
       cache: {},
-      require: [],
       packageCache: {},
-      entries: [ require.resolve(src) ],
+      entries: [resolvedSrc],
       fullPaths: true
     }
     const browserifyOpts = xtend(baseBrowserifyOpts, opts)
     var b = browserify(browserifyOpts)
+
+    b.require(resolvedSrc, {
+      expose: browserifyOpts.id
+    })
 
     // enable css if registered
     if (state.cssOpts) {

@@ -3,20 +3,8 @@ const bl = require('bl')
 const browserify = require('browserify')
 const htmlIndex = require('simple-html-index')
 const hyperstream = require('hyperstream')
-const resolve = require('resolve')
 const stream = require('stream')
 const xtend = require('xtend')
-
-const cwd = process.cwd()
-
-// resolve a path according to require.resolve algorithm
-// string -> string
-function resolveEntryFile (relativePath) {
-  const entry = relativePath[0] === '.' || relativePath[0] === '/'
-    ? relativePath
-    : './' + relativePath
-  return resolve.sync(entry, {basedir: cwd})
-}
 
 module.exports = html
 
@@ -39,8 +27,8 @@ function html (state) {
 
     const htmlBuf = state.env === 'development'
       ? html
-          .pipe(markHotReplaceable(scriptSelector, htmlOpts.src))
-          .pipe(markHotReplaceable(styleSelector, true))
+          .pipe(markHotReplaceable(scriptSelector, htmlOpts.id))
+          .pipe(markHotReplaceable(styleSelector, htmlOpts.id))
           .pipe(hmrScript())
           .pipe(bl())
       : html.pipe(bl())
@@ -61,11 +49,8 @@ function createMetaTag () {
   })
 }
 
-function markHotReplaceable (selector, src) {
+function markHotReplaceable (selector, value) {
   const query = {}
-  const value = typeof src === 'string'
-    ? resolveEntryFile(src)
-    : src
 
   query[selector] = {
     'data-bankai-hmr': value

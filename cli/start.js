@@ -1,5 +1,6 @@
 const http = require('http')
 const path = require('path')
+const bankai = require('../')
 const browserify = require('browserify')
 const getServerPort = require('get-server-port')
 const hyperstream = require('hyperstream')
@@ -8,8 +9,8 @@ const projectNameGenerator = require('project-name-generator')
 const resolve = require('resolve')
 const serverRouter = require('server-router')
 const stringToStream = require('string-to-stream')
+const stream = require('stream')
 const xtend = require('xtend')
-const bankai = require('../')
 
 const defaults = {
   port: 1337,
@@ -31,6 +32,38 @@ function resolveEntryFile (relativePath) {
   return resolve.sync(entry, {basedir: cwd})
 }
 
+function injectScript () {
+  const b = browserify(path.resolve(__dirname, 'client-start.js'))
+  const script$ = new stream.PassThrough()
+  script$.push('<script>')
+
+  b.on('bundle', function (bundle$) {
+    bundle$.pipe(script$)
+  })
+
+  b.bundle(function (error) {
+    if (error) {
+      console.error(error)
+    }
+    script$.end('</script>')
+  })
+
+  return hyperstream({
+    body: { _appendHtml: script$ }
+  })
+}
+
+function injectContent (content, id) {
+  const addId = hyperstream({
+    '*:first': {'data-bankai': id}
+  })
+  return hyperstream({
+    body: {
+      _prependHtml: content.pipe(addId)
+    }
+  })
+}
+
 // get a html request handler for settings, entryFile and id
 // (object, string, string) -> rstream
 function getHtmlHandler (htmlSettings, entryFile, id) {
@@ -42,36 +75,9 @@ function getHtmlHandler (htmlSettings, entryFile, id) {
   return function (req, res) {
     const content = stringToStream(entryApp.toString(req.url))
 
-    const addId = hyperstream({
-      '*:first': {'data-bankai': id}
-    })
-
-    const injectContent = hyperstream({
-      body: {
-        _prependHtml: content.pipe(addId)
-      }
-    })
-
-    const injectScript = hyperstream({
-      body: {
-        _appendHtml: [
-          '<script>',
-          'var application = require(\'' + entryFile + '\')',
-          'var app = application(window.__BANKAI_GLOBAL_STATE_HOOK__, {',
-          '  onStateChange: function(data, state) { window.__BANKAI_GLOBAL_STATE_HOOK__ = state }',
-          '})',
-          'var tree = app.start(\'[data-bankai="' + id + '"]\')',
-          'if (tree) {',
-          '  document.body.appendChild(tree)',
-          '}',
-          '</script>'
-        ].join('\n')
-      }
-    })
-
     return layout(req, res)
-      .pipe(injectContent)
-      .pipe(injectScript)
+      .pipe(injectContent(content, id))
+      .pipe(injectScript())
   }
 }
 
@@ -83,6 +89,7 @@ function start (options, cb) {
   const entryFile = resolveEntryFile(settings.entry)
   const relativeEntry = path.relative(cwd, entryFile)
   const router = serverRouter('/404')
+  const id = ['bankai'].concat(projectNameGenerator().raw).join('-')
 
   router.on('/404', function (req, res) {
     res.statusCode = 404
@@ -90,9 +97,10 @@ function start (options, cb) {
   })
 
   if (settings.html) {
-    const id = ['bankai'].concat(projectNameGenerator().raw).join('-')
-    const html = getHtmlHandler(settings.html, entryFile, id)
+    const htmlOpts = xtend({id: id}, settings.html)
+    const html = getHtmlHandler(htmlOpts, entryFile, id)
     router.on('/:path', html)
+    router.on('/', html)
   }
 
   if (settings.css) {
@@ -100,8 +108,8 @@ function start (options, cb) {
     router.on(settings.html.css || '/bundle.css', css)
   }
 
-  const browserifyOpts = xtend(settings.js, {require: [entryFile]})
-  const js = bankai.js(browserify, entryFile, browserifyOpts)
+  const jsOpts = xtend({id: id}, settings.js)
+  const js = bankai.js(browserify, entryFile, jsOpts)
   router.on(settings.html.entry || '/bundle.js', js)
 
   const server = http.createServer(function (req, res) {
