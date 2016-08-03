@@ -5,7 +5,7 @@ const Emitter = require('events')
 const errorify = require('errorify')
 const sheetify = require('sheetify/transform')
 const stream = require('readable-stream')
-const sse = require('sse-stream')
+const sse = require('@marionebl/sse-stream')
 const watchify = require('watchify')
 const xtend = require('xtend')
 

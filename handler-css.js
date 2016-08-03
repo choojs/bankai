@@ -1,5 +1,5 @@
 const assert = require('assert')
-const sse = require('sse-stream')
+const sse = require('@marionebl/sse-stream')
 const stream = require('readable-stream')
 
 module.exports = css
