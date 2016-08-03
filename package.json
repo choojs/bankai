@@ -4,7 +4,7 @@
   "description": "DIY asset server",
   "main": "index.js",
   "bin": {
-    "bankai": "cli/index.js"
+    "bankai": "bin/index.js"
   },
   "scripts": {
     "deps": "dependency-check . --entry client-hmr && dependency-check . --entry client-hmr --extra --no-dev",
