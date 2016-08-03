@@ -58,6 +58,7 @@
   "files": [
     "index.js",
     "bin/*",
+    "client-hmr.js",
     "handler-*"
   ]
 }
