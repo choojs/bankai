@@ -47,9 +47,9 @@ Return an `html` stream. Cached by default. Includes livereload if
 - __opts.css:__ `css` entry point. Defaults to `/bundle.css`
 
 ### bankai.css(opts)
-Return a `css` stream.
+Return a `css` stream using [sheetify](https://github.com/stackcss/sheetify).
 Cached if `NODE_ENV=production`. Takes the following options:
-- __use:__ array of transforms. Empty by default.
+- __use:__ array of sheetify transforms. Empty by default.
 - __basedir:__ project base directory. Defaults to `process.cwd()`
 
 ### bankai.js(browserify, src, opts)
