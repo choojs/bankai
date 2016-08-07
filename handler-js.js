@@ -1,12 +1,13 @@
-const sheetify = require('sheetify/transform')
-const cssExtract = require('css-extract')
-const stream = require('readable-stream')
-const errorify = require('errorify')
-const watchify = require('watchify')
-const Emitter = require('events')
 const assert = require('assert')
-const xtend = require('xtend')
 const bl = require('bl')
+const cssExtract = require('css-extract')
+const Emitter = require('events')
+const errorify = require('errorify')
+const sheetify = require('sheetify/transform')
+const stream = require('readable-stream')
+const sse = require('@marionebl/sse-stream')
+const watchify = require('watchify')
+const xtend = require('xtend')
 
 module.exports = js
 
@@ -22,18 +23,30 @@ function js (state) {
 
     // signal to CSS that browserify is registered
     state.jsRegistered = true
+    state.jsOpts = {
+      src: src,
+      opts: opts
+    }
+
+    const resolvedSrc = require.resolve(src)
 
     const baseBrowserifyOpts = {
+      id: 'bankai-app',
       cache: {},
       packageCache: {},
-      entries: [ require.resolve(src) ],
+      entries: [resolvedSrc],
       fullPaths: true
     }
-    var b = browserify(xtend(baseBrowserifyOpts, opts))
+    const browserifyOpts = xtend(baseBrowserifyOpts, opts)
+    var b = browserify(browserifyOpts)
+
+    b.require(resolvedSrc, {
+      expose: browserifyOpts.id
+    })
 
     // enable css if registered
     if (state.cssOpts) {
-      if (!state.cssBuf || process.env.NODE_ENV === 'development') {
+      if (!state.cssBuf || state.env === 'development') {
         state.cssBuf = bl()
         state.cssReady = false
       }
@@ -47,7 +60,7 @@ function js (state) {
       })
     }
 
-    if (process.env.NODE_ENV === 'development') {
+    if (state.env === 'development') {
       b.plugin(errorify)
       b = watchify(b)
     }
@@ -57,6 +70,25 @@ function js (state) {
 
     return function (req, res) {
       const ts = new stream.PassThrough()
+      if (b.close && !b.closing) {
+        b.closing = true
+        req.connection.server.on('close', function () {
+          b.close()
+        })
+      }
+      if (state.env === 'development' && !b.sse) {
+        b.sse = sse('/' + state.htmlOpts.entry)
+        b.sse.install(req.connection.server)
+
+        const eventStream = new stream.PassThrough()
+        b.on('update', function (ids) {
+          eventStream.push(JSON.stringify({update: ids}))
+        })
+
+        b.sse.on('connection', function (client) {
+          eventStream.pipe(client)
+        })
+      }
       handler(req, res, function (err, js) {
         if (err) return ts.emit('error', err)
         state.cssBuf.end()
