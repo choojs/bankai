@@ -1,14 +1,29 @@
 const stream = require('readable-stream')
+const mutate = require('xtend/mutable')
 const Emitter = require('events')
 
-const state = new Emitter()
+const html = require('./handler-html')
+const css = require('./handler-css')
+const js = require('./handler-js')
 
-state.cssStream = new stream.PassThrough()
-state.jsRegistered = false
-state.cssReady = false
-state.cssOpts = null
-state.cssBuf = null
+module.exports = bankai
 
-exports.html = require('./handler-html')(state)
-exports.css = require('./handler-css')(state)
-exports.js = require('./handler-js')(state)
+// create a new bankai instance
+// (obj?) -> obj
+function bankai (opts) {
+  opts = opts || {}
+
+  const state = new Emitter()
+  state.cssStream = new stream.PassThrough()
+  state.cssBuf = null
+  state.jsRegistered = false
+  state.cssReady = false
+  state.cssOpts = null
+  mutate(state, opts)
+
+  return {
+    html: html(state),
+    css: css(state),
+    js: js(state)
+  }
+}

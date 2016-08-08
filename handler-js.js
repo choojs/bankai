@@ -16,12 +16,9 @@ function js (state) {
   return function (browserify, src, opts) {
     opts = opts || {}
 
-    assert.equal(typeof opts, 'object', 'opts should be an object')
-    assert.equal(typeof browserify, 'function', 'browserify should be a fn')
-    assert.equal(typeof src, 'string', 'src should be a location')
-
-    // signal to CSS that browserify is registered
-    state.jsRegistered = true
+    assert.equal(typeof opts, 'object', 'bankai/js: opts should be an object')
+    assert.equal(typeof browserify, 'function', 'bankai/js: browserify should be a fn')
+    assert.equal(typeof src, 'string', 'bankai/js: src should be a location')
 
     const baseBrowserifyOpts = {
       cache: {},
@@ -33,7 +30,7 @@ function js (state) {
 
     // enable css if registered
     if (state.cssOpts) {
-      if (!state.cssBuf || process.env.NODE_ENV === 'development') {
+      if (!state.cssBuf || !state.optimize) {
         state.cssBuf = bl()
         state.cssReady = false
       }
@@ -47,7 +44,7 @@ function js (state) {
       })
     }
 
-    if (process.env.NODE_ENV === 'development') {
+    if (!state.optimize) {
       b.plugin(errorify)
       b = watchify(b)
     }

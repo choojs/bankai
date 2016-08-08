@@ -4,8 +4,6 @@ const hyperstream = require('hyperstream')
 const xtend = require('xtend')
 const bl = require('bl')
 
-const env = process.env.NODE_ENV
-
 module.exports = html
 
 // create html stream
@@ -20,9 +18,9 @@ function html (state) {
     }
     const htmlOpts = xtend(defaultOpts, opts)
     const html = htmlIndex(htmlOpts).pipe(createMetaTag())
-    const htmlBuf = (env === 'development')
-      ? html.pipe(lrScript()).pipe(bl())
-      : html.pipe(bl())
+    const htmlBuf = (state.optimize)
+      ? html.pipe(bl())
+      : html.pipe(lrScript()).pipe(bl())
 
     return function (req, res) {
       res.setHeader('Content-Type', 'text/html')
