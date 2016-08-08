@@ -10,7 +10,8 @@ const bankai = require('../')
 test('html', function (t) {
   t.test('returns data', function (t) {
     t.plan(2)
-    const html = bankai.html()
+    const assets = bankai()
+    const html = assets.html()
     const server = http.createServer(function (req, res) {
       html(req, res).pipe(res)
     })
@@ -29,13 +30,15 @@ test('html', function (t) {
 test('css', function (t) {
   t.test('asserts input types', function (t) {
     t.plan(1)
-    t.throws(bankai.css.bind(null, 'foo'), /object/)
+    const assets = bankai()
+    t.throws(assets.css.bind(null, 'foo'), /object/)
   })
 
   t.test('returns data', function (t) {
     t.plan(2)
-    const css = bankai.css({ basedir: __dirname })
-    bankai.js(browserify, path.join(__dirname, './fixture.js'))
+    const assets = bankai()
+    const css = assets.css({ basedir: __dirname })
+    assets.js(browserify, path.join(__dirname, './fixture.js'))
     const server = http.createServer(function (req, res) {
       css(req, res).pipe(res)
     })
@@ -46,7 +49,6 @@ test('css', function (t) {
         res.pipe(concat(function (buf) {
           const str = String(buf)
           t.equal(res.headers['content-type'], 'text/css')
-          console.log(str)
           t.ok(/\.foo {}/.test(str), 'css is equal')
           server.close()
         }))
@@ -58,13 +60,15 @@ test('css', function (t) {
 test('js', function (t) {
   t.test('js asserts input types', function (t) {
     t.plan(2)
-    t.throws(bankai.js, /browserify/)
-    t.throws(bankai.js.bind(null, browserify), /src/)
+    const assets = bankai()
+    t.throws(assets.js, /browserify/)
+    t.throws(assets.js.bind(null, browserify), /src/)
   })
 
   t.test('js returns data', function (t) {
     t.plan(1)
-    const js = bankai.js(browserify, './test/fixture.js')
+    const assets = bankai()
+    const js = assets.js(browserify, './test/fixture.js')
     const server = http.createServer(function (req, res) {
       js(req, res).pipe(res)
     })
@@ -72,9 +76,20 @@ test('js', function (t) {
 
     http.get('http://localhost:' + getPort(server), function (res) {
       res.pipe(concat(function (buf) {
-        t.equal(res.headers['content-type'], 'application/javascript')
+        const actual = res.headers['content-type']
+        const expected = 'application/javascript'
+        t.equal(actual, expected, 'content type is equal')
         server.close()
       }))
     })
   })
+})
+
+test('__END__', function (t) {
+  t.on('end', function () {
+    setTimeout(function () {
+      process.exit(0)
+    }, 100)
+  })
+  t.end()
 })
