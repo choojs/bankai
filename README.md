@@ -13,48 +13,47 @@ $ npm install bankai
 
 ## Usage
 ```js
-const serverRouter = require('server-router')
 const browserify = require('browserify')
 const bankai = require('bankai')
 const http = require('http')
+const path = require('path')
 
-const router = createRouter()
-http.createServer(function (req, res) {
-  router(req, res).pipe(res)
-}).listen(1337)
+const client = path.join(__dirname, 'client.js')
 
-function createRouter () {
-  const router = serverRouter()
+const assets = bankai()
+const js = assets.js(browserify, client)
+const html = assets.html()
+const css = assets.css()
 
-  const html = bankai.html()
-  router.on('/', html)
-
-  const css = bankai.css({ use: [ 'sheetify-cssnext' ] })
-  router.on('/bundle.css', css)
-
-  const js = bankai.js(browserify, '/src/index.js', { transform: 'babelify' })
-  router.on('/bundle.js', js)
-
-  return router
-}
+http.createServer((req, res) => {
+  switch req.url {
+    case '/': return html(req, res).pipe(res)
+    case '/bundle.js': return js(req, res).pipe(res)
+    case '/bundle.css': return css(req, res).pipe(res)
+    default: return res.statusCode = 404 && res.end('404 not found')
+  }
+}).listen(8080)
 ```
 
 ## API
-### bankai.html(opts)
-Return an `html` stream. Cached by default. Includes livereload if
-`NODE_ENV=development`. Takes the following options:
+### assets = bankai(opts?)
+- __optimize:__ default `false`. Disable livereload scripts, cache output and
+  optimize all bundles.
+
+### assets.html(opts?)
+Return an `html` stream. Takes the following options:
 - __opts.entry:__ `js` entry point. Defaults to `/bundle.js`
 - __opts.css:__ `css` entry point. Defaults to `/bundle.css`
 
-### bankai.css(opts)
+### assets.css(opts?)
 Return a `css` stream using [sheetify](https://github.com/stackcss/sheetify).
-Cached if `NODE_ENV=production`. Takes the following options:
-- __use:__ array of sheetify transforms. Empty by default.
+. Takes the following options:
+- __use:__ array of transforms. Empty by default.
 - __basedir:__ project base directory. Defaults to `process.cwd()`
 
-### bankai.js(browserify, src, opts)
-Return a `js` stream. Uses `watchify` for incremental builds if
-`NODE_ENV=development`. `src` is the bundle entry file. Cached by default.
+### assets.js(browserify, src, opts?)
+Return a `js` stream. `src` is the bundle entry file. `opts` are passed
+directly to `browserify`
 
 ## See Also
 - [budo](https://www.npmjs.com/package/budo)
