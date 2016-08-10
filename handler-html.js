@@ -1,4 +1,3 @@
-const lrScript = require('inject-lr-script-stream')
 const htmlIndex = require('simple-html-index')
 const hyperstream = require('hyperstream')
 const xtend = require('xtend')
@@ -9,20 +8,20 @@ module.exports = html
 // create html stream
 // obj -> obj? -> (req, res) -> rstream
 function html (state) {
-  return function (opts) {
+  return opts => {
     opts = opts || {}
     const defaultOpts = {
+      src: '.',
       entry: 'bundle.js',
       css: 'bundle.css',
       favicon: true
     }
     const htmlOpts = xtend(defaultOpts, opts)
+    state.htmlOpts = htmlOpts
     const html = htmlIndex(htmlOpts).pipe(createMetaTag())
-    const htmlBuf = (state.optimize)
-      ? html.pipe(bl())
-      : html.pipe(lrScript()).pipe(bl())
+    const htmlBuf = html.pipe(bl())
 
-    return function (req, res) {
+    return (req, res) => {
       res.setHeader('Content-Type', 'text/html')
       return htmlBuf.duplicate()
     }
