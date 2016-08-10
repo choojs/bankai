@@ -8,7 +8,7 @@ module.exports = html
 // create html stream
 // obj -> obj? -> (req, res) -> rstream
 function html (state) {
-  return opts => {
+  return function initHtml (opts) {
     opts = opts || {}
     const defaultOpts = {
       src: '.',
@@ -21,7 +21,7 @@ function html (state) {
     const html = htmlIndex(htmlOpts).pipe(createMetaTag())
     const htmlBuf = html.pipe(bl())
 
-    return (req, res) => {
+    return function htmlHandler (req, res) {
       res.setHeader('Content-Type', 'text/html')
       return htmlBuf.duplicate()
     }

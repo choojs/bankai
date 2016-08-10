@@ -13,7 +13,7 @@ module.exports = js
 // create js stream
 // obj -> (fn, str, obj?) -> (req, res) -> rstream
 function js (state) {
-  return (browserify, src, opts) => {
+  return function initJs (browserify, src, opts) {
     opts = opts || {}
 
     assert.equal(typeof opts, 'object', 'bankai/js: opts should be an object')
@@ -62,7 +62,8 @@ function js (state) {
 
     const handler = wreq(state, b, () => {})
 
-    return (req, res) => {
+    // (obj, obj) -> rstream
+    return function jsHandler (req, res) {
       const ts = new stream.PassThrough()
       if (b.close && !b.closing) {
         b.closing = true

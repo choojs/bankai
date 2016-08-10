@@ -14,7 +14,10 @@ function bankai (opts) {
   opts = opts || {}
 
   const state = new Emitter()
-  state.env = process.env.NODE_ENV === 'production' ? 'production' : 'development'
+  state.env = process.env.NODE_ENV === 'production'
+    ? 'production'
+    : 'development'
+
   state.cssStream = new stream.PassThrough()
   state.jsRegistered = false
   state.htmlOpts = null

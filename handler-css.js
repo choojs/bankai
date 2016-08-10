@@ -6,7 +6,7 @@ module.exports = css
 // create css stream
 // obj? -> (req, res) -> rstream
 function css (state) {
-  return opts => {
+  return function initCss (opts) {
     opts = opts || {}
     assert.equal(typeof opts, 'object', 'opts must be an object')
     state.cssOpts = opts
@@ -16,7 +16,8 @@ function css (state) {
       throw new Error('css must be registered before js to work')
     }
 
-    return (req, res) => {
+    // (obj, obj) -> rstream
+    return function cssHandler (req, res) {
       res.setHeader('Content-Type', 'text/css')
 
       if (!state.cssBuf) {
