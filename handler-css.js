@@ -18,7 +18,7 @@ function css (state) {
 
     // (obj, obj) -> rstream
     return function cssHandler (req, res) {
-      res.setHeader('Content-Type', 'text/css')
+      if (res) res.setHeader('Content-Type', 'text/css')
 
       if (!state.cssBuf) {
         throw new Error('no css found, did you register bankai.js?')

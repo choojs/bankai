@@ -4,7 +4,8 @@
 const meow = require('meow')
 
 const commands = {
-  start: require('./start')
+  start: require('./start'),
+  build: require('./build')
 }
 
 const commandNames = Object.keys(commands)
@@ -23,6 +24,7 @@ const cli = meow(`
 
   Commands
     start       Start a bankai server
+    build       Export built files to a directory
 
     Options
       -e, --entry=<id>       Resolve <id> from cwd and use as entry module [default: .]
@@ -30,6 +32,7 @@ const cli = meow(`
       -p, --port=<n>         Bind bankai to <n> [default: 1337]
       -o, --optimize         Optimize the page and all assets served by bankai [default: false]
       -b, --browse=<app>     Browse the page served by bankai with <app> [default: false]
+      -d, --dir=<dir>        Directory to export built files
       --html.entry=<uri>     Serve client js at <uri> [default: bundle.js]
       --html.css=<uri>       Serve client css at <uri> [default: bundle.css]
       --html.favicon         Disable favicon [default: true]
@@ -63,11 +66,14 @@ const cli = meow(`
     Started bankai for index.js on http://localhost:1337
 
     $ bankai start --js.fullPaths=false
+
+    $ bankai build --dir=./dist
   `,
   {
     alias: alias,
     string: [
       'entry',
+      'dir',
       'html.entry',
       'html.css',
       'html.title',
@@ -96,6 +102,7 @@ const cli = meow(`
       if (flag in commands) {
         return
       }
+      console.log(flag)
       unknowns.push(flag)
     }
   })

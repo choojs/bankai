@@ -22,7 +22,7 @@ function html (state) {
     const htmlBuf = html.pipe(bl())
 
     return function htmlHandler (req, res) {
-      res.setHeader('Content-Type', 'text/html')
+      if (res) res.setHeader('Content-Type', 'text/html')
       return htmlBuf.duplicate()
     }
   }
