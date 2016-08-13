@@ -15,7 +15,8 @@ const alias = {
   entry: ['e'],
   optimize: ['o'],
   browse: ['b'],
-  port: ['p']
+  port: ['p'],
+  dir: ['d']
 }
 
 const cli = meow(`
@@ -102,7 +103,6 @@ const cli = meow(`
       if (flag in commands) {
         return
       }
-      console.log(flag)
       unknowns.push(flag)
     }
   })
