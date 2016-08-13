@@ -1,7 +1,6 @@
-const htmlIndex = require('simple-html-index')
-const hyperstream = require('hyperstream')
+const createHtml = require('create-html')
 const xtend = require('xtend')
-const bl = require('bl')
+const stringToStream = require('string-to-stream')
 
 module.exports = html
 
@@ -11,28 +10,17 @@ function html (state) {
   return function initHtml (opts) {
     opts = opts || {}
     const defaultOpts = {
-      src: '.',
-      entry: 'bundle.js',
+      script: 'bundle.js',
       css: 'bundle.css',
-      favicon: true
+      meta: '<meta name="viewport" content="width=device-width, initial-scale=1">'
     }
     const htmlOpts = xtend(defaultOpts, opts)
     state.htmlOpts = htmlOpts
-    const html = htmlIndex(htmlOpts).pipe(createMetaTag())
-    const htmlBuf = html.pipe(bl())
+    const html = createHtml(htmlOpts)
 
     return function htmlHandler (req, res) {
       if (res) res.setHeader('Content-Type', 'text/html')
-      return htmlBuf.duplicate()
+      return stringToStream(html)
     }
   }
-}
-
-function createMetaTag () {
-  var metaTag = '<meta name="viewport"'
-  metaTag += 'content="width=device-width, initial-scale=1">'
-
-  return hyperstream({
-    head: { _appendHtml: metaTag }
-  })
 }

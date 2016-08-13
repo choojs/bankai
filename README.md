@@ -42,7 +42,7 @@ http.createServer((req, res) => {
 
 ### assets.html(opts?)
 Return an `html` stream. Takes the following options:
-- __opts.entry:__ `js` entry point. Defaults to `/bundle.js`
+- __opts.script:__ `js` entry point. Defaults to `/bundle.js`
 - __opts.css:__ `css` entry point. Defaults to `/bundle.css`
 
 ### assets.css(opts?)
@@ -74,7 +74,7 @@ $ node ./bin/ --help
       -p, --port=<n>         Bind bankai to <n> [default: 1337]
       -o, --optimize         Optimize the page and all assets served by bankai [default: false]
       -b, --browse=<app>     Browse the page served by bankai with <app> [default: false]
-      --html.entry=<uri>     Serve client js at <uri> [default: bundle.js]
+      --html.script=<uri>     Serve client js at <uri> [default: bundle.js]
       --html.css=<uri>       Serve client css at <uri> [default: bundle.css]
       --html.favicon         Disable favicon [default: true]
       --html.title           Title to use for page
