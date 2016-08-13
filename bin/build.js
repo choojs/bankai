@@ -3,6 +3,7 @@ const browserify = require('browserify')
 const resolve = require('resolve')
 const xtend = require('xtend')
 const fs = require('fs')
+const mkdirp = require('mkdirp')
 
 const defaults = {
   optimize: false,
@@ -24,7 +25,7 @@ function resolveEntryFile (relativePath) {
 
 function build (options, cb) {
   const bankai = require('../')({
-    optimize: options.optimize
+    optimize: true
   })
 
   const settings = xtend({}, defaults, options)
@@ -33,26 +34,29 @@ function build (options, cb) {
   const entryFile = resolveEntryFile(settings.entry)
   const outputDir = settings.dir
 
-  let css
-  if (settings.css) {
-    css = bankai.css(settings.css)
-  }
-
-  let html
-  if (settings.html) {
-    html = bankai.html(settings.html)
-  }
-
+  // Register css & html if specified. Register js no matter what
+  const css = settings.css && bankai.css(settings.css)
+  const html = settings.html && bankai.html(settings.html)
   const js = bankai.js(browserify, entryFile, settings.js)
-  js().pipe(fs.createWriteStream(path.join(outputDir, settings.html.js || 'bundle.js')))
 
-  if (css) {
-    css().pipe(fs.createWriteStream(path.join(outputDir, settings.html.css || 'bundle.css')))
-  }
+  mkdirp(outputDir, (err) => {
+    if (err) return console.error(`Error creating directory ${outputDir}`, err)
 
-  if (html) {
-    html().pipe(fs.createWriteStream(path.join(outputDir, 'index.html')))
-  }
+    if (js) {
+      const jsPath = path.join(outputDir, settings.html.js || 'bundle.js')
+      js().pipe(fs.createWriteStream(jsPath))
+    }
+
+    if (css) {
+      const cssPath = path.join(outputDir, settings.html.css || 'bundle.css')
+      css().pipe(fs.createWriteStream(cssPath))
+    }
+
+    if (html) {
+      const htmlPath = path.join(outputDir, 'index.html')
+      html().pipe(fs.createWriteStream(htmlPath))
+    }
+  })
 
   callback()
 }
