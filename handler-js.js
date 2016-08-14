@@ -27,19 +27,18 @@ function js (state) {
       opts: opts
     }
 
-    const resolvedSrc = require.resolve(src)
-
     const baseBrowserifyOpts = {
       id: 'bankai-app',
+      basedir: process.cwd(),
       cache: {},
       packageCache: {},
-      entries: [resolvedSrc],
+      entries: [src],
       fullPaths: true
     }
     const browserifyOpts = xtend(baseBrowserifyOpts, opts)
     var b = browserify(browserifyOpts)
 
-    b.require(resolvedSrc, {
+    b.require(src, {
       expose: browserifyOpts.id
     })
 
