@@ -26,7 +26,7 @@ const html = assets.html()
 const css = assets.css()
 
 http.createServer((req, res) => {
-  switch req.url {
+  switch (req.url) {
     case '/': return html(req, res).pipe(res)
     case '/bundle.js': return js(req, res).pipe(res)
     case '/bundle.css': return css(req, res).pipe(res)
