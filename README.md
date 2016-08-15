@@ -21,9 +21,9 @@ const path = require('path')
 const client = path.join(__dirname, 'client.js')
 
 const assets = bankai()
+const css = assets.css()
 const js = assets.js(browserify, client)
 const html = assets.html()
-const css = assets.css()
 
 http.createServer((req, res) => {
   switch (req.url) {
