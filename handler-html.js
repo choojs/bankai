@@ -27,7 +27,7 @@ function html (state) {
 
 // v3.0 uses --html.entry, but create-html expects `script`
 function createHtmlCompat (opts) {
-  const optsCopy = xtend({}, opts)
+  const optsCopy = xtend(opts)
   optsCopy.script = optsCopy.entry
   return createHtml(optsCopy)
 }

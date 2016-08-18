@@ -42,7 +42,7 @@ http.createServer((req, res) => {
 
 ### assets.html(opts?)
 Return an `html` stream. Takes the following options:
-- __opts.script:__ `js` entry point. Defaults to `/bundle.js`
+- __opts.entry:__ `js` entry point. Defaults to `/bundle.js`
 - __opts.css:__ `css` entry point. Defaults to `/bundle.css`
 
 ### assets.css(opts?)

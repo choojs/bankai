@@ -1,9 +1,14 @@
+const bankai = require('../')
 const path = require('path')
 const browserify = require('browserify')
 const resolve = require('resolve')
 const xtend = require('xtend')
 const fs = require('fs')
 const mkdirp = require('mkdirp')
+const parallel = require('run-parallel')
+const pump = require('pump')
+
+module.exports = build
 
 const defaults = {
   optimize: false,
@@ -24,9 +29,7 @@ function resolveEntryFile (relativePath) {
 }
 
 function build (options, cb) {
-  const bankai = require('../')({
-    optimize: true
-  })
+  const assets = bankai({ optimize: true })
 
   const settings = xtend({}, defaults, options)
   const callback = cb || function () {}
@@ -35,30 +38,36 @@ function build (options, cb) {
   const outputDir = settings.dir
 
   // Register css & html if specified. Register js no matter what
-  const css = settings.css && bankai.css(settings.css)
-  const html = settings.html && bankai.html(settings.html)
-  const js = bankai.js(browserify, entryFile, settings.js)
+  const css = settings.css && assets.css(settings.css)
+  const html = settings.html && assets.html(settings.html)
+  const js = assets.js(browserify, entryFile, settings.js)
 
   mkdirp(outputDir, (err) => {
     if (err) return console.error(`Error creating directory ${outputDir}`, err)
 
+    const operations = []
+
     if (js) {
-      const jsPath = path.join(outputDir, settings.html.js || 'bundle.js')
-      js().pipe(fs.createWriteStream(jsPath))
+      operations.push(function (done) {
+        const jsPath = path.join(outputDir, settings.html.js || 'bundle.js')
+        pump(js(), fs.createWriteStream(jsPath), done)
+      })
     }
 
     if (css) {
-      const cssPath = path.join(outputDir, settings.html.css || 'bundle.css')
-      css().pipe(fs.createWriteStream(cssPath))
+      operations.push(function (done) {
+        const cssPath = path.join(outputDir, settings.html.css || 'bundle.css')
+        pump(css(), fs.createWriteStream(cssPath), done)
+      })
     }
 
     if (html) {
-      const htmlPath = path.join(outputDir, 'index.html')
-      html().pipe(fs.createWriteStream(htmlPath))
+      operations.push(function (done) {
+        const htmlPath = path.join(outputDir, 'index.html')
+        pump(html(), fs.createWriteStream(htmlPath), done)
+      })
     }
+
+    parallel(operations, callback)
   })
-
-  callback()
 }
-
-module.exports = build
