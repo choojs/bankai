@@ -67,6 +67,7 @@ $ node ./bin/ --help
 
   Commands
     start       Start a bankai server
+    build       Build the application and write it to disk
 
     Options
       -e, --entry=<id>       Resolve <id> from cwd and use as entry module [default: .]
@@ -74,6 +75,7 @@ $ node ./bin/ --help
       -p, --port=<n>         Bind bankai to <n> [default: 1337]
       -o, --optimize         Optimize the page and all assets served by bankai [default: false]
       -b, --browse=<app>     Browse the page served by bankai with <app> [default: false]
+      -d, --dir=<dir>        Write built application files to <dir>
       --html.entry=<uri>     Serve client js at <uri> [default: bundle.js]
       --html.css=<uri>       Serve client css at <uri> [default: bundle.css]
       --html.favicon         Disable favicon [default: true]
@@ -100,13 +102,13 @@ $ node ./bin/ --help
     Started bankai for index.js on http://localhost:1337
     Opening http://localhost:1337 with system browser
 
-    $ bankai start --html.title bankai
-    Started bankai for index.js on http://localhost:1337
+    $ bankai build --dir=dist
 
-    $ bankai start --css.use sheetify-cssnext
-    Started bankai for index.js on http://localhost:1337
+    $ bankai build --dir=dist --html.title bankai
 
-    $ bankai start --js.fullPaths=false
+    $ bankai build --dir=dist --css.use sheetify-cssnext
+
+    $ bankai build --dir=dist --js.fullPaths=false
 ```
 
 ## Examples
