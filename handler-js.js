@@ -67,12 +67,12 @@ function js (state) {
       const ts = new stream.PassThrough()
       if (b.close && !b.closing) {
         b.closing = true
-        req.connection.server.on('close', () => b.close())
+        if (req) req.connection.server.on('close', () => b.close())
       }
       handler(req, res, (err, js) => {
         if (err) return ts.emit('error', err)
         state.cssBuf.end()
-        res.setHeader('Content-Type', 'application/javascript')
+        if (res) res.setHeader('Content-Type', 'application/javascript')
         ts.end(js)
       })
       return ts
