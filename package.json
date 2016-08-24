@@ -39,7 +39,7 @@
     "readable-stream": "^2.1.4",
     "resolve": "^1.1.7",
     "run-parallel": "^1.1.6",
-    "server-router": "^2.1.0",
+    "server-router": "^3.0.0",
     "sheetify": "^5.0.5",
     "string-to-stream": "^1.1.0",
     "watchify": "^3.7.0",
