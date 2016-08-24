@@ -4,16 +4,20 @@
   "description": "Basic example of using bankai",
   "main": "index.js",
   "scripts": {
-    "start": "node ../../bin start"
+    "start": "../../bin/index.js start --css.use sheetify-cssnext"
   },
   "license": "MIT",
   "dependencies": {
     "choo": "^3.2.0",
-    "nanoajax": "^0.4.3",
+    "es2020": "^1.1.8",
     "normalize.css": "^4.2.0",
-    "resolve": "^1.1.7",
     "sheetify": "^5.0.5",
     "sheetify-cssnext": "^1.0.7",
     "yo": "^1.8.4"
+  },
+  "browserify": {
+    "transform": [
+      "es2020"
+    ]
   }
 }
