@@ -75,6 +75,7 @@ const cli = meow(`
     string: [
       'entry',
       'dir',
+      'open',
       'html.entry',
       'html.css',
       'html.title',
