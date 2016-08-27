@@ -12,6 +12,7 @@ module.exports = build
 
 const defaults = {
   optimize: false,
+  dir: 'dist',
   entry: '.',
   html: {},
   css: {},
