@@ -12,7 +12,7 @@ function html (state) {
     const defaultOpts = {
       entry: 'bundle.js',
       css: 'bundle.css',
-      meta: '<meta name="viewport" content="width=device-width, initial-scale=1">'
+      head: '<meta name="viewport" content="width=device-width, initial-scale=1">'
     }
     const htmlOpts = xtend(defaultOpts, opts)
     state.htmlOpts = htmlOpts
