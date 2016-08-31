@@ -1,12 +1,14 @@
+'use strict'
+
+const resolveEntry = require('../lib/resolve-entry')
+const browserify = require('browserify')
+const parallel = require('run-parallel')
+const mkdirp = require('mkdirp')
+const xtend = require('xtend')
 const bankai = require('../')
 const path = require('path')
-const browserify = require('browserify')
-const resolve = require('resolve')
-const xtend = require('xtend')
-const fs = require('fs')
-const mkdirp = require('mkdirp')
-const parallel = require('run-parallel')
 const pump = require('pump')
+const fs = require('fs')
 
 module.exports = build
 
@@ -19,23 +21,13 @@ const defaults = {
   js: {}
 }
 
-const cwd = process.cwd()
-
-// resolve a path according to require.resolve algorithm
-// string -> string
-function resolveEntryFile (relativePath) {
-  const first = relativePath.charAt(0)
-  const entry = ['.', '/'].includes(first) ? relativePath : './' + relativePath
-  return resolve.sync(entry, {basedir: cwd})
-}
-
 function build (options, cb) {
   const assets = bankai({ optimize: true })
 
   const settings = xtend({}, defaults, options)
   const callback = cb || function () {}
 
-  const entryFile = resolveEntryFile(settings.entry)
+  const entryFile = resolveEntry(settings.entry)
   const outputDir = settings.dir
 
   // Register css & html if specified. Register js no matter what

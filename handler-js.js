@@ -1,3 +1,5 @@
+'use strict'
+
 const assert = require('assert')
 const bl = require('bl')
 const cssExtract = require('css-extract')
