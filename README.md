@@ -89,7 +89,7 @@ $ node ./bin/ --help
     Started bankai for index.js on http://localhost:1337
 
     $ bankai start --entry=basic
-    Started bankai fro basic/index.js on http://localhost:1337
+    Started bankai for basic/index.js on http://localhost:1337
 
     $ bankai start --port=3000
     Started bankai for index.js on http://localhost:3000
