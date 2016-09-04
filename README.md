@@ -54,6 +54,9 @@ Return a `css` stream using [sheetify](https://github.com/stackcss/sheetify).
 ### assets.js(browserify, src, opts?)
 Return a `js` stream. `src` is the bundle entry file. `opts` are passed
 directly to `browserify`
+- __opts.id__ id to expose the root bundle as via `require()`. Defaults to `bankai-app`
+- __opts.basedir__ directory to resolve `src` from. Defaults to `process.cwd()`
+- __opts.fullPaths__ use full module paths as module ids. Defaults to `true`
 
 ## CLI
 
@@ -115,7 +118,7 @@ $ node ./bin/ --help
 Projects showing exemplary usage are provided. Install root project dependencies,
 example project dependencies and execute `npm start` to start an example.
 
-- [Basic](./example/basic) - Showing default settings, Hot Module Replacement
+- [Basic](./example/basic) - Minimal CLI and API usage
 
 ## See Also
 - [budo](https://www.npmjs.com/package/budo)
