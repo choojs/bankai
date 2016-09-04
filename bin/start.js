@@ -1,8 +1,10 @@
+'use strict'
+
+const resolveEntry = require('../lib/resolve-entry')
 const stringToStream = require('string-to-stream')
 const getServerPort = require('get-server-port')
 const serverRouter = require('server-router')
 const browserify = require('browserify')
-const resolve = require('resolve')
 const xtend = require('xtend')
 const http = require('http')
 const path = require('path')
@@ -32,7 +34,7 @@ function start (options, cb) {
   const opts = xtend({}, defaults, options)
   const callback = cb || function () {}
 
-  const entryFile = resolveEntryFile(opts.entry)
+  const entryFile = resolveEntry(opts.entry)
   const relativeEntry = path.relative(cwd, entryFile)
 
   const routes = []
@@ -85,12 +87,4 @@ function start (options, cb) {
 
     callback()
   })
-}
-
-// resolve a path according to require.resolve algorithm
-// string -> string
-function resolveEntryFile (relativePath) {
-  const first = relativePath.charAt(0)
-  const entry = ['.', '/'].includes(first) ? relativePath : './' + relativePath
-  return resolve.sync(entry, {basedir: cwd})
 }

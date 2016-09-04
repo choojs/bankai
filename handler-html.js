@@ -1,3 +1,5 @@
+'use strict'
+
 const createHtml = require('create-html')
 const xtend = require('xtend')
 const stringToStream = require('string-to-stream')
