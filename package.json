@@ -51,6 +51,7 @@
     "dependency-check": "^2.6.0",
     "is-html": "^1.0.0",
     "istanbul": "^0.4.4",
+    "openport": "0.0.4",
     "standard": "^8.0.0",
     "tape": "^4.6.0"
   },

@@ -1,11 +1,15 @@
+'use strict'
+
+const childProcess = require('child_process')
 const getPort = require('get-server-port')
 const browserify = require('browserify')
 const concat = require('concat-stream')
+const openport = require('openport')
 const isHtml = require('is-html')
+const bankai = require('../')
 const http = require('http')
 const path = require('path')
 const test = require('tape')
-const bankai = require('../')
 
 test('html', function (t) {
   t.test('returns data', function (t) {
@@ -85,6 +89,30 @@ test('js', function (t) {
   })
 })
 
+test('start', function (t) {
+  t.test('start does not throw', function (t) {
+    t.plan(1)
+
+    openport.find(function (err, p) {
+      const port = err ? 1337 : p
+
+      const args = ['start', '--entry=./fixture', `--port=${port}`]
+
+      bin(args, function (error, data, child) {
+        child.kill()
+
+        if (error) {
+          return t.fail(error)
+        }
+
+        const actual = data.toString().split('\n')[0]
+        const expected = `Started bankai for fixture.js on http://localhost:${port}`
+        t.equal(actual, expected, 'start logs success')
+      })
+    })
+  })
+})
+
 test('__END__', function (t) {
   t.on('end', function () {
     setTimeout(function () {
@@ -93,3 +121,20 @@ test('__END__', function (t) {
   })
   t.end()
 })
+
+function bin (args, cb) {
+  const file = path.resolve(__dirname, '../bin/index.js')
+
+  const child = childProcess.spawn(file, args, {
+    cwd: __dirname,
+    env: process.env
+  })
+
+  child.stdout.once('data', function (data) {
+    cb(null, data, child)
+  })
+
+  child.stderr.once('data', function (error) {
+    cb(new Error(error), null, child)
+  })
+}
