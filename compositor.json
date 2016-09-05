@@ -1,0 +1,88 @@
+{
+  "name": "yoshuawuyts/bankai",
+  "version": "0.1.4",
+  "libraries": {
+    "xv": "^1.1.21"
+  },
+  "title": "",
+  "branch": "",
+  "style": {
+    "name": "Swiss",
+    "componentSet": {
+      "nav": "nav/BasicNav",
+      "header": "header/SwissHeader",
+      "article": "article/SwissArticle",
+      "footer": "footer/BasicFooter"
+    },
+    "fontFamily": "\"Helvetica Neue\", Helvetica, Arial, sans-serif",
+    "heading": {
+      "fontWeight": 700,
+      "letterSpacing": "-0.01em"
+    },
+    "layout": {
+      "fluid": true
+    },
+    "colors": {
+      "text": "#000",
+      "background": "#fff",
+      "primary": "#05a",
+      "secondary": "#444",
+      "highlight": "#f30",
+      "border": "#ccc",
+      "muted": "#eee"
+    }
+  },
+  "content": [
+    {
+      "component": "nav",
+      "links": [
+        {
+          "href": "https://github.com/yoshuawuyts/bankai",
+          "text": "GitHub"
+        },
+        {
+          "href": "https://npmjs.com/package/bankai",
+          "text": "npm"
+        }
+      ]
+    },
+    {
+      "component": "header",
+      "heading": "bankai",
+      "subhead": "DIY asset server",
+      "children": [
+        {
+          "component": "ui/TweetButton",
+          "text": "bankai: DIY asset server",
+          "url": ""
+        },
+        {
+          "component": "ui/GithubButton",
+          "user": "yoshuawuyts",
+          "repo": "bankai"
+        }
+      ],
+      "text": "v3.3.0"
+    },
+    {
+      "component": "article",
+      "metadata": {
+        "source": "github.readme"
+      },
+      "html": "\n<p><a href=\"https://npmjs.org/package/bankai\"></a> <a href=\"https://travis-ci.org/yoshuawuyts/bankai\"></a> <a href=\"https://codecov.io/github/yoshuawuyts/bankai\"></a>\n<a href=\"https://npmjs.org/package/bankai\"></a> <a href=\"https://github.com/feross/standard\"></a></p>\n<p>DIY asset server. Serves HTML, CSS and JS as streams. Sets proper\n<code>Content-Type</code> encodings and buffers where possible for sub-milisecond response\ntimes in production and development.</p>\n<h2>Installation</h2>\n<pre>$ npm install bankai</pre><h2>Usage</h2>\n<pre><span class=\"hljs-keyword\">const</span> browserify = <span class=\"hljs-built_in\">require</span>(<span class=\"hljs-string\">&apos;browserify&apos;</span>)\n<span class=\"hljs-keyword\">const</span> bankai = <span class=\"hljs-built_in\">require</span>(<span class=\"hljs-string\">&apos;bankai&apos;</span>)\n<span class=\"hljs-keyword\">const</span> http = <span class=\"hljs-built_in\">require</span>(<span class=\"hljs-string\">&apos;http&apos;</span>)\n<span class=\"hljs-keyword\">const</span> path = <span class=\"hljs-built_in\">require</span>(<span class=\"hljs-string\">&apos;path&apos;</span>)\n\n<span class=\"hljs-keyword\">const</span> client = path.join(__dirname, <span class=\"hljs-string\">&apos;client.js&apos;</span>)\n\n<span class=\"hljs-keyword\">const</span> assets = bankai()\n<span class=\"hljs-keyword\">const</span> css = assets.css()\n<span class=\"hljs-keyword\">const</span> js = assets.js(browserify, client)\n<span class=\"hljs-keyword\">const</span> html = assets.html()\n\nhttp.createServer((req, res) =&gt; {\n  <span class=\"hljs-keyword\">switch</span> (req.url) {\n    <span class=\"hljs-keyword\">case</span> <span class=\"hljs-string\">&apos;/&apos;</span>: <span class=\"hljs-keyword\">return</span> html(req, res).pipe(res)\n    <span class=\"hljs-keyword\">case</span> <span class=\"hljs-string\">&apos;/bundle.js&apos;</span>: <span class=\"hljs-keyword\">return</span> js(req, res).pipe(res)\n    <span class=\"hljs-keyword\">case</span> <span class=\"hljs-string\">&apos;/bundle.css&apos;</span>: <span class=\"hljs-keyword\">return</span> css(req, res).pipe(res)\n    <span class=\"hljs-keyword\">default</span>: <span class=\"hljs-keyword\">return</span> res.statusCode = <span class=\"hljs-number\">404</span> &amp;&amp; res.end(<span class=\"hljs-string\">&apos;404 not found&apos;</span>)\n  }\n}).listen(<span class=\"hljs-number\">8080</span>)</pre><h2>API</h2>\n<h3>assets = bankai(opts?)</h3>\n<ul>\n<li><strong>optimize:</strong> default <code>false</code>. Disable livereload scripts, cache output and\noptimize all bundles.</li>\n</ul>\n<h3>assets.html(opts?)</h3>\n<p>Return an <code>html</code> stream. Takes the following options:</p>\n<ul>\n<li><strong>opts.entry:</strong> <code>js</code> entry point. Defaults to <code>/bundle.js</code></li>\n<li><strong>opts.css:</strong> <code>css</code> entry point. Defaults to <code>/bundle.css</code></li>\n</ul>\n<h3>assets.css(opts?)</h3>\n<p>Return a <code>css</code> stream using <a href=\"https://github.com/stackcss/sheetify\">sheetify</a>.\n. Takes the following options:</p>\n<ul>\n<li><strong>use:</strong> array of transforms. Empty by default.</li>\n<li><strong>basedir:</strong> project base directory. Defaults to <code>process.cwd()</code></li>\n</ul>\n<h3>assets.js(browserify, src, opts?)</h3>\n<p>Return a <code>js</code> stream. <code>src</code> is the bundle entry file. <code>opts</code> are passed\ndirectly to <code>browserify</code></p>\n<ul>\n<li><strong>opts.id</strong> id to expose the root bundle as via <code>require()</code>. Defaults to <code>bankai-app</code></li>\n<li><strong>opts.basedir</strong> directory to resolve <code>src</code> from. Defaults to <code>process.cwd()</code></li>\n<li><strong>opts.fullPaths</strong> use full module paths as module ids. Defaults to <code>true</code></li>\n</ul>\n<h2>CLI</h2>\n<pre>$ node ./bin/ --<span class=\"hljs-keyword\">help</span>\n\n  DIY asset server\n\n  Usage\n    $ bankai <span class=\"hljs-symbol\">&lt;command&gt;</span> [<span class=\"hljs-keyword\">options</span>]\n\n  Commands\n    start       Start <span class=\"hljs-keyword\">a</span> bankai server\n    build       Build the application <span class=\"hljs-built_in\">and</span> <span class=\"hljs-keyword\">write</span> it <span class=\"hljs-keyword\">to</span> disk\n\n    Options\n      -<span class=\"hljs-keyword\">e</span>, --entry=<span class=\"hljs-symbol\">&lt;id&gt;</span>       Resolve <span class=\"hljs-symbol\">&lt;id&gt;</span> from cwd <span class=\"hljs-built_in\">and</span> use <span class=\"hljs-keyword\">as</span> entry module [defaul<span class=\"hljs-variable\">t:</span> .]\n                             Entry module <span class=\"hljs-keyword\">is</span> expected <span class=\"hljs-keyword\">to</span> export `() -&gt; app`\n      -<span class=\"hljs-keyword\">p</span>, --port=<span class=\"hljs-symbol\">&lt;n&gt;</span>         Bind bankai <span class=\"hljs-keyword\">to</span> <span class=\"hljs-symbol\">&lt;n&gt;</span> [defaul<span class=\"hljs-variable\">t:</span> <span class=\"hljs-number\">1337</span>]\n      -<span class=\"hljs-keyword\">o</span>, --optimize         Optimize the page <span class=\"hljs-built_in\">and</span> <span class=\"hljs-keyword\">all</span> assets served by bankai [defaul<span class=\"hljs-variable\">t:</span> false]\n      -<span class=\"hljs-keyword\">b</span>, --<span class=\"hljs-keyword\">browse</span>=<span class=\"hljs-symbol\">&lt;app&gt;</span>     Browse the page served by bankai with <span class=\"hljs-symbol\">&lt;app&gt;</span> [defaul<span class=\"hljs-variable\">t:</span> false]\n      -d, --dir=<span class=\"hljs-symbol\">&lt;dir&gt;</span>        Write built application <span class=\"hljs-keyword\">files</span> <span class=\"hljs-keyword\">to</span> <span class=\"hljs-symbol\">&lt;dir&gt;</span>\n      --html.entry=<span class=\"hljs-symbol\">&lt;uri&gt;</span>     Serve client js at <span class=\"hljs-symbol\">&lt;uri&gt;</span> [defaul<span class=\"hljs-variable\">t:</span> bundle.js]\n      --html.css=<span class=\"hljs-symbol\">&lt;uri&gt;</span>       Serve client css at <span class=\"hljs-symbol\">&lt;uri&gt;</span> [defaul<span class=\"hljs-variable\">t:</span> bundle.css]\n      --html.favicon         Disable favicon [defaul<span class=\"hljs-variable\">t:</span> true]\n      --html.title           Title <span class=\"hljs-keyword\">to</span> use <span class=\"hljs-keyword\">for</span> page\n      --html.lang            Lang attribute <span class=\"hljs-keyword\">to</span> use [defaul<span class=\"hljs-variable\">t:</span> <span class=\"hljs-keyword\">en</span>]\n      --css.use              sheetify plugins <span class=\"hljs-keyword\">to</span> use\n      --js.<span class=\"hljs-symbol\">&lt;opt&gt;</span>=<span class=\"hljs-symbol\">&lt;value&gt;</span>     Pass key <span class=\"hljs-symbol\">&lt;opt&gt;</span> with <span class=\"hljs-symbol\">&lt;value&gt;</span> <span class=\"hljs-keyword\">to</span> browserify\n\n  Examples\n    $ bankai start\n    Started bankai <span class=\"hljs-keyword\">for</span> <span class=\"hljs-built_in\">index</span>.js <span class=\"hljs-keyword\">on</span> http://localhos<span class=\"hljs-variable\">t:1337</span>\n\n    $ bankai start --entry=basic\n    Started bankai <span class=\"hljs-keyword\">for</span> basic/<span class=\"hljs-built_in\">index</span>.js <span class=\"hljs-keyword\">on</span> http://localhos<span class=\"hljs-variable\">t:1337</span>\n\n    $ bankai start --port=<span class=\"hljs-number\">3000</span>\n    Started bankai <span class=\"hljs-keyword\">for</span> <span class=\"hljs-built_in\">index</span>.js <span class=\"hljs-keyword\">on</span> http://localhos<span class=\"hljs-variable\">t:3000</span>\n\n    $ bankai start --<span class=\"hljs-keyword\">open</span>\n    Started bankai <span class=\"hljs-keyword\">for</span> <span class=\"hljs-built_in\">index</span>.js <span class=\"hljs-keyword\">on</span> http://localhos<span class=\"hljs-variable\">t:1337</span>\n    Opening http://localhos<span class=\"hljs-variable\">t:1337</span> with default browser\n\n    $ bankai start --<span class=\"hljs-keyword\">open</span> Safari\n    Started bankai <span class=\"hljs-keyword\">for</span> <span class=\"hljs-built_in\">index</span>.js <span class=\"hljs-keyword\">on</span> http://localhos<span class=\"hljs-variable\">t:1337</span>\n    Opening http://localhos<span class=\"hljs-variable\">t:1337</span> with <span class=\"hljs-built_in\">system</span> browser\n\n    $ bankai build --dir=dist\n\n    $ bankai build --dir=dist --html.title bankai\n\n    $ bankai build --dir=dist --css.use sheetify-cssnext\n\n    $ bankai build --dir=dist --js.fullPaths=false</pre><h2>Examples</h2>\n<p>Projects showing exemplary usage are provided. Install root project dependencies,\nexample project dependencies and execute <code>npm start</code> to start an example.</p>\n<ul>\n<li><a href=\"./example/basic\">Basic</a> - Minimal CLI and API usage</li>\n</ul>\n<h2>See Also</h2>\n<ul>\n<li><a href=\"https://www.npmjs.com/package/budo\">budo</a></li>\n<li><a href=\"https://github.com/mklabs/tiny-lr\">tiny-lr</a></li>\n<li><a href=\"https://github.com/sheetify/sheetify\">sheetify</a></li>\n<li><a href=\"https://github.com/substack/node-browserify\">browserify</a></li>\n</ul>\n<h2>License</h2>\n<p><a href=\"https://tldrlegal.com/license/mit-license\">MIT</a></p>\n"
+    },
+    {
+      "component": "footer",
+      "links": [
+        {
+          "href": "https://github.com/yoshuawuyts/bankai",
+          "text": "GitHub"
+        },
+        {
+          "href": "https://github.com/yoshuawuyts",
+          "text": "yoshuawuyts"
+        }
+      ]
+    }
+  ]
+}
