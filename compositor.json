@@ -7,36 +7,29 @@
   "title": "",
   "branch": "",
   "style": {
-    "name": "Brutalist",
+    "name": "Swiss",
     "componentSet": {
       "nav": "nav/BasicNav",
-      "header": "header/BasicHeader",
-      "article": "article/MarkdownArticle",
+      "header": "header/SwissHeader",
+      "article": "article/SwissArticle",
       "footer": "footer/BasicFooter"
     },
-    "fontFamily": "Consolas, \"Liberation Mono\", Menlo, Courier, monospace",
-    "heading": {},
-    "typeScale": [
-      48,
-      32,
-      20,
-      18,
-      16,
-      14,
-      12
-    ],
+    "fontFamily": "\"Helvetica Neue\", Helvetica, Arial, sans-serif",
+    "heading": {
+      "fontWeight": 700,
+      "letterSpacing": "-0.01em"
+    },
     "layout": {
-      "maxWidth": 1024,
       "fluid": true
     },
     "colors": {
-      "text": "#333",
+      "text": "#000",
       "background": "#fff",
-      "primary": "#666",
-      "secondary": "#888",
-      "highlight": "#1f80ff",
-      "muted": "#f6f6f6",
-      "border": "#eee"
+      "primary": "#05a",
+      "secondary": "#444",
+      "highlight": "#f30",
+      "border": "#ccc",
+      "muted": "#eee"
     }
   },
   "content": [
