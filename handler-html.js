@@ -12,8 +12,8 @@ function html (state) {
   return function initHtml (opts) {
     opts = opts || {}
     const defaultOpts = {
-      entry: 'bundle.js',
-      css: 'bundle.css',
+      entry: '/bundle.js',
+      css: '/bundle.css',
       head: '<meta name="viewport" content="width=device-width, initial-scale=1">'
     }
     const htmlOpts = xtend(defaultOpts, opts)
