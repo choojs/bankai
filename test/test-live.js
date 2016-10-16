@@ -13,7 +13,7 @@ test('js', function (t) {
     t.timeoutAfter(10000)
 
     const entry = path.join(__dirname, 'fixtures', 'app.js')
-    const app = budo(entry, {
+    const app = bankai(entry, {
       dir: __dirname,
       port: 8000,
       host: 'localhost',
@@ -46,7 +46,7 @@ test('js', function (t) {
     t.timeoutAfter(10000)
 
     const entry = path.join(__dirname, 'fixtures', 'app.js')
-    const app = budo(entry, {
+    const app = bankai(entry, {
       dir: __dirname,
       port: 8000,
       host: 'localhost',
@@ -81,7 +81,7 @@ test('js', function (t) {
     t.timeoutAfter(10000)
 
     const entry = path.join(__dirname, 'fixtures', 'app.js')
-    const app = budo(entry, {
+    const app = bankai(entry, {
       dir: __dirname,
       port: 8000,
       host: 'localhost',
@@ -101,13 +101,13 @@ test('js', function (t) {
       })
   })
 
-  test('LiveReload snippet host should default to budo host', function (t) {
+  test('LiveReload snippet host should default to bankai host', function (t) {
     t.plan(2)
     t.timeoutAfter(10000)
 
     const addr = internalIp()
     const entry = path.join(__dirname, 'fixtures', 'app.js')
-    const app = budo(entry, {
+    const app = bankai(entry, {
       dir: __dirname,
       port: 8000,
       host: addr,
@@ -138,13 +138,13 @@ function matchesHTML (t, uri, html, cb) {
 }
 
 function getHTMLNoLive () {
-  return '<!DOCTYPE html><html lang="en" dir="ltr"><head><title>budo</title><meta charset="utf-8"></head><body><script src="app.js"></script></body></html>'
+  return '<!DOCTYPE html><html lang="en" dir="ltr"><head><title>bankai</title><meta charset="utf-8"></head><body><script src="app.js"></script></body></html>'
 }
 
 function getHTML () {
-  return '<!DOCTYPE html><html lang="en" dir="ltr"><head><title>budo</title><meta charset="utf-8"></head><body><script type="text/javascript" src="//localhost:35729/livereload.js?snipver=1" async="" defer=""></script><script src="app.js"></script></body></html>'
+  return '<!DOCTYPE html><html lang="en" dir="ltr"><head><title>bankai</title><meta charset="utf-8"></head><body><script type="text/javascript" src="//localhost:35729/livereload.js?snipver=1" async="" defer=""></script><script src="app.js"></script></body></html>'
 }
 
 function getHTMLWithHost (ip) {
-  return '<!DOCTYPE html><html lang="en" dir="ltr"><head><title>budo</title><meta charset="utf-8"></head><body><script type="text/javascript" src="//' + ip + ':35729/livereload.js?snipver=1" async="" defer=""></script><script src="app.js"></script></body></html>'
+  return '<!DOCTYPE html><html lang="en" dir="ltr"><head><title>bankai</title><meta charset="utf-8"></head><body><script type="text/javascript" src="//' + ip + ':35729/livereload.js?snipver=1" async="" defer=""></script><script src="app.js"></script></body></html>'
 }

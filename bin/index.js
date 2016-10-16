@@ -14,6 +14,7 @@ const unknowns = []
 const alias = {
   entry: ['e'],
   optimize: ['o'],
+  live: ['l'],
   browse: ['b'],
   port: ['p'],
   dir: ['d']
@@ -32,6 +33,7 @@ const cli = meow(`
                              Entry module is expected to export () -> app
       -p, --port=<n>         Bind bankai to <n> [default: 1337]
       -o, --optimize         Optimize the page and all assets served by bankai [default: false]
+      -l, --live             Enable live reload [default: false]
       -b, --browse=<app>     Browse the page served by bankai with <app> [default: false]
       -d, --dir=<dir>        Directory to export built files
       --html.entry=<uri>     Serve client js at <uri> [default: bundle.js]
@@ -97,6 +99,7 @@ const cli = meow(`
     ],
     boolean: [
       'optimize',
+      'live',
       'js.fullPaths',
       'js.debug'
     ],

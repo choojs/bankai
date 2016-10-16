@@ -31,6 +31,7 @@ function bankai (opts) {
   return {
     html: html(state),
     css: css(state),
-    js: js(state)
+    js: js(state),
+    _state: state
   }
 }
