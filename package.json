@@ -8,8 +8,9 @@
   },
   "scripts": {
     "deps": "dependency-check . && dependency-check . --extra --no-dev",
-    "test": "standard && npm run deps && NODE_ENV=test node test/index.js",
-    "test:cov": "standard && npm run deps && NODE_ENV=test istanbul cover test/index.js"
+    "test": "npm run lint && npm run deps && NODE_ENV=test node test/index.js",
+    "lint": "./node_modules/.bin/standard",
+    "test:cov": "npm run lint && npm run deps && NODE_ENV=test istanbul cover test/index.js"
   },
   "repository": "yoshuawuyts/bankai",
   "keywords": [
