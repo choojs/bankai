@@ -6,26 +6,26 @@ const cssExtract = require('css-extract')
 const Emitter = require('events')
 const errorify = require('errorify')
 const sheetify = require('sheetify/transform')
-const stream = require('readable-stream')
-const watchify = require('watchify')
 const xtend = require('xtend')
+const watchify = require('watchify')
+const stream = require('readable-stream')
 
 module.exports = js
 
 // create js stream
 // obj -> (fn, str, obj?) -> (req, res) -> rstream
 function js (state) {
-  return function initJs (browserify, src, opts) {
+  return function initJs (browserify, entryFile, opts) {
     opts = opts || {}
 
     assert.equal(typeof opts, 'object', 'bankai/js: opts should be an object')
     assert.equal(typeof browserify, 'function', 'bankai/js: browserify should be a fn')
-    assert.equal(typeof src, 'string', 'bankai/js: src should be a location')
+    assert.equal(typeof entryFile, 'string', 'bankai/js: entryFile should be a location')
 
     // signal to CSS that browserify is registered
     state.jsRegistered = true
     state.jsOpts = {
-      src: src,
+      entryFile: entryFile,
       opts: opts
     }
 
@@ -34,91 +34,127 @@ function js (state) {
       basedir: process.cwd(),
       cache: {},
       packageCache: {},
-      entries: [src],
+      entries: [entryFile],
       fullPaths: true
     }
     const browserifyOpts = xtend(baseBrowserifyOpts, opts)
-    var b = browserify(browserifyOpts)
+    const bundler = browserify(browserifyOpts)
 
-    b.require(src, {
+    bundler.require(entryFile, {
       expose: browserifyOpts.id
     })
 
     // enable css if registered
-    if (state.cssOpts) {
-      if (!state.cssBuf || !state.optimize) {
+    if (state.cssOpts != null) {
+      console.log(`Connecting CSS stream to sheetify`)
+      if (state.cssBuf == null || !state.optimize) {
         state.cssBuf = bl()
         state.cssReady = false
       }
 
       state.cssStream.pipe(state.cssBuf)
-      b.transform(sheetify, state.cssOpts)
-      b.plugin(cssExtract, { out: () => state.cssStream })
+      bundler.transform(sheetify, state.cssOpts)
+      bundler.plugin(cssExtract, {out: () => {return state.cssStream},})
     }
 
     if (!state.optimize) {
-      b.plugin(errorify)
-      b = watchify(b)
+      bundler.plugin(errorify)
+      bundler.plugin(watchify)
     }
 
-    const handler = wreq(state, b, () => {})
-
-    // (obj, obj) -> rstream
-    return function jsHandler (req, res) {
-      const ts = new stream.PassThrough()
-      if (b.close && !b.closing) {
-        b.closing = true
-        if (req) req.connection.server.on('close', () => b.close())
-      }
-      handler(req, res, (err, js) => {
-        if (err) return ts.emit('error', err)
-        state.cssBuf.end()
-        if (res) res.setHeader('Content-Type', 'application/javascript')
-        ts.end(js)
-      })
-      return ts
-    }
+    return wreq(state, bundler)
   }
 }
 
-// handle watchify updates
-// (obj, obj, fn) -> null
-function wreq (state, bundler, startFn) {
-  var prevError = null
-  var pending = null
-  var buffer = null
-
-  var started = false
+function wreq (state, bundler) {
+  let prevError = null
+  let bundleEmitter = null
+  let isPending = false
+  let buffer = null
+  let isStarted = false
 
   update()
+
   bundler.on('update', update)
   state.cssStream.on('finish', onCssStreamFinish)
 
-  return handler
+  return function (req, res) {
+    if (bundler.close != null && !bundler.closing) {
+      bundler.closing = true
+      if (req != null) {
+        req.connection.server.on('close', () => {
+          bundler.close()
+        })
+      }
+    }
+
+    const ts = new stream.PassThrough()
+
+    const realHandler = (resolve, reject) => {
+      if (isPending) {
+        console.log(`handler-js: Waiting for pending bundling`)
+        bundleEmitter.once('ready', (error) => {
+          if (error == null) {
+            console.log(`handler-js: Bundler is ready, calling real-handler again`)
+            realHandler(resolve, reject)
+          } else {
+            console.log(`handler-js: Bundler failed`)
+            reject(error)
+          }
+        })
+      } else {
+        console.log(`handler-js: bundling is ready`)
+        if (prevError != null) {
+          console.log(`handler-js: bundling has failed: ${prevError}`)
+          reject(error)
+        } else {
+          console.log(`handler-js: bundling has ended successfully`)
+          state.cssBuf.end()
+          resolve(buffer)
+        }
+      }
+    }
+
+    new Promise(realHandler)
+      .then((js) => {
+        if (res != null) {
+          res.setHeader('Content-Type', 'application/javascript')
+        }
+        ts.end(js)
+      }, (error) => {
+        ts.emit('error', error)
+      })
+
+    return ts
+  }
 
   // run the bundler and cache output
   function update () {
-    var p = pending = new Emitter()
+    console.log(`handler-js: update`)
+    let localBundleEmitter = bundleEmitter = new Emitter()
+    isPending = true
     state.cssReady = false
     state.cssStream.unpipe(state.cssBuf)
     state.cssBuf = bl()
     state.cssStream.pipe(state.cssBuf)
 
     const r = bundler.bundle()
-    if (!started) {
-      started = true
-      r.once('end', startFn)
-    }
+    isStarted = true
 
     r.once('end', () => {
+      console.log(`handler-js: Bundling has ended`)
       state.cssReady = true
       state.emit('css:ready')
     })
 
     r.pipe(bl((err, _buffer) => {
-      if (p !== pending) return
-      buffer = _buffer
-      pending.emit('ready', prevError = err, pending = false)
+      if (localBundleEmitter === bundleEmitter) {
+        buffer = _buffer
+        prevError = err
+        isPending = false
+        console.log(`handler-js: Bundling is ready`)
+        bundleEmitter.emit('ready')
+      }
     }))
   }
 
@@ -126,19 +162,5 @@ function wreq (state, bundler, startFn) {
     state.cssStream = new stream.PassThrough()
     state.cssStream.on('finish', onCssStreamFinish)
     state.cssStream.pipe(state.cssBuf)
-  }
-
-  // call the handler function
-  function handler (req, res, next) {
-    if (pending) {
-      pending.once('ready', err => {
-        if (err) return next(err)
-        handler(req, res, next)
-      })
-    } else if (prevError) {
-      next(prevError)
-    } else {
-      next(null, buffer)
-    }
   }
 }

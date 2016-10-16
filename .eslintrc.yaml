@@ -1,0 +1,25 @@
+parserOptions:
+  ecmaVersion: 7
+env:
+  node: true
+rules:
+  strict:
+    - 2
+    - "global"
+  quotes:
+    - 2
+    - "single"
+    -
+      allowTemplateLiterals: true
+  new-cap: 0
+  camelcase: 0
+  keyword-spacing:
+    - error
+    -
+      after: true
+  space-before-function-paren:
+    - error
+    -
+      anonymous: always
+      # TODO: Decide on rule
+      named: ignore

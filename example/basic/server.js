@@ -17,7 +17,9 @@ const routes = [
 ]
 
 const router = serverRouter('/404', routes)
-const server = http.createServer((req, res) => router(req, res).pipe(res))
+const server = http.createServer((req, res) => {
+  router(req, res).pipe(res)
+})
 
 server.listen(1337, () => {
   console.log('Started bankai on http://localhost:1337')
