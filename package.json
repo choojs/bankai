@@ -57,6 +57,8 @@
     "is-html": "^1.0.0",
     "istanbul": "^0.4.4",
     "openport": "0.0.4",
+    "redtape": "^1.0.0",
+    "request": "^2.75.0",
     "standard": "^8.0.0",
     "tape": "^4.6.0"
   },
@@ -66,5 +68,10 @@
     "lib/*",
     "client-hmr.js",
     "handler-*"
-  ]
+  ],
+  "standard": {
+    "ignore": [
+      "test/fixtures/**"
+    ]
+  }
 }
