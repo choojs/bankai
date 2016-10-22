@@ -4,7 +4,7 @@
   "description": "Basic example of using bankai",
   "main": "index.js",
   "scripts": {
-    "start": "../../bin/index.js start --css.use sheetify-cssnext",
+    "start": "../../bin/index.js start -l --css.use sheetify-cssnext",
     "build": "../../bin/index.js build --css.use sheetify-cssnext",
     "server": "node server.js"
   },
@@ -20,5 +20,6 @@
     "transform": [
       "es2020"
     ]
-  }
+  },
+  "devDependencies": {}
 }
