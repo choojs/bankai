@@ -8,7 +8,8 @@
   },
   "scripts": {
     "deps": "dependency-check . && dependency-check . --extra --no-dev",
-    "test": "standard && npm run deps && NODE_ENV=test node test/index.js",
+    "test": "standard && npm run deps && npm run lint && NODE_ENV=test node test/index.js",
+    "lint": "./node_modules/.bin/eslint .",
     "test:cov": "standard && npm run deps && NODE_ENV=test istanbul cover test/index.js"
   },
   "repository": "yoshuawuyts/bankai",
@@ -49,6 +50,7 @@
     "choo": "^3.2.0",
     "concat-stream": "^1.5.1",
     "dependency-check": "^2.6.0",
+    "eslint": "^3.8.0",
     "is-html": "^1.0.0",
     "istanbul": "^0.4.4",
     "openport": "0.0.4",
