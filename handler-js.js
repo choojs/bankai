@@ -10,13 +10,6 @@ const xtend = require('xtend')
 const watchify = require('watchify')
 const stream = require('readable-stream')
 
-const handleFileEvent = (file, state) => {
-  if (state.tinyLr != null) {
-    console.log(`Reloading file`, file)
-    state.tinyLr.reload(file)
-  }
-}
-
 const wreq = (state, bundler) => {
   let prevError = null
   let bundleEmitter = null
@@ -31,7 +24,6 @@ const wreq = (state, bundler) => {
 
   // run the bundler and cache output
   const bundle = () => {
-    console.log(`handler-js: bundle`)
     let localBundleEmitter = bundleEmitter = new Emitter()
     isPending = true
     state.cssReady = false
@@ -42,7 +34,6 @@ const wreq = (state, bundler) => {
     const r = bundler.bundle()
 
     r.once('end', () => {
-      console.log(`handler-js: Bundling has ended`)
       state.cssReady = true
       state.emit('css:ready')
     })
@@ -52,7 +43,6 @@ const wreq = (state, bundler) => {
         buffer = _buffer
         prevError = err
         isPending = false
-        console.log(`handler-js: Bundling is ready`)
         bundleEmitter.emit('ready')
       }
     }))
@@ -61,8 +51,9 @@ const wreq = (state, bundler) => {
   bundle()
 
   bundler.on('update', () => {
-    console.log(`Received update event from bundler`)
-    handleFileEvent(state.htmlOpts.entry, state)
+    if (state.tinyLr != null) {
+      state.tinyLr.reload(state.htmlOpts.entry)
+    }
     bundle()
   })
   state.cssStream.on('finish', onCssStreamFinish)
@@ -81,23 +72,17 @@ const wreq = (state, bundler) => {
 
     const realHandler = (resolve, reject) => {
       if (isPending) {
-        console.log(`handler-js: Waiting for pending bundling`)
         bundleEmitter.once('ready', (error) => {
           if (error == null) {
-            console.log(`handler-js: Bundler is ready, calling real-handler again`)
             realHandler(resolve, reject)
           } else {
-            console.log(`handler-js: Bundler failed`)
             reject(error)
           }
         })
       } else {
-        console.log(`handler-js: bundling is ready`)
         if (prevError != null) {
-          console.log(`handler-js: bundling has failed: ${prevError}`)
           reject(prevError)
         } else {
-          console.log(`handler-js: bundling has ended successfully`)
           state.cssBuf.end()
           resolve(buffer)
         }
@@ -152,7 +137,6 @@ module.exports = (state) => {
 
     // enable css if registered
     if (state.cssOpts != null) {
-      console.log(`Connecting CSS stream to sheetify`)
       if (state.cssBuf == null || !state.optimize) {
         state.cssBuf = bl()
         state.cssReady = false

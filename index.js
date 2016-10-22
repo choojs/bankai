@@ -1,4 +1,3 @@
-'use strict'
 const stream = require('readable-stream')
 const mutate = require('xtend/mutable')
 const Emitter = require('events')

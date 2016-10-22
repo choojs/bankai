@@ -66,7 +66,7 @@ test('js', function (t) {
     t.plan(2)
     const assets = bankai()
     t.throws(assets.js, /browserify/)
-    t.throws(assets.js.bind(null, browserify), /src/)
+    t.throws(assets.js.bind(null, browserify), /entryFile/)
   })
 
   t.test('js returns data', function (t) {
@@ -106,8 +106,9 @@ test('start', function (t) {
         }
 
         const actual = data.toString().split('\n')[0]
-        const expected = `Started bankai for fixture.js on http://localhost:${port}`
-        t.equal(actual, expected, 'start logs success')
+        const expected = new RegExp(`^\\[\\d+\\] info {2}Started bankai for fixture.js on ` +
+          `http://localhost:${port} \\(bankai.start\\)$`)
+        t.ok(expected.test(actual), 'start logs success')
       })
     })
   })

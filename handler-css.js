@@ -20,7 +20,6 @@ function css (state) {
 
     // (obj, obj) -> rstream
     return function cssHandler (req, res) {
-      console.log(`Handling CSS`)
       if (res != null) {
         res.setHeader('Content-Type', 'text/css')
       }
@@ -33,15 +32,12 @@ function css (state) {
       // or attach a listener to when css will be updated
       // and send when ready
       if (!state.cssReady) {
-        console.log(`CSS not yet ready`)
         const ts = new stream.PassThrough()
         state.once('css:ready', () => {
-          console.log(`CSS has become ready`)
           state.cssBuf.duplicate().pipe(ts)
         })
         return ts
       } else {
-        console.log(`CSS is ready`)
         return state.cssBuf.duplicate()
       }
     }

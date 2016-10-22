@@ -1,5 +1,6 @@
 'use strict'
 
+const logger = require('bole')('bankai.start')
 const resolveEntry = require('../lib/resolve-entry')
 const getServerPort = require('get-server-port')
 const xtend = require('xtend')
@@ -37,14 +38,14 @@ module.exports = (options, callback) => {
 
   const middleware = createMiddleware(bankai, entryFile, opts)
   const server = http.createServer(middleware)
-  server.on('error', function (error) {
+  server.on('error', (error) => {
     console.error(`An implementation error occurred:`, error)
   })
 
   server.listen(opts.port, () => {
     const address = 'localhost'
     const url = 'http://' + address + ':' + getServerPort(server)
-    console.log('Started bankai for', relativeEntry, 'on', url)
+    logger.info('Started bankai for', relativeEntry, 'on', url)
 
     if (opts.live) {
       if (state.tinyLr != null) {
@@ -66,7 +67,7 @@ module.exports = (options, callback) => {
 
       opn(url, {app: app})
         .catch(error => {
-          console.error(error)
+          logger.error(error)
         })
     }
 

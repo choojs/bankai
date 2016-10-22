@@ -1,5 +1,5 @@
 'use strict'
-
+const logger = require('bole')('bankai.build')
 const resolveEntry = require('../lib/resolve-entry')
 const browserify = require('browserify')
 const parallel = require('run-parallel')
@@ -36,7 +36,7 @@ function build (options, cb) {
   const js = assets.js(browserify, entryFile, settings.js)
 
   mkdirp(outputDir, (err) => {
-    if (err) return console.error(`Error creating directory ${outputDir}`, err)
+    if (err) return logger.error(`Error creating directory ${outputDir}`, err)
 
     const operations = []
 
