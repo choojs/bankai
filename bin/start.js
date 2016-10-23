@@ -63,7 +63,7 @@ module.exports = (options, callback) => {
       const appName = (typeof opts.open === 'string' && opts.open !== '')
         ? opts.open
         : 'system browser'
-      console.log('Opening', url, 'with', appName)
+      logger.debug('Opening', url, 'with', appName)
 
       opn(url, {app: app})
         .catch(error => {
