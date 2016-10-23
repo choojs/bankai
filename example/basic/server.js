@@ -1,5 +1,5 @@
 'use strict'
-
+const logger = require('bole')('server')
 const serverRouter = require('server-router')
 const browserify = require('browserify')
 const bankai = require('../../')()
@@ -20,5 +20,5 @@ const router = serverRouter('/404', routes)
 const server = http.createServer((req, res) => router(req, res).pipe(res))
 
 server.listen(1337, () => {
-  console.log('Started bankai on http://localhost:1337')
+  logger.info('Started bankai on http://localhost:1337')
 })

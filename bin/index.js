@@ -1,6 +1,10 @@
 #!/usr/bin/env node
 'use strict'
 
+const bole = require('bole')
+const logger = bole('bankai')
+const garnish = require('garnish')
+const stdout = require('stdout-stream')
 const meow = require('meow')
 
 const commands = {
@@ -16,7 +20,9 @@ const alias = {
   optimize: ['o'],
   browse: ['b'],
   port: ['p'],
-  dir: ['d']
+  dir: ['d'],
+  stream: ['s'],
+  verbose: ['v']
 }
 
 const cli = meow(`
@@ -34,6 +40,8 @@ const cli = meow(`
       -o, --optimize         Optimize the page and all assets served by bankai [default: false]
       -b, --browse=<app>     Browse the page served by bankai with <app> [default: false]
       -d, --dir=<dir>        Directory to export built files
+      -s, --stream           Print messages to stdout
+      -v, --verbose          Include debug messages
       --html.entry=<uri>     Serve client js at <uri> [default: bundle.js]
       --html.css=<uri>       Serve client css at <uri> [default: bundle.css]
       --html.favicon         Disable favicon [default: true]
@@ -47,7 +55,7 @@ const cli = meow(`
     Started bankai for index.js on http://localhost:1337
 
     $ bankai start --entry=basic
-    Started bankai fro basic/index.js on http://localhost:1337
+    Started bankai for basic/index.js on http://localhost:1337
 
     $ bankai start --port=3000
     Started bankai for index.js on http://localhost:3000
@@ -97,9 +105,14 @@ const cli = meow(`
     ],
     boolean: [
       'optimize',
+      'stream',
+      'verbose',
       'js.fullPaths',
       'js.debug'
     ],
+    default: {
+      stream: true
+    },
     unknown: function (flag) {
       if (flag in commands) {
         return
@@ -113,7 +126,24 @@ const aliasNames = Object.keys(alias)
     return r.concat(alias[i])
   }, [])
 
+const configureLogging = (options) => {
+  if (options.stream) {
+    const pretty = garnish({
+      level: options.verbose ? 'debug' : 'info',
+      name: 'bankai'
+    })
+    pretty.pipe(stdout)
+
+    bole.output({
+      stream: pretty,
+      level: 'debug'
+    })
+  }
+}
+
 function main (commandName, options, cb) {
+  configureLogging(options)
+
   let error
 
   if (typeof commandName !== 'string') {
@@ -139,6 +169,7 @@ function main (commandName, options, cb) {
     delete options[aliasName]
   })
 
+  logger.debug(`Invoking command '${commandName}'`)
   const command = commands[commandName]
   command(options, cb)
 }
@@ -146,7 +177,7 @@ function main (commandName, options, cb) {
 main(cli.input[0], cli.flags, error => {
   if (error) {
     if (error.cli) {
-      console.error(`${cli.help}\n${error.message}`)
+      logger.error(`${cli.help}\n${error.message}`)
       return process.exit(1)
     }
     throw error
