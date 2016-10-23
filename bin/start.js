@@ -1,5 +1,6 @@
 'use strict'
 
+const logger = require('bole')('bankai.start')
 const resolveEntry = require('../lib/resolve-entry')
 const stringToStream = require('string-to-stream')
 const getServerPort = require('get-server-port')
@@ -69,7 +70,7 @@ function start (options, cb) {
     const port = getServerPort(server)
 
     const address = ['http://localhost', port].join(':')
-    console.log('Started bankai for', relativeEntry, 'on', address)
+    logger.info('Started bankai for', relativeEntry, 'on', address)
 
     if (opts.browse || typeof opts.open === 'string') {
       const app = typeof opts.open === 'string' ? opts.open : null
@@ -77,11 +78,11 @@ function start (options, cb) {
       const appName = (typeof opts.open === 'string' && opts.open !== '')
         ? opts.open
         : 'system browser'
-      console.log('Opening', address, 'with', appName)
+      logger.debug('Opening', address, 'with', appName)
 
       opn(address, {app: app})
         .catch(error => {
-          console.error(error)
+          logger.error(error)
         })
     }
 

@@ -27,10 +27,12 @@
   "license": "MIT",
   "dependencies": {
     "bl": "^1.1.2",
+    "bole": "^3.0.1",
     "browserify": "^13.1.0",
     "create-html": "^1.1.0",
     "css-extract": "^1.1.1",
     "errorify": "^0.3.1",
+    "garnish": "^5.2.0",
     "get-server-port": "^1.0.0",
     "meow": "^3.7.0",
     "mkdirp": "^0.5.1",
@@ -41,6 +43,7 @@
     "run-parallel": "^1.1.6",
     "server-router": "^3.0.0",
     "sheetify": "^5.0.5",
+    "stdout-stream": "^1.4.0",
     "string-to-stream": "^1.1.0",
     "watchify": "^3.7.0",
     "xtend": "^4.0.1"
