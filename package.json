@@ -64,6 +64,7 @@
     "openport": "0.0.4",
     "phantom": "^3.0.1",
     "request": "^2.75.0",
+    "sinon": "^1.17.6",
     "standard": "^8.0.0",
     "tape": "^4.6.0"
   },

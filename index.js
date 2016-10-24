@@ -20,7 +20,7 @@ function bankai (opts) {
 
   state.cssStream = new stream.PassThrough()
   state.jsRegistered = false
-  state.htmlOpts = null
+  state.htmlOpts = {}
   state.jsOpts = null
   state.cssReady = false
   state.cssOpts = null

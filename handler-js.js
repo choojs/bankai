@@ -1,5 +1,6 @@
 'use strict'
 
+const logger = require('bole')('bankai.handler-js')
 const assert = require('assert')
 const bl = require('bl')
 const cssExtract = require('css-extract')
@@ -24,6 +25,8 @@ const wreq = (state, bundler) => {
 
   // run the bundler and cache output
   const bundle = () => {
+    logger.debug(`Creating bundle`)
+
     let localBundleEmitter = bundleEmitter = new Emitter()
     isPending = true
     state.cssReady = false
@@ -43,6 +46,7 @@ const wreq = (state, bundler) => {
         buffer = _buffer
         prevError = err
         isPending = false
+        logger.debug(`Bundling finished`)
         bundleEmitter.emit('ready')
       }
     }))
@@ -52,6 +56,7 @@ const wreq = (state, bundler) => {
 
   bundler.on('update', () => {
     if (state.tinyLr != null) {
+      logger.info(`Reloading page due to code change`)
       state.tinyLr.reload(state.htmlOpts.entry)
     }
     bundle()
@@ -129,6 +134,7 @@ module.exports = (state) => {
       fullPaths: true
     }
     const browserifyOpts = xtend(baseBrowserifyOpts, opts)
+    logger.debug(`Starting browserify with options:`, browserifyOpts)
     const bundler = browserify(browserifyOpts)
 
     bundler.require(entryFile, {
@@ -137,11 +143,13 @@ module.exports = (state) => {
 
     // enable css if registered
     if (state.cssOpts != null) {
+      logger.debug(`Enabling CSS`)
       if (state.cssBuf == null || !state.optimize) {
         state.cssBuf = bl()
         state.cssReady = false
       }
 
+      logger.debug(`Enabling sheetify transform, options:`, state.cssOpts)
       state.cssStream.pipe(state.cssBuf)
       bundler.transform(sheetify, state.cssOpts)
       bundler.plugin(cssExtract, {out: () => { return state.cssStream }})
