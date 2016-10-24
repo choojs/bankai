@@ -13,11 +13,13 @@ const routes = [
   ['/', html],
   ['/404', html],
   ['/bundle.css', css],
-  ['bundle.js', js]
+  ['/bundle.js', js]
 ]
 
 const router = serverRouter('/404', routes)
-const server = http.createServer((req, res) => router(req, res).pipe(res))
+const server = http.createServer((req, res) => {
+  router(req, res).pipe(res)
+})
 
 server.listen(1337, () => {
   logger.info('Started bankai on http://localhost:1337')
