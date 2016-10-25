@@ -13,7 +13,7 @@ const routes = [
   ['/', html],
   ['/404', html],
   ['/bundle.css', css],
-  ['bundle.js', js]
+  ['/bundle.js', js]
 ]
 
 const router = serverRouter('/404', routes)
