@@ -1,43 +1,26 @@
-'use strict'
-
-const logger = require('bole')('bankai.start')
 const resolveEntry = require('../lib/resolve-entry')
 const stringToStream = require('string-to-stream')
 const getServerPort = require('get-server-port')
+const logger = require('bole')('bankai.start')
 const serverRouter = require('server-router')
 const browserify = require('browserify')
-const xtend = require('xtend')
+const explain = require('explain-error')
 const http = require('http')
 const path = require('path')
 const opn = require('opn')
 
-const defaults = {
-  port: 1337,
-  browse: false,
-  optimize: false,
-  entry: '.',
-  html: {},
-  css: {},
-  js: {}
-}
-
-const cwd = process.cwd()
+const Bankai = require('../')
 
 module.exports = start
 
 // Start a development server
-// (obj, fn) -> null
-function start (options, cb) {
-  const bankai = require('../')({
-    optimize: options.optimize
-  })
+// (str, obj, fn) -> null
+function start (entryFile, opts, done) {
+  entryFile = resolveEntry(entryFile)
 
-  const opts = xtend({}, defaults, options)
-  const callback = cb || function () {}
-
-  const entryFile = resolveEntry(opts.entry)
-  const relativeEntry = path.relative(cwd, entryFile)
-
+  const bankai = Bankai({ optimize: opts.optimize })
+  const relativeEntry = path.relative(process.cwd(), entryFile)
+  const open = opts.open
   const routes = []
 
   routes.push(['/404', (req, res) => {
@@ -45,23 +28,15 @@ function start (options, cb) {
     return stringToStream('Not found')
   }])
 
-  if (opts.html) {
-    const html = bankai.html(opts.html)
-    routes.push(['/', html])
-    routes.push(['/:path', html])
-  }
+  const html = bankai.html(opts.html)
+  routes.push(['/', html])
+  routes.push(['/:path', html])
 
-  if (opts.css) {
-    const css = bankai.css(opts.css)
-    const route = opts.html.css || '/bundle.css'
-    routes.push([route, css])
-  }
+  const css = bankai.css(opts.css)
+  routes.push(['/bundle.css', css])
 
-  if (opts.js) {
-    const js = bankai.js(browserify, entryFile, opts.js)
-    const route = opts.html.entry || '/bundle.js'
-    routes.push([route, js])
-  }
+  const js = bankai.js(browserify, entryFile, opts.js)
+  routes.push(['/bundle.js', js])
 
   const router = serverRouter('/404', routes)
   const server = http.createServer((req, res) => router(req, res).pipe(res))
@@ -69,23 +44,20 @@ function start (options, cb) {
   server.listen(opts.port, () => {
     const port = getServerPort(server)
 
-    const address = ['http://localhost', port].join(':')
-    logger.info('Started bankai for', relativeEntry, 'on', address)
+    const addr = ['http://localhost', port].join(':')
+    logger.info('Started bankai for', relativeEntry, 'on', addr)
 
-    if (opts.browse || typeof opts.open === 'string') {
-      const app = typeof opts.open === 'string' ? opts.open : null
-
-      const appName = (typeof opts.open === 'string' && opts.open !== '')
+    if (typeof open === 'string') {
+      const app = typeof open === 'string' ? open : null
+      const dapp = (typeof open === 'string' && open !== '')
         ? opts.open
         : 'system browser'
-      logger.debug('Opening', address, 'with', appName)
 
-      opn(address, {app: app})
-        .catch(error => {
-          logger.error(error)
-        })
+      opn(addr, {app: app})
+        .catch((err) => done(explain(err, `err opening ${addr} with ${dapp}`)))
+        .then(done)
+    } else {
+      done()
     }
-
-    callback()
   })
 }

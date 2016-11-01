@@ -46,13 +46,13 @@ http.createServer((req, res) => {
     build <filename> <directory>   Compile and export files to a directory
 
     Options:
-      -p, --port=<n>          Bind bankai to <n> [default: 8080]
+      -c, --css=<subargs>     Pass subarguments to sheetify
+      -h, --help              Print usage
+      -j, --js=<subargs>      Pass subarguments to browserify
       -o, --open=<browser>    Open html in a browser [default: system default]
       -O, --optimize          Optimize assets served by bankai [default: false]
-      -s, --stream            Print messages to stdout
+      -p, --port=<n>          Bind bankai to <n> [default: 8080]
       -v, --verbose           Include debug messages
-      -c, --css=<subargs>     Pass subarguments to sheetify
-      -j, --js                Pass subarguments to browserify
 
   Examples:
     $ bankai start index.js -p 8080      # start bankai on port 8080
