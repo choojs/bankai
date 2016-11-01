@@ -26,57 +26,30 @@ const alias = {
 }
 
 const cli = meow(`
-  Usage
+  Usage:
     $ bankai <command> [options]
 
-  Commands
-    start       Start a bankai server
-    build       Export built files to a directory
+  Commands:
+    <default>                      Run 'bankai start'
+    start <filename>               Start a bankai server
+    build <filename> <directory>   Compile and export files to a directory
 
-    Options
-      -e, --entry=<id>       Resolve <id> from cwd and use as entry module [default: .]
-                             Entry module is expected to export () -> app
-      -p, --port=<n>         Bind bankai to <n> [default: 1337]
-      -o, --optimize         Optimize the page and all assets served by bankai [default: false]
-      -b, --browse=<app>     Browse the page served by bankai with <app> [default: false]
-      -d, --dir=<dir>        Directory to export built files
-      -s, --stream           Print messages to stdout
-      -v, --verbose          Include debug messages
-      --html.entry=<uri>     Serve client js at <uri> [default: bundle.js]
-      --html.css=<uri>       Serve client css at <uri> [default: bundle.css]
-      --html.favicon         Disable favicon [default: true]
-      --html.title           Title to use for page
-      --html.lang            Lang attribute to use [default: en]
-      --css.use              sheetify plugins to use
-      --js.<opt>=<value>     Pass key <opt> with <value> to browserify
+    Options:
+      -p, --port=<n>          Bind bankai to <n> [default: 8080]
+      -o, --open=<browser>    Open html in a browser [default: system default]
+      -O, --optimize          Optimize assets served by bankai [default: false]
+      -s, --stream            Print messages to stdout
+      -v, --verbose           Include debug messages
+      -c, --css=<subargs>     Pass subarguments to sheetify
+      -j, --js                Pass subarguments to browserify
 
-  Examples
-    $ bankai start
-    Started bankai for index.js on http://localhost:1337
-
-    $ bankai start --entry=basic
-    Started bankai for basic/index.js on http://localhost:1337
-
-    $ bankai start --port=3000
-    Started bankai for index.js on http://localhost:3000
-
-    $ bankai start --open
-    Started bankai for index.js on http://localhost:1337
-    Opening http://localhost:1337 with default browser
-
-    $ bankai start --open Safari
-    Started bankai for index.js on http://localhost:1337
-    Opening http://localhost:1337 with system browser
-
-    $ bankai start --html.title bankai
-    Started bankai for index.js on http://localhost:1337
-
-    $ bankai start --css.use sheetify-cssnext
-    Started bankai for index.js on http://localhost:1337
-
-    $ bankai start --js.fullPaths=false
-
-    $ bankai build --dir=./dist
+  Examples:
+    $ bankai start index.js -p 8080      # start bankai on port 8080
+    $ bankai index.js --open             # open html in the browser
+    $ bankai -c [ -u sheetify-cssnext ]  # use cssnext in sheetify
+    $ bankai -j [ -t brfs ]              # use brfs in browserify
+    $ bankai build index.js dist/        # compile and export to dist/
+    $ bankai build -O index.js dist/     # optimize compiled files
   `,
   {
     alias: alias,

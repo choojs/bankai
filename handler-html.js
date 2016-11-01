@@ -1,8 +1,6 @@
-'use strict'
-
+const stringToStream = require('string-to-stream')
 const createHtml = require('create-html')
 const xtend = require('xtend')
-const stringToStream = require('string-to-stream')
 
 module.exports = html
 
