@@ -1,35 +1,35 @@
-const stream = require('readable-stream')
-const mutate = require('xtend/mutable')
-const Emitter = require('events')
+const browserify = require('browserify')
+const assert = require('assert')
+const xtend = require('xtend')
 
-const html = require('./handler-html')
-const css = require('./handler-css')
-const js = require('./handler-js')
+module.exports = Bankai
 
-module.exports = bankai
+function Bankai (opts) {
+  if (!(this instanceof Bankai)) return new Bankai(opts)
 
-// create a new bankai instance
-// (obj?) -> obj
-function bankai (opts) {
   opts = opts || {}
 
-  const state = new Emitter()
-  state.env = process.env.NODE_ENV === 'production'
-    ? 'production'
-    : 'development'
+  this.optimize = opts.optimize
+  this.htmlDisabled = opts.html
+  this.cssDisabled = opts.css
+}
 
-  state.cssStream = new stream.PassThrough()
-  state.jsRegistered = false
-  state.htmlOpts = null
-  state.jsOpts = null
-  state.cssReady = false
-  state.cssOpts = null
-  state.cssBuf = null
-  mutate(state, opts)
-
-  return {
-    html: html(state),
-    css: css(state),
-    js: js(state)
+Bankai.prototype.js = function (entry, opts) {
+  const baseOpts = {
+    basedir: process.cwd(),
+    entries: [ entry ],
+    packageCache: {},
+    fullPaths: true,
+    cache: {}
   }
+  var b = browserify(xtend(baseOpts, opts))
+  return b.bundle()
+}
+
+Bankai.prototype.html = function (opts) {
+  assert.ok(!this.htmlDisabled, 'bankai: html is disabled')
+}
+
+Bankai.prototype.css = function (opts) {
+  assert.ok(!this.cssDisabled, 'bankai: css is disabled')
 }

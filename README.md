@@ -12,25 +12,39 @@ $ npm install bankai
 ```
 
 ## Usage
+Given the following `client.js`:
 ```js
-const browserify = require('browserify')
+const css = require('sheetify')
+const html = require('bel')
+
+const prefix = css`
+  :host > h1 { font-size: 12rem }
+`
+
+const el = html`
+  <section class=${prefix}>
+    <h1>hello planet</h1>
+  </section>
+`
+
+document.body.appendChild(el)
+```
+
+Render with `server.js`:
+```js
 const bankai = require('bankai')
 const http = require('http')
 const path = require('path')
 
-const client = path.join(__dirname, 'client.js')
-
-const assets = bankai()
-const css = assets.css()
-const js = assets.js(browserify, client)
-const html = assets.html()
+const clientPath = path.join(__dirname, 'client.js')
+const assets = bankai(clientPath)
 
 http.createServer((req, res) => {
   switch (req.url) {
-    case '/': return html(req, res).pipe(res)
-    case '/bundle.js': return js(req, res).pipe(res)
-    case '/bundle.css': return css(req, res).pipe(res)
-    default: return res.statusCode = 404 && res.end('404 not found')
+    case '/': return assets.html(req, res).pipe(res)
+    case '/bundle.js': return assets.js(req, res).pipe(res)
+    case '/bundle.css': return assets.css(req, res).pipe(res)
+    default: return (res.statusCode = 404 && res.end('404 not found'))
   }
 }).listen(8080)
 ```
@@ -52,7 +66,6 @@ http.createServer((req, res) => {
       -o, --open=<browser>    Open html in a browser [default: system default]
       -O, --optimize          Optimize assets served by bankai [default: false]
       -p, --port=<n>          Bind bankai to <n> [default: 8080]
-      -v, --verbose           Include debug messages
 
   Examples:
     $ bankai start index.js -p 8080      # start bankai on port 8080
@@ -65,8 +78,18 @@ http.createServer((req, res) => {
 
 ## API
 ### assets = bankai(opts?)
-- __optimize:__ default `false`. Disable livereload scripts, cache output and
-  optimize all bundles.
+Create a new instance of `bankai`. Takes the following options:
+- __opts.css:__ (default: `true`). Enable `css` bundling
+- __opts.html:__ (default: `true`). Enable `css` bundling
+- __opts.optimize:__ (default `false`). Disable livereload scripts, cache
+  output and optimize all bundles
+
+### assets.js(entry, opts?)
+Return a `js` stream. `opts` are passed directly to `browserify`. Some useful
+options to be aware of:
+- __opts.basedir:__ directory to resolve `src` from. Defaults to
+  `process.cwd()`
+- __opts.fullPaths:__ use full module paths as module ids. Defaults to `true`
 
 ### assets.html(opts?)
 Return an `html` stream. Takes the following options:
@@ -74,27 +97,13 @@ Return an `html` stream. Takes the following options:
 - __opts.css:__ `css` entry point. Defaults to `/bundle.css`
 
 ### assets.css(opts?)
-Return a `css` stream using [sheetify](https://github.com/stackcss/sheetify).
-. Takes the following options:
-- __use:__ array of transforms. Empty by default.
-- __basedir:__ project base directory. Defaults to `process.cwd()`
-
-### assets.js(browserify, src, opts?)
-Return a `js` stream. `src` is the bundle entry file. `opts` are passed
-directly to `browserify`
-- __opts.id__ id to expose the root bundle as via `require()`. Defaults to `bankai-app`
-- __opts.basedir__ directory to resolve `src` from. Defaults to `process.cwd()`
-- __opts.fullPaths__ use full module paths as module ids. Defaults to `true`
-
-## Examples
-Projects showing exemplary usage are provided. Install root project dependencies,
-example project dependencies and execute `npm start` to start an example.
-
-- [Basic](./example/basic) - Minimal CLI and API usage
+Return a `css` stream. `opts` are passed directly to `sheetify`. Some useful
+options to be aware of:
+- __opts.use:__ array of transforms. Empty by default.
+- __opts.basedir:__ project base directory. Defaults to `process.cwd()`
 
 ## See Also
 - [budo](https://www.npmjs.com/package/budo)
-- [tiny-lr](https://github.com/mklabs/tiny-lr)
 - [sheetify](https://github.com/sheetify/sheetify)
 - [browserify](https://github.com/substack/node-browserify)
 
