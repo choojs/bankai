@@ -79,28 +79,23 @@ http.createServer((req, res) => {
 ## API
 ### assets = bankai(opts?)
 Create a new instance of `bankai`. Takes the following options:
-- __opts.css:__ (default: `true`). Enable `css` bundling
-- __opts.html:__ (default: `true`). Enable `css` bundling
+- __opts.js:__ (default: `{}`). Pass options to `browserify`. Cannot be
+  disabled
+- __opts.css:__ (default: `{}`). Pass options to `sheetify`. Set to `false` to
+  disable
+- __opts.html:__ (default: `{}`). Pass options to `create-html`. Set to `false`
+  to disable
 - __opts.optimize:__ (default `false`). Disable livereload scripts, cache
   output and optimize all bundles
 
-### assets.js(entry, opts?)
-Return a `js` stream. `opts` are passed directly to `browserify`. Some useful
-options to be aware of:
-- __opts.basedir:__ directory to resolve `src` from. Defaults to
-  `process.cwd()`
-- __opts.fullPaths:__ use full module paths as module ids. Defaults to `true`
+### assets.js(req?, res?)
+Return a `js` stream. Sets correct header values if `req` and `res` are passed.
 
-### assets.html(opts?)
-Return an `html` stream. Takes the following options:
-- __opts.entry:__ `js` entry point. Defaults to `/bundle.js`
-- __opts.css:__ `css` entry point. Defaults to `/bundle.css`
+### assets.html(req?, res?)
+Return a `html` stream. Sets correct header values if `req` and `res` are passed.
 
-### assets.css(opts?)
-Return a `css` stream. `opts` are passed directly to `sheetify`. Some useful
-options to be aware of:
-- __opts.use:__ array of transforms. Empty by default.
-- __opts.basedir:__ project base directory. Defaults to `process.cwd()`
+### assets.css(req?, res?)
+Return a `css` stream. Sets correct header values if `req` and `res` are passed.
 
 ## See Also
 - [budo](https://www.npmjs.com/package/budo)

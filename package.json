@@ -33,6 +33,7 @@
     "css-extract": "^1.1.1",
     "errorify": "^0.3.1",
     "explain-error": "^1.0.3",
+    "from2": "^2.3.0",
     "garnish": "^5.2.0",
     "get-server-port": "^1.0.0",
     "mkdirp": "^0.5.1",

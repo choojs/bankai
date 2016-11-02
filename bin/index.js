@@ -44,7 +44,7 @@ const usage = `
       -V, --verbose           Include debug messages
 
   Examples:
-    $ bankai start index.js -p 8080      # start bankai on port 8080
+    $ bankai index.js -p 8080            # start bankai on port 8080
     $ bankai index.js --open             # open html in the browser
     $ bankai -c [ -u sheetify-cssnext ]  # use cssnext in sheetify
     $ bankai -j [ -t brfs ]              # use brfs in browserify
