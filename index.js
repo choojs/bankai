@@ -1,8 +1,12 @@
+const watchifyRequest = require('watchify-request')
 const createHtml = require('create-html')
 const browserify = require('browserify')
+const watchify = require('watchify')
 const assert = require('assert')
+const stream = require('stream')
 const xtend = require('xtend')
 const from = require('from2')
+const pump = require('pump')
 
 module.exports = Bankai
 
@@ -18,11 +22,18 @@ function Bankai (entry, opts) {
   this.htmlDisabled = opts.html
   this.cssDisabled = opts.css
 
-  // this._js = createBrowserify(opts)
+  this._js = _javascript(entry, opts)
   this._html = _html(opts)
 }
 
-Bankai.prototype.js = function (entry, opts) {
+Bankai.prototype.js = function (req, res) {
+  const through$ = new stream.PassThrough()
+  this._js(req, res, function (err, buffer) {
+    if (err) return through$.emit('error', err)
+    const source$ = from([buffer])
+    pump(source$, through$)
+  })
+  return through$
 }
 
 Bankai.prototype.html = function (req, res) {
@@ -35,6 +46,7 @@ Bankai.prototype.css = function (req, res) {
   assert.ok(!this.cssDisabled, 'bankai: css is disabled')
 }
 
+// create an html buffer
 function _html (opts) {
   const base = {
     script: 'bundle.js',
@@ -45,7 +57,8 @@ function _html (opts) {
   return new Buffer(html)
 }
 
-function createBrowserify (entry, opts) {
+// create a js watcher
+function _javascript (entry, opts) {
   const baseOpts = {
     basedir: process.cwd(),
     entries: [ entry ],
@@ -53,6 +66,12 @@ function createBrowserify (entry, opts) {
     fullPaths: true,
     cache: {}
   }
-  var b = browserify(xtend(baseOpts, opts))
-  return b.bundle()
+
+  opts = xtend(baseOpts, opts)
+
+  const b = (this.optimize)
+    ? browserify(opts)
+    : watchify(browserify(opts))
+
+  return watchifyRequest(b)
 }
