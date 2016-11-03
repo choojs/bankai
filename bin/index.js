@@ -1,8 +1,11 @@
 #!/usr/bin/env node
 
+const resolve = require('resolve')
 const garnish = require('garnish')
 const subarg = require('subarg')
 const bole = require('bole')
+
+const cwd = process.cwd()
 
 const build = require('./build')
 const start = require('./start')
@@ -83,4 +86,9 @@ function startLogging (verbose) {
   const pretty = garnish({ level: level, name: 'bankai' })
   pretty.pipe(process.stdout)
   bole.output({ stream: pretty, level: level })
+}
+
+function resolveEntry (id) {
+  const entry = ['.', '/'].indexOf(id.charAt(0)) > -1 ? id : './' + id
+  return resolve.sync(entry, {basedir: cwd})
 }
