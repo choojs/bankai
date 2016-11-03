@@ -1,5 +1,5 @@
 # bankai [![stability][0]][1]
-[![npm version][2]][3] [![build status][4]][5] [![test coverage][6]][7]
+[![npm version][2]][3] [![build status][4]][5]
 [![downloads][8]][9] [![js-standard-style][10]][11]
 
 DIY asset server. Serves HTML, CSS and JS as streams. Sets proper
@@ -111,8 +111,6 @@ Return a `css` stream. Sets correct header values if `req` and `res` are passed.
 [3]: https://npmjs.org/package/bankai
 [4]: https://img.shields.io/travis/yoshuawuyts/bankai/master.svg?style=flat-square
 [5]: https://travis-ci.org/yoshuawuyts/bankai
-[6]: https://img.shields.io/codecov/c/github/yoshuawuyts/bankai/master.svg?style=flat-square
-[7]: https://codecov.io/github/yoshuawuyts/bankai
 [8]: http://img.shields.io/npm/dm/bankai.svg?style=flat-square
 [9]: https://npmjs.org/package/bankai
 [10]: https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square
