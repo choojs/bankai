@@ -4,6 +4,7 @@ const explain = require('explain-error')
 const mapLimit = require('map-limit')
 const resolve = require('resolve')
 const garnish = require('garnish')
+const mkdirp = require('mkdirp')
 const subarg = require('subarg')
 const bole = require('bole')
 const http = require('http')
@@ -121,6 +122,7 @@ function start (entry, argv, done) {
 }
 
 function build (entry, outputDir, argv, done) {
+  mkdirp.sync(outputDir)
   const assets = bankai(entry, argv)
   const files = [ 'index.html', 'bundle.js', 'bundle.css' ]
   mapLimit(files, Infinity, iterator, done)
