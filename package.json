@@ -29,6 +29,7 @@
     "bl": "^1.1.2",
     "bole": "^3.0.1",
     "browserify": "^13.1.0",
+    "concat-stream": "^1.5.2",
     "create-html": "^1.1.0",
     "css-extract": "^1.1.1",
     "errorify": "^0.3.1",

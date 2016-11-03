@@ -18,17 +18,7 @@ function js (state) {
   return function initJs (browserify, src, opts) {
     opts = opts || {}
 
-    assert.equal(typeof opts, 'object', 'bankai/js: opts should be an object')
-    assert.equal(typeof browserify, 'function', 'bankai/js: browserify should be a fn')
-    assert.equal(typeof src, 'string', 'bankai/js: src should be a location')
-
     // signal to CSS that browserify is registered
-    state.jsRegistered = true
-    state.jsOpts = {
-      src: src,
-      opts: opts
-    }
-
     const baseBrowserifyOpts = {
       id: 'bankai-app',
       basedir: process.cwd(),
@@ -109,11 +99,6 @@ function wreq (state, bundler, startFn) {
       started = true
       r.once('end', startFn)
     }
-
-    r.once('end', () => {
-      state.cssReady = true
-      state.emit('css:ready')
-    })
 
     r.pipe(bl((err, _buffer) => {
       if (p !== pending) return

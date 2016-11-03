@@ -68,7 +68,7 @@ http.createServer((req, res) => {
       -p, --port=<n>          Bind bankai to <n> [default: 8080]
 
   Examples:
-    $ bankai start index.js -p 8080      # start bankai on port 8080
+    $ bankai index.js -p 8080            # start bankai on port 8080
     $ bankai index.js --open             # open html in the browser
     $ bankai -c [ -u sheetify-cssnext ]  # use cssnext in sheetify
     $ bankai -j [ -t brfs ]              # use brfs in browserify
@@ -88,13 +88,13 @@ Create a new instance of `bankai`. Takes the following options:
 - __opts.optimize:__ (default `false`). Disable livereload scripts, cache
   output and optimize all bundles
 
-### assets.js(req?, res?)
+### readableStream = assets.js(req?, res?)
 Return a `js` stream. Sets correct header values if `req` and `res` are passed.
 
-### assets.html(req?, res?)
+### areadableStream = ssets.html(req?, res?)
 Return a `html` stream. Sets correct header values if `req` and `res` are passed.
 
-### assets.css(req?, res?)
+### areadableStream = ssets.css(req?, res?)
 Return a `css` stream. Sets correct header values if `req` and `res` are passed.
 
 ## See Also

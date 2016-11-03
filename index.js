@@ -1,6 +1,9 @@
 const watchifyRequest = require('watchify-request')
+const sheetify = require('sheetify/transform')
+const cssExtract = require('css-extract')
 const createHtml = require('create-html')
 const browserify = require('browserify')
+const concat = require('concat-stream')
 const watchify = require('watchify')
 const assert = require('assert')
 const stream = require('stream')
@@ -10,6 +13,7 @@ const pump = require('pump')
 
 module.exports = Bankai
 
+// (str, obj) -> obj
 function Bankai (entry, opts) {
   if (!(this instanceof Bankai)) return new Bankai(entry, opts)
 
@@ -18,17 +22,24 @@ function Bankai (entry, opts) {
   assert.equal(typeof entry, 'string', 'bankai: entry should be a string')
   assert.equal(typeof opts, 'object', 'bankai: opts should be an object')
 
+  const self = this
+
   this.optimize = opts.optimize
   this.htmlDisabled = opts.html
   this.cssDisabled = opts.css
 
-  this._js = _javascript(entry, opts)
-  this._html = _html(opts)
+  this._html = _html(opts.html)
+  this._createJs = _javascript(entry, opts.js, setCss)
+
+  function setCss (css) {
+    self._css = css
+  }
 }
 
+// (obj, obj) -> readStream
 Bankai.prototype.js = function (req, res) {
   const through$ = new stream.PassThrough()
-  this._js(req, res, function (err, buffer) {
+  this._createJs(req, res, function (err, buffer) {
     if (err) return through$.emit('error', err)
     const source$ = from([buffer])
     pump(source$, through$)
@@ -36,17 +47,20 @@ Bankai.prototype.js = function (req, res) {
   return through$
 }
 
+// (obj, obj) -> readStream
 Bankai.prototype.html = function (req, res) {
-  assert.ok(!this.htmlDisabled, 'bankai: html is disabled')
+  assert.ok(this.htmlDisabled !== false, 'bankai: html is disabled')
   if (res) res.setHeader('Content-Type', 'text/html')
   return from([this._html])
 }
 
+// (obj, obj) -> readStream
 Bankai.prototype.css = function (req, res) {
-  assert.ok(!this.cssDisabled, 'bankai: css is disabled')
+  assert.ok(this.cssDisabled !== false, 'bankai: css is disabled')
+  if (res) res.setHeader('Content-Type', 'text/css')
+  return from([this._css])
 }
 
-// create an html buffer
 function _html (opts) {
   const base = {
     script: 'bundle.js',
@@ -58,8 +72,8 @@ function _html (opts) {
 }
 
 // create a js watcher
-function _javascript (entry, opts) {
-  const baseOpts = {
+function _javascript (entry, opts, setCss) {
+  const base = {
     basedir: process.cwd(),
     entries: [ entry ],
     packageCache: {},
@@ -67,11 +81,17 @@ function _javascript (entry, opts) {
     cache: {}
   }
 
-  opts = xtend(baseOpts, opts)
+  opts = xtend(base, opts || {})
 
   const b = (this.optimize)
     ? browserify(opts)
     : watchify(browserify(opts))
+  b.plugin(cssExtract, { out: createCssStream })
+  b.transform(sheetify)
 
   return watchifyRequest(b)
+
+  function createCssStream () {
+    return concat({ encoding: 'buffer' }, setCss)
+  }
 }
