@@ -1,20 +1,22 @@
 #!/usr/bin/env node
 
+const explain = require('explain-error')
 const resolve = require('resolve')
 const garnish = require('garnish')
 const subarg = require('subarg')
 const bole = require('bole')
+const http = require('http')
+const path = require('path')
+const opn = require('opn')
 
-const cwd = process.cwd()
-
-const build = require('./build')
-const start = require('./start')
+const bankai = require('./')
 
 const argv = subarg(process.argv.slice(2), {
   string: [ 'open', 'port' ],
   boolean: [ 'optimize', 'verbose' ],
   default: {
     optimize: false,
+    open: false,
     port: 8080
   },
   alias: {
@@ -58,8 +60,11 @@ const usage = `
 main(argv)
 
 function main (argv) {
+  if ((argv._[0] !== 'build') && (argv._[0] !== 'start')) {
+    argv._.unshift('start')
+  }
   const cmd = argv._[0]
-  const entryFile = argv._[1] || 'index.js'
+  const entry = argv._[1] || 'index.js'
   const outputDir = argv._[2] || 'dist'
   startLogging(argv.verbose)
 
@@ -73,12 +78,43 @@ function main (argv) {
     return process.exit()
   }
 
-  if (!cmd || cmd === 'start') start(entryFile, argv, handleError)
-  if (cmd === 'build') build(entryFile, outputDir, argv, handleError)
+  if (cmd === 'start') {
+    start(entry, argv, handleError)
+  } else if (cmd === 'build') {
+    build(entry, outputDir, argv, handleError)
+  } else {
+    console.error(usage)
+    return process.exit(1)
+  }
 
   function handleError (err) {
     if (err) throw err
   }
+}
+
+function start (entry, argv, done) {
+  entry = resolve.sync(entry, {basedir: process.cwd()})
+  const assets = bankai(entry)
+  const port = argv.port
+
+  http.createServer((req, res) => {
+    switch (req.url) {
+      case '/': return assets.html(req, res).pipe(res)
+      case '/bundle.js': return assets.js(req, res).pipe(res)
+      case '/bundle.css': return assets.css(req, res).pipe(res)
+      default: return (res.statusCode = 404 && res.end('404 not found'))
+    }
+  }).listen(port, function () {
+    const relative = path.relative(process.cwd(), entry)
+    const addr = 'http://localhost:' + port
+    console.info('Started bankai for', relative, 'on', addr)
+    if (argv.open !== false) {
+      const app = (argv.open.length) ? argv.open : 'system browser'
+      opn(addr, { app: argv.open || null })
+        .catch((err) => done(explain(err, `err running ${app}`)))
+        .then(done)
+    }
+  })
 }
 
 function startLogging (verbose) {
@@ -86,9 +122,4 @@ function startLogging (verbose) {
   const pretty = garnish({ level: level, name: 'bankai' })
   pretty.pipe(process.stdout)
   bole.output({ stream: pretty, level: level })
-}
-
-function resolveEntry (id) {
-  const entry = ['.', '/'].indexOf(id.charAt(0)) > -1 ? id : './' + id
-  return resolve.sync(entry, {basedir: cwd})
 }
