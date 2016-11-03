@@ -1,13 +1,16 @@
 #!/usr/bin/env node
 
 const explain = require('explain-error')
+const mapLimit = require('map-limit')
 const resolve = require('resolve')
 const garnish = require('garnish')
 const subarg = require('subarg')
 const bole = require('bole')
 const http = require('http')
 const path = require('path')
+const pump = require('pump')
 const opn = require('opn')
+const fs = require('fs')
 
 const bankai = require('./')
 
@@ -64,7 +67,8 @@ function main (argv) {
     argv._.unshift('start')
   }
   const cmd = argv._[0]
-  const entry = argv._[1] || 'index.js'
+  const _entry = argv._[1] || 'index.js'
+  const entry = resolve.sync(_entry, { basedir: process.cwd() })
   const outputDir = argv._[2] || 'dist'
   startLogging(argv.verbose)
 
@@ -93,7 +97,6 @@ function main (argv) {
 }
 
 function start (entry, argv, done) {
-  entry = resolve.sync(entry, {basedir: process.cwd()})
   const assets = bankai(entry)
   const port = argv.port
 
@@ -115,6 +118,17 @@ function start (entry, argv, done) {
         .then(done)
     }
   })
+}
+
+function build (entry, outputDir, argv, done) {
+  const assets = bankai(entry, argv)
+  const files = [ 'index.html', 'bundle.js', 'bundle.css' ]
+  mapLimit(files, Infinity, iterator, done)
+  function iterator (file, done) {
+    const file$ = fs.createWriteStream(path.join(outputDir, file))
+    const source$ = assets[file.replace(/^.*\./, '')]()
+    pump(source$, file$, done)
+  }
 }
 
 function startLogging (verbose) {
