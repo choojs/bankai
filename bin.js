@@ -69,7 +69,8 @@ function main (argv) {
   }
   const cmd = argv._[0]
   const _entry = argv._[1] || 'index.js'
-  const entry = resolve.sync(_entry, { basedir: process.cwd() })
+  const localEntry = './' + _entry.replace(/^.\//, '')
+  const entry = resolve.sync(localEntry, { basedir: process.cwd() })
   const outputDir = argv._[2] || 'dist'
   startLogging(argv.verbose)
 
@@ -86,7 +87,10 @@ function main (argv) {
   if (cmd === 'start') {
     start(entry, argv, handleError)
   } else if (cmd === 'build') {
-    build(entry, outputDir, argv, handleError)
+    build(entry, outputDir, argv, function (err) {
+      if (err) throw err
+      process.exit()
+    })
   } else {
     console.error(usage)
     return process.exit(1)
