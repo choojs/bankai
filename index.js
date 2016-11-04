@@ -27,12 +27,14 @@ function Bankai (entry, opts) {
   this.optimize = opts.optimize
   this.htmlDisabled = opts.html
   this.cssDisabled = opts.css
+  this.cssQueue = []
 
   this._html = _html(opts.html)
   this._createJs = _javascript(entry, opts.js, setCss)
 
   function setCss (css) {
     self._css = css
+    while (self.cssQueue.length) self.cssQueue.shift()()
   }
 }
 
@@ -58,7 +60,18 @@ Bankai.prototype.html = function (req, res) {
 Bankai.prototype.css = function (req, res) {
   assert.ok(this.cssDisabled !== false, 'bankai: css is disabled')
   if (res) res.setHeader('Content-Type', 'text/css')
-  return from([this._css])
+  if (!this._css) {
+    const self = this
+    const through = new stream.PassThrough()
+    this.cssQueue.push(function () {
+      const source = from([self._css])
+      pump(source, through)
+    })
+    return through
+  } else {
+    console.log('reg, mate')
+    return from([this._css])
+  }
 }
 
 function _html (opts) {
