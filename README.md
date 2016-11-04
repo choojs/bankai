@@ -1,10 +1,15 @@
-# bankai [![stability][0]][1]
+<h1 align="center">bankai</h1>
+
+<div align="center">
+  <strong>Streaming asset compiler</strong>
+</div>
+<div align="center">
+  Serve, compile and optimize assets
+</div>
+
+[![stability][0]][1]
 [![npm version][2]][3] [![build status][4]][5]
 [![downloads][8]][9] [![js-standard-style][10]][11]
-
-DIY asset server. Serves HTML, CSS and JS as streams. Sets proper
-`Content-Type` encodings and buffers where possible for sub-milisecond response
-times in production and development.
 
 ## Installation
 ```sh
