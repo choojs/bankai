@@ -7,9 +7,9 @@
   Serve, compile and optimize assets
 </div>
 
-[![stability][0]][1]
-[![npm version][2]][3] [![build status][4]][5]
-[![downloads][8]][9] [![js-standard-style][10]][11]
+---
+
+[![stability][0]][1] [![npm version][2]][3] [![build status][4]][5] [![downloads][8]][9] [![js-standard-style][10]][11]
 
 ## Installation
 ```sh
