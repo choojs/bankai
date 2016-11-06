@@ -69,7 +69,6 @@ Bankai.prototype.css = function (req, res) {
     })
     return through
   } else {
-    console.log('reg, mate')
     return from([this._css])
   }
 }
