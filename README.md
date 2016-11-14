@@ -96,10 +96,10 @@ Create a new instance of `bankai`. Takes the following options:
 ### readableStream = assets.js(req?, res?)
 Return a `js` stream. Sets correct header values if `req` and `res` are passed.
 
-### areadableStream = ssets.html(req?, res?)
+### readableStream = assets.html(req?, res?)
 Return a `html` stream. Sets correct header values if `req` and `res` are passed.
 
-### areadableStream = ssets.css(req?, res?)
+### readableStream = assets.css(req?, res?)
 Return a `css` stream. Sets correct header values if `req` and `res` are passed.
 
 ## See Also
