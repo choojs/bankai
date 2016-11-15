@@ -82,8 +82,10 @@ http.createServer((req, res) => {
 ```
 
 ## API
-### assets = bankai(opts?)
-Create a new instance of `bankai`. Takes the following options:
+### assets = bankai(entryFile, opts?)
+Create a new instance of `bankai`. The first argument is a route to the entry
+file that is compiled by `browserify`. The second argument is optional and can
+take the following options:
 - __opts.js:__ (default: `{}`). Pass options to `browserify`. Cannot be
   disabled
 - __opts.css:__ (default: `{}`). Pass options to `sheetify`. Set to `false` to
@@ -96,10 +98,10 @@ Create a new instance of `bankai`. Takes the following options:
 ### readableStream = assets.js(req?, res?)
 Return a `js` stream. Sets correct header values if `req` and `res` are passed.
 
-### areadableStream = ssets.html(req?, res?)
+### readableStream = assets.html(req?, res?)
 Return a `html` stream. Sets correct header values if `req` and `res` are passed.
 
-### areadableStream = ssets.css(req?, res?)
+### readableStream = assets.css(req?, res?)
 Return a `css` stream. Sets correct header values if `req` and `res` are passed.
 
 ## See Also
