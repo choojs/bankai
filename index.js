@@ -32,7 +32,7 @@ function Bankai (entry, opts) {
   this._html = _html(opts.html)
 
   if (opts.debug) opts.js = xtend(opts.js, {debug: true})
-  this._createJs = _javascript(entry, opts.js, setCss)
+  this._createJs = _javascript(entry, opts, setCss)
 
   function setCss (css) {
     self._css = css
@@ -95,14 +95,14 @@ function _javascript (entry, opts, setCss) {
     cache: {}
   }
 
-  opts = xtend(base, opts || {})
+  const jsOpts = xtend(base, opts.js || {})
 
   const b = (this.optimize)
-    ? browserify(opts)
-    : watchify(browserify(opts))
+    ? browserify(jsOpts)
+    : watchify(browserify(jsOpts))
   b.ignore('sheetify/insert')
   b.plugin(cssExtract, { out: createCssStream })
-  b.transform(sheetify)
+  b.transform(sheetify, opts.css)
 
   return watchifyRequest(b)
 

@@ -50,6 +50,7 @@ const usage = `
       -c, --css=<subargs>     Pass subarguments to sheetify
       -h, --help              Print usage
       -j, --js=<subargs>      Pass subarguments to browserify
+      --html=<subargs>        Pass subarguments to create-html
       -o, --open=<browser>    Open html in a browser [default: system default]
       -O, --optimize          Optimize assets served by bankai [default: false]
       -p, --port=<n>          Bind bankai to <n> [default: 8080]
