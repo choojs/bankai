@@ -54,7 +54,7 @@ const usage = `
       -O, --optimize          Optimize assets served by bankai [default: false]
       -p, --port=<n>          Bind bankai to <n> [default: 8080]
       -V, --verbose           Include debug messages
-      -d, --debug             Include sourcemaps
+      -d, --debug             Include sourcemaps [default: false]
 
   Examples:
     $ bankai index.js -p 8080            # start bankai on port 8080
@@ -106,7 +106,7 @@ function main (argv) {
 }
 
 function start (entry, argv, done) {
-  const assets = bankai(entry)
+  const assets = bankai(entry, argv)
   const port = argv.port
 
   http.createServer((req, res) => {
