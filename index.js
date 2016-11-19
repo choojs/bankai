@@ -100,6 +100,7 @@ function _javascript (entry, opts, setCss) {
   const b = (this.optimize)
     ? browserify(opts)
     : watchify(browserify(opts))
+  b.ignore('sheetify/insert')
   b.plugin(cssExtract, { out: createCssStream })
   b.transform(sheetify)
 
