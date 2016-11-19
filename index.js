@@ -24,15 +24,16 @@ function Bankai (entry, opts) {
 
   const self = this
 
-  this.optimize = opts.optimize
   this.htmlDisabled = opts.html
-  this.cssDisabled = opts.css
   this.cssQueue = []
+  opts = xtend(opts, {
+    cssDisabled: opts.css === false
+  })
 
   this._html = _html(opts.html)
 
   if (opts.debug) opts.js = xtend(opts.js, {debug: true})
-  this._createJs = _javascript(entry, opts.js, setCss)
+  this._createJs = _javascript(entry, opts, setCss)
 
   function setCss (css) {
     self._css = css
@@ -60,7 +61,7 @@ Bankai.prototype.html = function (req, res) {
 
 // (obj, obj) -> readStream
 Bankai.prototype.css = function (req, res) {
-  assert.ok(this.cssDisabled !== false, 'bankai: css is disabled')
+  assert.ok(!this.cssDisabled, 'bankai: css is disabled')
   if (res) res.setHeader('Content-Type', 'text/css')
   if (!this._css) {
     const self = this
@@ -95,14 +96,16 @@ function _javascript (entry, opts, setCss) {
     cache: {}
   }
 
-  opts = xtend(base, opts || {})
+  const jsOpts = xtend(base, opts.js || {})
 
-  const b = (this.optimize)
-    ? browserify(opts)
-    : watchify(browserify(opts))
+  const b = opts.optimize
+    ? browserify(jsOpts)
+    : watchify(browserify(jsOpts))
   b.ignore('sheetify/insert')
-  b.plugin(cssExtract, { out: createCssStream })
-  b.transform(sheetify)
+  if (!opts.cssDisabled) {
+    b.plugin(cssExtract, { out: createCssStream })
+    b.transform(sheetify, opts.css)
+  }
 
   return watchifyRequest(b)
 
