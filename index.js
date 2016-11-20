@@ -19,10 +19,6 @@ function Bankai (entry, opts) {
 
   opts = opts || {}
 
-  opts.html = opts.html || {}
-  opts.css = opts.css || {}
-  opts.js = opts.js || {}
-
   assert.equal(typeof entry, 'string', 'bankai: entry should be a string')
   assert.equal(typeof opts, 'object', 'bankai: opts should be an object')
 
@@ -32,6 +28,10 @@ function Bankai (entry, opts) {
   this.cssDisabled = (opts.css === false)
   this.optimize = opts.optimize
   this.cssQueue = []
+
+  opts.html = opts.html || {}
+  opts.css = opts.css || {}
+  opts.js = opts.js || {}
 
   if (opts.debug) opts.js = xtend(opts.js, { debug: true })
 
