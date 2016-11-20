@@ -26,14 +26,15 @@ const argv = subarg(process.argv.slice(2), {
   },
   alias: {
     css: 'c',
-    js: 'j',
+    debug: 'd',
     help: 'h',
+    html: 'H',
+    js: 'j',
     open: 'o',
     optimize: 'O',
     port: 'p',
     verbose: 'V',
-    version: 'v',
-    debug: 'd'
+    version: 'v'
   }
 })
 
@@ -48,13 +49,14 @@ const usage = `
 
     Options:
       -c, --css=<subargs>     Pass subarguments to sheetify
+      -d, --debug             Include sourcemaps [default: false]
       -h, --help              Print usage
+      -H, --html=<subargs>    Pass subarguments to create-html
       -j, --js=<subargs>      Pass subarguments to browserify
       -o, --open=<browser>    Open html in a browser [default: system default]
       -O, --optimize          Optimize assets served by bankai [default: false]
-      -p, --port=<n>          Bind bankai to <n> [default: 8080]
+      -p, --port=<n>          Bind bankai to a port [default: 8080]
       -V, --verbose           Include debug messages
-      -d, --debug             Include sourcemaps [default: false]
 
   Examples:
     $ bankai index.js -p 8080            # start bankai on port 8080
