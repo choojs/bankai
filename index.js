@@ -59,6 +59,8 @@ function Bankai (entry, opts) {
       ? browserify(jsOpts)
       : watchify(browserify(jsOpts))
 
+    b.ignore('electron')
+
     if (!self.cssDisabled) {
       b.plugin(cssExtract, { out: createCssStream })
       b.ignore('sheetify/insert')
