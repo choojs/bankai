@@ -42,6 +42,8 @@
     "resolve": "^1.1.7",
     "sheetify": "^6.0.0",
     "subarg": "^1.0.0",
+    "uglify-js": "^2.7.5",
+    "uglifyify": "^3.0.4",
     "watchify": "^3.7.0",
     "watchify-request": "^2.1.0",
     "xtend": "^4.0.1"
