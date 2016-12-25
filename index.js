@@ -1,15 +1,15 @@
-const watchifyRequest = require('watchify-request')
-const sheetify = require('sheetify/transform')
-const cssExtract = require('css-extract')
-const createHtml = require('create-html')
-const browserify = require('browserify')
-const concat = require('concat-stream')
-const watchify = require('watchify')
-const assert = require('assert')
-const stream = require('stream')
-const xtend = require('xtend')
-const from = require('from2')
-const pump = require('pump')
+var watchifyRequest = require('watchify-request')
+var sheetify = require('sheetify/transform')
+var cssExtract = require('css-extract')
+var createHtml = require('create-html')
+var browserify = require('browserify')
+var concat = require('concat-stream')
+var watchify = require('watchify')
+var assert = require('assert')
+var stream = require('stream')
+var xtend = require('xtend')
+var from = require('from2')
+var pump = require('pump')
 
 module.exports = Bankai
 
@@ -22,7 +22,7 @@ function Bankai (entry, opts) {
   assert.equal(typeof entry, 'string', 'bankai: entry should be a string')
   assert.equal(typeof opts, 'object', 'bankai: opts should be an object')
 
-  const self = this
+  var self = this
 
   this.htmlDisabled = (opts.html === false)
   this.cssDisabled = (opts.css === false)
@@ -36,26 +36,26 @@ function Bankai (entry, opts) {
   if (opts.debug) opts.js = xtend(opts.js, { debug: true })
 
   this._html = (function () {
-    const base = {
+    var base = {
       script: 'bundle.js',
       css: (self.cssDisabled) ? null : 'bundle.css',
       head: '<meta name="viewport" content="width=device-width, initial-scale=1">'
     }
-    const html = createHtml(xtend(base, opts.html))
+    var html = createHtml(xtend(base, opts.html))
     return new Buffer(html)
   })()
 
   this._js = (function () {
-    const base = {
+    var base = {
       basedir: process.cwd(),
       entries: [ entry ],
       packageCache: {},
       fullPaths: true,
       cache: {}
     }
-    const jsOpts = xtend(base, opts.js)
+    var jsOpts = xtend(base, opts.js)
 
-    const b = (self.optimize)
+    var b = (self.optimize)
       ? browserify(jsOpts)
       : watchify(browserify(jsOpts))
 
@@ -78,10 +78,10 @@ function Bankai (entry, opts) {
 
 // (obj, obj) -> readStream
 Bankai.prototype.js = function (req, res) {
-  const through$ = new stream.PassThrough()
+  var through$ = new stream.PassThrough()
   this._js(req, res, function (err, buffer) {
     if (err) return through$.emit('error', err)
-    const source$ = from([buffer])
+    var source$ = from([buffer])
     pump(source$, through$)
   })
   return through$
@@ -99,10 +99,10 @@ Bankai.prototype.css = function (req, res) {
   assert.notEqual(this.cssDisabled, true, 'bankai: css is disabled')
   if (res) res.setHeader('Content-Type', 'text/css')
   if (!this._css) {
-    const self = this
-    const through = new stream.PassThrough()
+    var self = this
+    var through = new stream.PassThrough()
     this.cssQueue.push(function () {
-      const source = from([self._css])
+      var source = from([self._css])
       pump(source, through)
     })
     return through

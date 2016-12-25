@@ -50,14 +50,14 @@ $ npm install bankai
 ## Usage
 Given the following `client.js`:
 ```js
-const css = require('sheetify')
-const html = require('bel')
+var css = require('sheetify')
+var html = require('bel')
 
-const prefix = css`
+var prefix = css`
   :host > h1 { font-size: 12rem }
 `
 
-const el = html`
+var el = html`
   <section class=${prefix}>
     <h1>hello planet</h1>
   </section>
@@ -68,12 +68,12 @@ document.body.appendChild(el)
 
 Render with `server.js`:
 ```js
-const bankai = require('bankai')
-const http = require('http')
-const path = require('path')
+var bankai = require('bankai')
+var http = require('http')
+var path = require('path')
 
-const clientPath = path.join(__dirname, 'client.js')
-const assets = bankai(clientPath)
+var clientPath = path.join(__dirname, 'client.js')
+var assets = bankai(clientPath)
 
 http.createServer((req, res) => {
   switch (req.url) {

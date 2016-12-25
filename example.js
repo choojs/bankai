@@ -1,11 +1,11 @@
-const css = require('sheetify')
-const html = require('bel')
+var css = require('sheetify')
+var html = require('bel')
 
-const prefix = css`
+var prefix = css`
   :host > h1 { font-size: 12rem }
 `
 
-const el = html`
+var el = html`
   <section class=${prefix}>
     <h1>hello planet</h1>
   </section>

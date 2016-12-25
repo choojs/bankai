@@ -1,21 +1,21 @@
 #!/usr/bin/env node
 
-const explain = require('explain-error')
-const mapLimit = require('map-limit')
-const resolve = require('resolve')
-const garnish = require('garnish')
-const mkdirp = require('mkdirp')
-const subarg = require('subarg')
-const bole = require('bole')
-const http = require('http')
-const path = require('path')
-const pump = require('pump')
-const opn = require('opn')
-const fs = require('fs')
+var explain = require('explain-error')
+var mapLimit = require('map-limit')
+var resolve = require('resolve')
+var garnish = require('garnish')
+var mkdirp = require('mkdirp')
+var subarg = require('subarg')
+var bole = require('bole')
+var http = require('http')
+var path = require('path')
+var pump = require('pump')
+var opn = require('opn')
+var fs = require('fs')
 
-const bankai = require('./')
+var bankai = require('./')
 
-const argv = subarg(process.argv.slice(2), {
+var argv = subarg(process.argv.slice(2), {
   string: [ 'open', 'port' ],
   boolean: [ 'optimize', 'verbose', 'help', 'version', 'debug' ],
   default: {
@@ -38,7 +38,7 @@ const argv = subarg(process.argv.slice(2), {
   }
 })
 
-const usage = `
+var usage = `
   Usage:
     $ bankai <command> [options]
 
@@ -73,11 +73,11 @@ function main (argv) {
   if ((argv._[0] !== 'build') && (argv._[0] !== 'start')) {
     argv._.unshift('start')
   }
-  const cmd = argv._[0]
-  const _entry = argv._[1] || 'index.js'
-  const localEntry = './' + _entry.replace(/^.\//, '')
-  const entry = resolve.sync(localEntry, { basedir: process.cwd() })
-  const outputDir = argv._[2] || 'dist'
+  var cmd = argv._[0]
+  var _entry = argv._[1] || 'index.js'
+  var localEntry = './' + _entry.replace(/^.\//, '')
+  var entry = resolve.sync(localEntry, { basedir: process.cwd() })
+  var outputDir = argv._[2] || 'dist'
   startLogging(argv.verbose)
 
   if (argv.h) {
@@ -108,8 +108,8 @@ function main (argv) {
 }
 
 function start (entry, argv, done) {
-  const assets = bankai(entry, argv)
-  const port = argv.port
+  var assets = bankai(entry, argv)
+  var port = argv.port
 
   http.createServer((req, res) => {
     switch (req.url) {
@@ -119,11 +119,11 @@ function start (entry, argv, done) {
       default: return (res.statusCode = 404 && res.end('404 not found'))
     }
   }).listen(port, function () {
-    const relative = path.relative(process.cwd(), entry)
-    const addr = 'http://localhost:' + port
+    var relative = path.relative(process.cwd(), entry)
+    var addr = 'http://localhost:' + port
     console.info('Started bankai for', relative, 'on', addr)
     if (argv.open !== false) {
-      const app = (argv.open.length) ? argv.open : 'system browser'
+      var app = (argv.open.length) ? argv.open : 'system browser'
       opn(addr, { app: argv.open || null })
         .catch((err) => done(explain(err, `err running ${app}`)))
         .then(done)
@@ -133,19 +133,19 @@ function start (entry, argv, done) {
 
 function build (entry, outputDir, argv, done) {
   mkdirp.sync(outputDir)
-  const assets = bankai(entry, argv)
-  const files = [ 'index.html', 'bundle.js', 'bundle.css' ]
+  var assets = bankai(entry, argv)
+  var files = [ 'index.html', 'bundle.js', 'bundle.css' ]
   mapLimit(files, Infinity, iterator, done)
   function iterator (file, done) {
-    const file$ = fs.createWriteStream(path.join(outputDir, file))
-    const source$ = assets[file.replace(/^.*\./, '')]()
+    var file$ = fs.createWriteStream(path.join(outputDir, file))
+    var source$ = assets[file.replace(/^.*\./, '')]()
     pump(source$, file$, done)
   }
 }
 
 function startLogging (verbose) {
-  const level = (verbose) ? 'debug' : 'info'
-  const pretty = garnish({ level: level, name: 'bankai' })
+  var level = (verbose) ? 'debug' : 'info'
+  var pretty = garnish({ level: level, name: 'bankai' })
   pretty.pipe(process.stdout)
   bole.output({ stream: pretty, level: level })
 }
