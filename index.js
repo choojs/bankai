@@ -1,12 +1,17 @@
+var collapser = require('bundle-collapser/plugin')
 var watchifyRequest = require('watchify-request')
 var sheetify = require('sheetify/transform')
+var unassertify = require('unassertify')
 var cssExtract = require('css-extract')
 var createHtml = require('create-html')
 var browserify = require('browserify')
 var concat = require('concat-stream')
+var uglifyify = require('uglifyify')
 var watchify = require('watchify')
+var yoyoify = require('yo-yoify')
 var assert = require('assert')
 var stream = require('stream')
+var varify = require('varify')
 var xtend = require('xtend')
 var from = require('from2')
 var pump = require('pump')
@@ -63,6 +68,14 @@ function Bankai (entry, opts) {
       b.plugin(cssExtract, { out: createCssStream })
       b.ignore('sheetify/insert')
       b.transform(sheetify, opts.css)
+    }
+
+    if (self.optimize) {
+      b.transform(unassertify, { global: true })
+      b.transform(yoyoify, { global: true })
+      b.transform(varify, { global: true })
+      b.transform(uglifyify, { global: true })
+      b.plugin(collapser, { global: true })
     }
 
     return watchifyRequest(b)
