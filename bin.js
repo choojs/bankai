@@ -125,7 +125,9 @@ function start (entry, argv, done) {
     if (argv.open !== false) {
       var app = (argv.open.length) ? argv.open : 'system browser'
       opn(addr, { app: argv.open || null })
-        .catch((err) => done(explain(err, `err running ${app}`)))
+        .catch(function (err) {
+          done(explain(err, `err running ${app}`))
+        })
         .then(done)
     }
   })
