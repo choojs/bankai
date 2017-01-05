@@ -11,7 +11,6 @@ var watchify = require('watchify')
 var yoyoify = require('yo-yoify')
 var assert = require('assert')
 var stream = require('stream')
-var varify = require('varify')
 var xtend = require('xtend')
 var from = require('from2')
 var pump = require('pump')
@@ -73,7 +72,7 @@ function Bankai (entry, opts) {
     if (self.optimize) {
       b.transform(unassertify, { global: true })
       b.transform(yoyoify, { global: true })
-      b.transform(varify, { global: true })
+      // b.transform(varify, { global: true })
       b.transform(uglifyify, { global: true })
       b.plugin(collapser, { global: true })
     }

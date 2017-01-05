@@ -45,7 +45,6 @@
     "subarg": "^1.0.0",
     "uglifyify": "^3.0.4",
     "unassertify": "^2.0.3",
-    "varify": "^0.1.1",
     "watchify": "^3.7.0",
     "watchify-request": "^2.1.0",
     "xtend": "^4.0.1",
