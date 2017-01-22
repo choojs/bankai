@@ -140,13 +140,12 @@ function start (entry, argv, done) {
   })
 
   function static (req, res) {
-    if (req.url.indexOf('/' + argv.assets + '/') !== 0) {
+    if (req.url.indexOf('/' + argv.assets) !== 0) {
       return (res.statusCode = 404 && res.end('404 not found'))
     }
     return assets.static(req, res).pipe(res)
   }
 }
-
 
 function build (entry, outputDir, argv, done) {
   mkdirp.sync(outputDir)
