@@ -142,9 +142,19 @@ function start (entry, argv, done) {
   function static (req, res) {
     var regex = new RegExp('\/' + argv.assets)
     if (regex.test(req.url)) {
-      return assets.static(req, res).pipe(res)
+      var file = path.join(path.dirname(entry), req.url.substr(1))
+      fs.exists(file, function (exists) {
+        if (exists) {
+          return assets.static(req, res).pipe(res)
+        } else {
+          res.writeHead(404, 'Not Found')
+          return res.end()
+        }
+      })
+    } else {
+      res.writeHead(404, 'Not Found')
+      return res.end()
     }
-    return (res.statusCode = 404 && res.end('404 not found'))
   }
 }
 
