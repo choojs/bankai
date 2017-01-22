@@ -140,10 +140,11 @@ function start (entry, argv, done) {
   })
 
   function static (req, res) {
-    if (req.url.indexOf('/' + argv.assets) !== 0) {
-      return (res.statusCode = 404 && res.end('404 not found'))
+    var regex = new RegExp('\/' + argv.assets)
+    if (regex.test(req.url)) {
+      return assets.static(req, res).pipe(res)
     }
-    return assets.static(req, res).pipe(res)
+    return (res.statusCode = 404 && res.end('404 not found'))
   }
 }
 
