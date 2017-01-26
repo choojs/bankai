@@ -116,7 +116,12 @@ function start (entry, argv, done) {
       case '/': return assets.html(req, res).pipe(res)
       case '/bundle.js': return assets.js(req, res).pipe(res)
       case '/bundle.css': return assets.css(req, res).pipe(res)
-      default: return (res.statusCode = 404 && res.end('404 not found'))
+      default:
+        if (req.headers['accept'].indexOf('html') > 0) {
+          return assets.html(req, res).pipe(res)
+        }
+        res.statusCode = 404
+        res.end('404 not found')
     }
   }).listen(port, function () {
     var relative = path.relative(process.cwd(), entry)
