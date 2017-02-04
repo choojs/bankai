@@ -112,6 +112,7 @@ function main (argv) {
 
 function start (entry, argv, done) {
   var assets = bankai(entry, argv)
+  var static = new RegExp('\/' + argv.assets)
   var port = argv.port
 
   http.createServer((req, res) => {
@@ -123,7 +124,11 @@ function start (entry, argv, done) {
         if (req.headers['accept'].indexOf('html') > 0) {
           return assets.html(req, res).pipe(res)
         }
-        return static(req, res)
+        if (static.test(req.url)) {
+          return assets.static(req, res).pipe(res)
+        }
+        res.writeHead(404, 'Not Found')
+        return res.end()
     }
   }).listen(port, function () {
     var relative = path.relative(process.cwd(), entry)
@@ -138,24 +143,6 @@ function start (entry, argv, done) {
         .then(done)
     }
   })
-
-  function static (req, res) {
-    var regex = new RegExp('\/' + argv.assets)
-    if (regex.test(req.url)) {
-      var file = path.join(path.dirname(entry), req.url.substr(1))
-      fs.exists(file, function (exists) {
-        if (exists) {
-          return assets.static(req, res).pipe(res)
-        } else {
-          res.writeHead(404, 'Not Found')
-          return res.end()
-        }
-      })
-    } else {
-      res.writeHead(404, 'Not Found')
-      return res.end()
-    }
-  }
 }
 
 function build (entry, outputDir, argv, done) {
