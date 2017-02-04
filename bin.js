@@ -112,7 +112,7 @@ function main (argv) {
 
 function start (entry, argv, done) {
   var assets = bankai(entry, argv)
-  var static = new RegExp('\/' + argv.assets)
+  var staticAsset = new RegExp('/' + argv.assets)
   var port = argv.port
 
   http.createServer((req, res) => {
@@ -124,7 +124,7 @@ function start (entry, argv, done) {
         if (req.headers['accept'].indexOf('html') > 0) {
           return assets.html(req, res).pipe(res)
         }
-        if (static.test(req.url)) {
+        if (staticAsset.test(req.url)) {
           return assets.static(req, res).pipe(res)
         }
         res.writeHead(404, 'Not Found')
