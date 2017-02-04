@@ -126,5 +126,5 @@ Bankai.prototype.css = function (req, res) {
 
 // (obj, obj) -> readStream
 Bankai.prototype.static = function (req, res) {
-  return send(req, req.url.substr(1));
+  return send(req, req.url.substr(1))
 }
