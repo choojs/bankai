@@ -147,6 +147,7 @@ function start (entry, argv, done) {
 
 function build (entry, outputDir, argv, done) {
   mkdirp.sync(outputDir)
+  buildStaticAssets(entry, outputDir, argv, done)
   var assets = bankai(entry, argv)
   var files = [ 'index.html', 'bundle.js', 'bundle.css' ]
   mapLimit(files, Infinity, iterator, done)
@@ -154,6 +155,22 @@ function build (entry, outputDir, argv, done) {
     var file$ = fs.createWriteStream(path.join(outputDir, file))
     var source$ = assets[file.replace(/^.*\./, '')]()
     pump(source$, file$, done)
+  }
+}
+
+function buildStaticAssets (entry, outputDir, argv, done) {
+  var src = path.join(path.dirname(entry), argv.assets)
+  var dest = path.join(path.dirname(entry), outputDir, argv.assets)
+  if (fs.existsSync(src)) copy(src, dest)
+  function copy (src, dest) {
+    if (!fs.statSync(src).isDirectory()) {
+      return pump(fs.createReadStream(src), fs.createWriteStream(dest), done)
+    }
+    if (!fs.existsSync(dest)) fs.mkdirSync(dest)
+    var files = fs.readdirSync(src)
+    for (var i = 0; i < files.length; i++) {
+      copy(path.join(src, files[i]), path.join(dest, files[i]))
+    }
   }
 }
 
