@@ -16,15 +16,17 @@ var fs = require('fs')
 var bankai = require('./')
 
 var argv = subarg(process.argv.slice(2), {
-  string: [ 'open', 'port' ],
+  string: [ 'open', 'port', 'assets' ],
   boolean: [ 'optimize', 'verbose', 'help', 'version', 'debug' ],
   default: {
+    assets: 'assets',
     optimize: false,
     open: false,
     port: 8080,
     debug: false
   },
   alias: {
+    assets: 'a',
     css: 'c',
     debug: 'd',
     help: 'h',
@@ -48,15 +50,16 @@ var usage = `
     build <filename> <directory>   Compile and export files to a directory
 
     Options:
-      -c, --css=<subargs>     Pass subarguments to sheetify
-      -d, --debug             Include sourcemaps [default: false]
-      -h, --help              Print usage
-      -H, --html=<subargs>    Pass subarguments to create-html
-      -j, --js=<subargs>      Pass subarguments to browserify
-      -o, --open=<browser>    Open html in a browser [default: system default]
-      -O, --optimize          Optimize assets served by bankai [default: false]
-      -p, --port=<n>          Bind bankai to a port [default: 8080]
-      -V, --verbose           Include debug messages
+      -a, --assets=<directory>  Serve static assets [default: assets]
+      -c, --css=<subargs>       Pass subarguments to sheetify
+      -d, --debug               Include sourcemaps [default: false]
+      -h, --help                Print usage
+      -H, --html=<subargs>      Pass subarguments to create-html
+      -j, --js=<subargs>        Pass subarguments to browserify
+      -o, --open=<browser>      Open html in a browser [default: system default]
+      -O, --optimize            Optimize assets served by bankai [default: false]
+      -p, --port=<n>            Bind bankai to a port [default: 8080]
+      -V, --verbose             Include debug messages
 
   Examples:
     $ bankai index.js -p 8080            # start bankai on port 8080
@@ -109,6 +112,7 @@ function main (argv) {
 
 function start (entry, argv, done) {
   var assets = bankai(entry, argv)
+  var staticAsset = new RegExp('/' + argv.assets)
   var port = argv.port
 
   http.createServer((req, res) => {
@@ -120,8 +124,11 @@ function start (entry, argv, done) {
         if (req.headers['accept'].indexOf('html') > 0) {
           return assets.html(req, res).pipe(res)
         }
-        res.statusCode = 404
-        res.end('404 not found')
+        if (staticAsset.test(req.url)) {
+          return assets.static(req, res).pipe(res)
+        }
+        res.writeHead(404, 'Not Found')
+        return res.end()
     }
   }).listen(port, function () {
     var relative = path.relative(process.cwd(), entry)
@@ -140,6 +147,7 @@ function start (entry, argv, done) {
 
 function build (entry, outputDir, argv, done) {
   mkdirp.sync(outputDir)
+  buildStaticAssets(entry, outputDir, argv, done)
   var assets = bankai(entry, argv)
   var files = [ 'index.html', 'bundle.js', 'bundle.css' ]
   mapLimit(files, Infinity, iterator, done)
@@ -147,6 +155,22 @@ function build (entry, outputDir, argv, done) {
     var file$ = fs.createWriteStream(path.join(outputDir, file))
     var source$ = assets[file.replace(/^.*\./, '')]()
     pump(source$, file$, done)
+  }
+}
+
+function buildStaticAssets (entry, outputDir, argv, done) {
+  var src = path.join(path.dirname(entry), argv.assets)
+  var dest = path.join(path.dirname(entry), outputDir, argv.assets)
+  if (fs.existsSync(src)) copy(src, dest)
+  function copy (src, dest) {
+    if (!fs.statSync(src).isDirectory()) {
+      return pump(fs.createReadStream(src), fs.createWriteStream(dest), done)
+    }
+    if (!fs.existsSync(dest)) fs.mkdirSync(dest)
+    var files = fs.readdirSync(src)
+    for (var i = 0; i < files.length; i++) {
+      copy(path.join(src, files[i]), path.join(dest, files[i]))
+    }
   }
 }
 

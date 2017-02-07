@@ -14,6 +14,7 @@ var stream = require('stream')
 var xtend = require('xtend')
 var from = require('from2')
 var pump = require('pump')
+var send = require('send')
 
 module.exports = Bankai
 
@@ -121,4 +122,9 @@ Bankai.prototype.css = function (req, res) {
   } else {
     return from([this._css])
   }
+}
+
+// (obj, obj) -> readStream
+Bankai.prototype.static = function (req, res) {
+  return send(req, req.url.substr(1))
 }
