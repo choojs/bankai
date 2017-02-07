@@ -16,6 +16,8 @@ var from = require('from2')
 var pump = require('pump')
 var send = require('send')
 
+var createElectronOpts = require('./electron')
+
 module.exports = Bankai
 
 // (str, obj) -> obj
@@ -56,12 +58,15 @@ function Bankai (entry, opts) {
 
   function js () {
     var base = {
-      basedir: process.cwd(),
       entries: [ entry ],
       packageCache: {},
-      fullPaths: true,
       cache: {}
     }
+
+    base = (opts.electron)
+      ? xtend(base, createElectronOpts())
+      : xtend(base, { fullPaths: true })
+
     var jsOpts = xtend(base, opts.js)
 
     var b = self.optimize || self.watch === false

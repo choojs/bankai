@@ -22,7 +22,7 @@ pretty.pipe(process.stdout)
 
 var argv = subarg(process.argv.slice(2), {
   string: [ 'open', 'port', 'assets' ],
-  boolean: [ 'optimize', 'verbose', 'help', 'version', 'debug' ],
+  boolean: [ 'optimize', 'verbose', 'help', 'version', 'debug', 'electron' ],
   default: {
     assets: 'assets',
     optimize: false,
@@ -34,6 +34,7 @@ var argv = subarg(process.argv.slice(2), {
     assets: 'a',
     css: 'c',
     debug: 'd',
+    electron: 'e',
     help: 'h',
     html: 'H',
     js: 'j',
@@ -56,15 +57,16 @@ var usage = `
 
     Options:
       -a, --assets=<directory>  Serve static assets [default: assets]
-      -c, --css=<subargs>       Pass subarguments to sheetify
-      -d, --debug               Include sourcemaps [default: false]
-      -h, --help                Print usage
-      -H, --html=<subargs>      Pass subarguments to create-html
-      -j, --js=<subargs>        Pass subarguments to browserify
-      -o, --open=<browser>      Open html in a browser [default: system default]
-      -O, --optimize            Optimize assets served by bankai [default: false]
-      -p, --port=<n>            Bind bankai to a port [default: 8080]
-      -V, --verbose             Include debug messages
+      -c, --css=<subargs>     Pass subarguments to sheetify
+      -d, --debug             Include sourcemaps [default: false]
+      -e, --electron          Enable electron mode for the bundler
+      -h, --help              Print usage
+      -H, --html=<subargs>    Pass subarguments to create-html
+      -j, --js=<subargs>      Pass subarguments to browserify
+      -o, --open=<browser>    Open html in a browser [default: system default]
+      -O, --optimize          Optimize assets served by bankai [default: false]
+      -p, --port=<n>          Bind bankai to a port [default: 8080]
+      -V, --verbose           Include debug messages
 
   Examples:
     $ bankai index.js -p 8080            # start bankai on port 8080
