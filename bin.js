@@ -83,7 +83,7 @@ function main (argv) {
   var outputDir = argv._[2] || 'dist'
   startLogging(argv.verbose)
 
-  if (argv.h) {
+  if (argv.h || argv.help) {
     console.info(usage)
     return process.exit()
   }
