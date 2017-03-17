@@ -75,7 +75,7 @@ var path = require('path')
 var clientPath = path.join(__dirname, 'client.js')
 var assets = bankai(clientPath)
 
-http.createServer((req, res) => {
+http.createServer(function (req, res) {
   switch (req.url) {
     case '/': return assets.html(req, res).pipe(res)
     case '/bundle.js': return assets.js(req, res).pipe(res)

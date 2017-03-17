@@ -115,7 +115,7 @@ function start (entry, argv, done) {
   var staticAsset = new RegExp('/' + argv.assets)
   var port = argv.port
 
-  http.createServer((req, res) => {
+  http.createServer(function (req, res) {
     switch (req.url) {
       case '/': return assets.html(req, res).pipe(res)
       case '/bundle.js': return assets.js(req, res).pipe(res)
