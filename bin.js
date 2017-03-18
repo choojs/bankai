@@ -3,6 +3,7 @@
 var explain = require('explain-error')
 var pinoColada = require('pino-colada')
 var mapLimit = require('map-limit')
+var serverSink = require('server-sink')
 var resolve = require('resolve')
 var mkdirp = require('mkdirp')
 var subarg = require('subarg')
@@ -15,7 +16,7 @@ var fs = require('fs')
 
 var bankai = require('./')
 var pretty = pinoColada()
-var log = pino({ name: 'bankai' }, pretty)
+var log = pino({ name: 'bankai', level: 'debug' }, pretty)
 pretty.pipe(process.stdout)
 
 var argv = subarg(process.argv.slice(2), {
@@ -117,25 +118,34 @@ function start (entry, argv, done) {
   var staticAsset = new RegExp('/' + argv.assets)
   var port = argv.port
 
-  http.createServer(function (req, res) {
-    switch (req.url) {
-      case '/': return assets.html(req, res).pipe(res)
-      case '/bundle.js': return assets.js(req, res).pipe(res)
-      case '/bundle.css': return assets.css(req, res).pipe(res)
-      default:
-        if (req.headers['accept'].indexOf('html') > 0) {
-          return assets.html(req, res).pipe(res)
-        }
-        if (staticAsset.test(req.url)) {
-          return assets.static(req, res).pipe(res)
-        }
-        res.writeHead(404, 'Not Found')
-        return res.end()
+  var server = http.createServer(handler)
+  server.listen(port, onlisten)
+
+  function handler (req, res) {
+    var sink = serverSink(req, res, function (msg) {
+      log.info(msg)
+    })
+
+    if (req.url === '/') {
+      assets.html(req, res).pipe(sink)
+    } else if (req.url === '/bundle.js') {
+      assets.js(req, res).pipe(sink)
+    } else if (req.url === '/bundle.css') {
+      assets.css(req, res).pipe(sink)
+    } else if (req.headers['accept'].indexOf('html') > 0) {
+      assets.html(req, res).pipe(sink)
+    } else if (staticAsset.test(req.url)) {
+      assets.static(req, res).pipe(sink)
+    } else {
+      res.writeHead(404, 'Not Found')
+      sink.end()
     }
-  }).listen(port, function () {
+  }
+
+  function onlisten () {
     var relative = path.relative(process.cwd(), entry)
     var addr = 'http://localhost:' + port
-    log.info('Started bankai for', relative, 'on', addr)
+    log.info('Started for ' + relative + ' on ' + addr)
     if (argv.open !== false) {
       var app = (argv.open.length) ? argv.open : 'system browser'
       opn(addr, { app: argv.open || null })
@@ -144,11 +154,11 @@ function start (entry, argv, done) {
         })
         .then(done)
     }
-  })
+  }
 }
 
 function build (entry, outputDir, argv, done) {
-  log.info('building assets')
+  log.info('bundling assets')
 
   mkdirp.sync(outputDir)
   buildStaticAssets(entry, outputDir, argv, done)
@@ -160,6 +170,7 @@ function build (entry, outputDir, argv, done) {
   function iterator (file, done) {
     var file$ = fs.createWriteStream(path.join(outputDir, file))
     var source$ = assets[file.replace(/^.*\./, '')]()
+    log.debug(file + ' started')
     pump(source$, file$, function (err) {
       log.info(file + ' done')
       done(err)
@@ -171,10 +182,12 @@ function buildStaticAssets (entry, outputDir, argv, done) {
   var src = path.join(path.dirname(entry), argv.assets)
   var dest = path.join(path.dirname(entry), outputDir, argv.assets)
   if (fs.existsSync(src)) copy(src, dest)
+
   function copy (src, dest) {
     if (!fs.statSync(src).isDirectory()) {
+      var relativeName = path.relative(path.join(argv.assets, '../'), src)
+      log.debug(relativeName + ' started')
       return pump(fs.createReadStream(src), fs.createWriteStream(dest), function (err) {
-        var relativeName = path.relative(path.join(argv.assets, '../'), src)
         if (err) {
           log.error(relativeName + ' error')
           return done(err)

@@ -28,7 +28,7 @@
   "license": "MIT",
   "dependencies": {
     "bole": "^3.0.1",
-    "browserify": "^14.0.0",
+    "browserify": "^13.0.0",
     "bundle-collapser": "^1.2.1",
     "concat-stream": "^1.5.2",
     "create-html": "^1.1.0",
@@ -44,6 +44,7 @@
     "pump": "^1.0.1",
     "resolve": "^1.1.7",
     "send": "^0.15.0",
+    "server-sink": "^1.0.0",
     "sheetify": "^6.0.1",
     "subarg": "^1.0.0",
     "uglifyify": "^3.0.4",
