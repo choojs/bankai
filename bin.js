@@ -99,10 +99,7 @@ function main (argv) {
   if (cmd === 'start') {
     start(entry, argv, handleError)
   } else if (cmd === 'build') {
-    build(entry, outputDir, argv, function (err) {
-      if (err) throw err
-      process.exit()
-    })
+    build(entry, outputDir, argv, handleError)
   } else {
     log.error(usage)
     return process.exit(1)
@@ -110,6 +107,7 @@ function main (argv) {
 
   function handleError (err) {
     if (err) throw err
+    process.exit()
   }
 }
 
