@@ -1,19 +1,22 @@
 #!/usr/bin/env node
 
 var explain = require('explain-error')
+var pinoColada = require('pino-colada')
 var mapLimit = require('map-limit')
 var resolve = require('resolve')
-var garnish = require('garnish')
 var mkdirp = require('mkdirp')
 var subarg = require('subarg')
-var bole = require('bole')
 var http = require('http')
 var path = require('path')
+var pino = require('pino')
 var pump = require('pump')
 var opn = require('opn')
 var fs = require('fs')
 
 var bankai = require('./')
+var pretty = pinoColada()
+var log = pino({ name: 'bankai' }, pretty)
+pretty.pipe(process.stdout)
 
 var argv = subarg(process.argv.slice(2), {
   string: [ 'open', 'port', 'assets' ],
@@ -81,15 +84,14 @@ function main (argv) {
   var localEntry = './' + _entry.replace(/^.\//, '')
   var entry = resolve.sync(localEntry, { basedir: process.cwd() })
   var outputDir = argv._[2] || 'dist'
-  startLogging(argv.verbose)
 
   if (argv.h) {
-    console.info(usage)
+    log.info(usage)
     return process.exit()
   }
 
   if (argv.v) {
-    console.info(require('../package.json').version)
+    log.info(require('../package.json').version)
     return process.exit()
   }
 
@@ -101,7 +103,7 @@ function main (argv) {
       process.exit()
     })
   } else {
-    console.error(usage)
+    log.error(usage)
     return process.exit(1)
   }
 
@@ -133,7 +135,7 @@ function start (entry, argv, done) {
   }).listen(port, function () {
     var relative = path.relative(process.cwd(), entry)
     var addr = 'http://localhost:' + port
-    console.info('Started bankai for', relative, 'on', addr)
+    log.info('Started bankai for', relative, 'on', addr)
     if (argv.open !== false) {
       var app = (argv.open.length) ? argv.open : 'system browser'
       opn(addr, { app: argv.open || null })
@@ -146,15 +148,22 @@ function start (entry, argv, done) {
 }
 
 function build (entry, outputDir, argv, done) {
+  log.info('building assets')
+
   mkdirp.sync(outputDir)
   buildStaticAssets(entry, outputDir, argv, done)
+
   var assets = bankai(entry, argv)
   var files = [ 'index.html', 'bundle.js', 'bundle.css' ]
+
   mapLimit(files, Infinity, iterator, done)
   function iterator (file, done) {
     var file$ = fs.createWriteStream(path.join(outputDir, file))
     var source$ = assets[file.replace(/^.*\./, '')]()
-    pump(source$, file$, done)
+    pump(source$, file$, function (err) {
+      log.info(file + ' done')
+      done(err)
+    })
   }
 }
 
@@ -164,7 +173,15 @@ function buildStaticAssets (entry, outputDir, argv, done) {
   if (fs.existsSync(src)) copy(src, dest)
   function copy (src, dest) {
     if (!fs.statSync(src).isDirectory()) {
-      return pump(fs.createReadStream(src), fs.createWriteStream(dest), done)
+      return pump(fs.createReadStream(src), fs.createWriteStream(dest), function (err) {
+        var relativeName = path.relative(path.join(argv.assets, '../'), src)
+        if (err) {
+          log.error(relativeName + ' error')
+          return done(err)
+        }
+        log.info(relativeName + ' done')
+        done()
+      })
     }
     if (!fs.existsSync(dest)) fs.mkdirSync(dest)
     var files = fs.readdirSync(src)
@@ -172,11 +189,4 @@ function buildStaticAssets (entry, outputDir, argv, done) {
       copy(path.join(src, files[i]), path.join(dest, files[i]))
     }
   }
-}
-
-function startLogging (verbose) {
-  var level = (verbose) ? 'debug' : 'info'
-  var pretty = garnish({ level: level, name: 'bankai' })
-  pretty.pipe(process.stdout)
-  bole.output({ stream: pretty, level: level })
 }
