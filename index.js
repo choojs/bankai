@@ -32,6 +32,7 @@ function Bankai (entry, opts) {
   this.htmlDisabled = (opts.html === false)
   this.cssDisabled = (opts.css === false)
   this.optimize = opts.optimize
+  this.watch = opts.watch
   this.cssQueue = []
 
   opts.html = opts.html || {}
@@ -40,17 +41,20 @@ function Bankai (entry, opts) {
 
   if (opts.debug) opts.js = xtend(opts.js, { debug: true })
 
-  this._html = (function () {
+  this._html = html()
+  this._js = js()
+
+  function html () {
     var base = {
       script: 'bundle.js',
-      css: (self.cssDisabled) ? null : 'bundle.css',
+      css: self.cssDisabled ? null : 'bundle.css',
       head: '<meta name="viewport" content="width=device-width, initial-scale=1">'
     }
     var html = createHtml(xtend(base, opts.html))
     return new Buffer(html)
-  })()
+  }
 
-  this._js = (function () {
+  function js () {
     var base = {
       basedir: process.cwd(),
       entries: [ entry ],
@@ -60,7 +64,7 @@ function Bankai (entry, opts) {
     }
     var jsOpts = xtend(base, opts.js)
 
-    var b = (self.optimize)
+    var b = self.optimize || self.watch === false
       ? browserify(jsOpts)
       : watchify(browserify(jsOpts))
 
@@ -73,7 +77,6 @@ function Bankai (entry, opts) {
     if (self.optimize) {
       b.transform(unassertify, { global: true })
       b.transform(yoyoify, { global: true })
-      // b.transform(varify, { global: true })
       b.transform(uglifyify, { global: true })
       b.plugin(collapser, { global: true })
     }
@@ -86,18 +89,18 @@ function Bankai (entry, opts) {
         while (self.cssQueue.length) self.cssQueue.shift()()
       })
     }
-  })()
+  }
 }
 
 // (obj, obj) -> readStream
 Bankai.prototype.js = function (req, res) {
-  var through$ = new stream.PassThrough()
+  var throughStream = new stream.PassThrough()
   this._js(req, res, function (err, buffer) {
-    if (err) return through$.emit('error', err)
-    var source$ = from([buffer])
-    pump(source$, through$)
+    if (err) return throughStream.emit('error', err)
+    var sourceStream = from([buffer])
+    pump(sourceStream, throughStream)
   })
-  return through$
+  return throughStream
 }
 
 // (obj, obj) -> readStream
