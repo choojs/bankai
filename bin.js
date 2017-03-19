@@ -7,6 +7,7 @@ var serverSink = require('server-sink')
 var resolve = require('resolve')
 var mkdirp = require('mkdirp')
 var subarg = require('subarg')
+var xtend = require('xtend')
 var http = require('http')
 var path = require('path')
 var pino = require('pino')
@@ -106,8 +107,7 @@ function main (argv) {
   }
 
   function handleError (err) {
-    if (err) throw err
-    process.exit()
+    if (err) log.error(err)
   }
 }
 
@@ -158,6 +158,8 @@ function start (entry, argv, done) {
 function build (entry, outputDir, argv, done) {
   log.info('bundling assets')
 
+  argv = xtend({ watch: false }, argv)
+
   mkdirp.sync(outputDir)
   buildStaticAssets(entry, outputDir, argv, done)
 
@@ -166,10 +168,10 @@ function build (entry, outputDir, argv, done) {
 
   mapLimit(files, Infinity, iterator, done)
   function iterator (file, done) {
-    var file$ = fs.createWriteStream(path.join(outputDir, file))
-    var source$ = assets[file.replace(/^.*\./, '')]()
+    var fileStream = fs.createWriteStream(path.join(outputDir, file))
+    var sourceStream = assets[file.replace(/^.*\./, '')]()
     log.debug(file + ' started')
-    pump(source$, file$, function (err) {
+    pump(sourceStream, fileStream, function (err) {
       log.info(file + ' done')
       done(err)
     })

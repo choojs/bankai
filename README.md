@@ -128,6 +128,7 @@ take the following options:
   to disable
 - __opts.optimize:__ (default `false`). Disable livereload scripts, cache
   output and optimize all bundles
+- __opts.watch:__ Disable livereload scripts
 
 ### readableStream = assets.js(req?, res?)
 Return a `js` stream. Sets correct header values if `req` and `res` are passed.
