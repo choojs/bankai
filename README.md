@@ -4,7 +4,7 @@
   <strong>Streaming asset compiler</strong>
 </div>
 <div align="center">
-  Serve, compile and optimize assets
+  Bundle and optimize CSS, HTML and JS
 </div>
 
 ---
@@ -42,12 +42,46 @@
   </a>
 </div>
 
-## Installation
-```sh
-$ npm install bankai
-```
+## Features
+- Thin wrapper around `browserify` in ~100 lines
+- CLI supports HTTP and Filesystem
+- Incremental compilation & build caching
+- Sensible defaults make it easy to use
+- Optimization mode for production grade artifacts
 
 ## Usage
+```txt
+  Usage:
+    $ bankai <command> [options]
+
+  Commands:
+    <default>                      Run 'bankai start'
+    start <filename>               Start a bankai server
+    build <filename> <directory>   Compile and export files to a directory
+
+    Options:
+      -c, --css=<subargs>     Pass subarguments to sheetify
+      -d, --debug             Include sourcemaps [default: false]
+      -e, --electron          Enable electron mode for the bundler
+      -h, --help              Print usage
+      -H, --html=<subargs>    Pass subarguments to create-html
+      -j, --js=<subargs>      Pass subarguments to browserify
+      -o, --open=<browser>    Open html in a browser [default: system default]
+      -O, --optimize          Optimize assets served by bankai [default: false]
+      -p, --port=<n>          Bind bankai to a port [default: 8080]
+      -V, --verbose           Include debug messages
+
+  Examples:
+    $ bankai index.js -p 8080            # start bankai on port 8080
+    $ bankai index.js --open             # open html in the browser
+    $ bankai -c [ -u sheetify-cssnext ]  # use cssnext in sheetify
+    $ bankai -j [ -t brfs ]              # use brfs in browserify
+    $ bankai build index.js dist/        # compile and export to dist/
+    $ bankai build -O index.js dist/     # optimize compiled files
+```
+
+
+## JS Usage
 Given the following `client.js`:
 ```js
 var css = require('sheetify')
@@ -85,38 +119,8 @@ http.createServer(function (req, res) {
 }).listen(8080)
 ```
 
-## CLI
-```txt
-  Usage:
-    $ bankai <command> [options]
-
-  Commands:
-    <default>                      Run 'bankai start'
-    start <filename>               Start a bankai server
-    build <filename> <directory>   Compile and export files to a directory
-
-    Options:
-      -c, --css=<subargs>     Pass subarguments to sheetify
-      -d, --debug             Include sourcemaps [default: false]
-      -h, --help              Print usage
-      -H, --html=<subargs>    Pass subarguments to create-html
-      -j, --js=<subargs>      Pass subarguments to browserify
-      -o, --open=<browser>    Open html in a browser [default: system default]
-      -O, --optimize          Optimize assets served by bankai [default: false]
-      -p, --port=<n>          Bind bankai to a port [default: 8080]
-      -V, --verbose           Include debug messages
-
-  Examples:
-    $ bankai index.js -p 8080            # start bankai on port 8080
-    $ bankai index.js --open             # open html in the browser
-    $ bankai -c [ -u sheetify-cssnext ]  # use cssnext in sheetify
-    $ bankai -j [ -t brfs ]              # use brfs in browserify
-    $ bankai build index.js dist/        # compile and export to dist/
-    $ bankai build -O index.js dist/     # optimize compiled files
-```
-
 ## API
-### assets = bankai(entryFile, opts?)
+### assets = bankai(entryFile, [opts])
 Create a new instance of `bankai`. The first argument is a route to the entry
 file that is compiled by `browserify`. The second argument is optional and can
 take the following options:
@@ -129,20 +133,36 @@ take the following options:
 - __opts.optimize:__ (default `false`). Disable livereload scripts, cache
   output and optimize all bundles
 - __opts.watch:__ Disable livereload scripts
+- __opts.electron:__ (default `false`). Enable [electron][electron] mode for
+  the bundler.  Relies on `index.html` being served as a static file using
+  `file://` to ensure `require()` paths are resolved correctly
 
-### readableStream = assets.js(req?, res?)
+### readableStream = assets.js([req], [res])
 Return a `js` stream. Sets correct header values if `req` and `res` are passed.
+Uses [browserify][browserify] and [watchify][watchify] under the hood.
 
-### readableStream = assets.html(req?, res?)
-Return a `html` stream. Sets correct header values if `req` and `res` are passed.
+### readableStream = assets.html([req], [res])
+Return a `html` stream. Sets correct header values if `req` and `res` are
+passed. Uses [create-html][chtml] under the hood.
 
-### readableStream = assets.css(req?, res?)
-Return a `css` stream. Sets correct header values if `req` and `res` are passed.
+### readableStream = assets.css([req], [res])
+Return a `css` stream. Sets correct header values if `req` and `res` are
+passed. Uses [sheetify][sheetify] under the hood.
+
+## Installation
+```sh
+$ npm install bankai
+```
 
 ## See Also
-- [budo](https://www.npmjs.com/package/budo)
-- [sheetify](https://github.com/sheetify/sheetify)
-- [browserify](https://github.com/substack/node-browserify)
+- [stackcss/sheetify][sheetify]
+- [substack/browserify][browserify]
+- [sethvincent/create-html][chtml]
+
+## Similar Packages
+- [mattdesl/budo](https://www.npmjs.com/package/budo)
+- [maxogden/wzrd](https://www.npmjs.com/package/wzrd)
+- [chrisdickinson/beefy](https://www.npmjs.com/package/beefy)
 
 ## License
 [MIT](https://tldrlegal.com/license/mit-license)
@@ -157,3 +177,8 @@ Return a `css` stream. Sets correct header values if `req` and `res` are passed.
 [9]: https://npmjs.org/package/bankai
 [10]: https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square
 [11]: https://github.com/feross/standard
+[electron]: https://github.com/electron/electron
+[sheetify]: https://github.com/stackcss/sheetify
+[watchify]: https://github.com/substack/watchify
+[browserify]: https://github.com/substack/node-browserify
+[chtml]: https://github.com/sethvincent/create-html
