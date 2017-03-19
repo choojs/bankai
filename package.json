@@ -27,7 +27,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "browserify": "^13.0.0",
+    "browserify": "^14.0.0",
     "bundle-collapser": "^1.2.1",
     "concat-stream": "^1.5.2",
     "create-html": "^1.1.0",
