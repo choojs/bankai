@@ -83,21 +83,20 @@ function main (argv) {
   if ((argv._[0] !== 'build') && (argv._[0] !== 'start')) {
     argv._.unshift('start')
   }
+
+  if (argv.h) {
+    console.log(usage)
+    return process.exit()
+  } else if (argv.v) {
+    console.log(require('../package.json').version)
+    return process.exit()
+  }
+
   var cmd = argv._[0]
   var _entry = argv._[1] || 'index.js'
   var localEntry = './' + _entry.replace(/^.\//, '')
   var entry = resolve.sync(localEntry, { basedir: process.cwd() })
   var outputDir = argv._[2] || 'dist'
-
-  if (argv.h) {
-    log.info(usage)
-    return process.exit()
-  }
-
-  if (argv.v) {
-    log.info(require('../package.json').version)
-    return process.exit()
-  }
 
   if (cmd === 'start') {
     start(entry, argv, handleError)
