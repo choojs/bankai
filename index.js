@@ -48,8 +48,8 @@ function Bankai (entry, opts) {
 
   function html () {
     var base = {
-      script: 'bundle.js',
-      css: self.cssDisabled ? null : 'bundle.css',
+      script: '/bundle.js',
+      css: self.cssDisabled ? null : '/bundle.css',
       head: '<meta name="viewport" content="width=device-width, initial-scale=1">'
     }
     var html = createHtml(xtend(base, opts.html))
