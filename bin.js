@@ -28,7 +28,8 @@ var argv = subarg(process.argv.slice(2), {
     debug: false,
     open: '',
     optimize: false,
-    port: 8080
+    port: 8080,
+    address: 'localhost'
   },
   alias: {
     assets: 'a',
@@ -42,7 +43,8 @@ var argv = subarg(process.argv.slice(2), {
     optimize: 'O',
     port: 'p',
     verbose: 'V',
-    version: 'v'
+    version: 'v',
+    address: 'A'
   }
 })
 
@@ -57,6 +59,7 @@ var usage = `
 
     Options:
       -a, --assets=<directory>  Serve static assets [default: assets]
+      -A, --address=<ip>      Ip address to listen [default: localhost]
       -c, --css=<subargs>     Pass subarguments to sheetify
       -d, --debug             Include sourcemaps [default: false]
       -e, --electron          Enable electron mode for the bundler
@@ -116,9 +119,10 @@ function start (entry, argv, done) {
   var assets = bankai(entry, argv)
   var staticAsset = new RegExp('/' + argv.assets)
   var port = argv.port
+  var address = argv.address
 
   var server = http.createServer(handler)
-  server.listen(port, onlisten)
+  server.listen(port, address, onlisten)
 
   function handler (req, res) {
     var sink = serverSink(req, res, function (msg) {
@@ -143,7 +147,7 @@ function start (entry, argv, done) {
 
   function onlisten () {
     var relative = path.relative(process.cwd(), entry)
-    var addr = 'http://localhost:' + port
+    var addr = 'http://' + address + ':' + port
     log.info('Started for ' + relative + ' on ' + addr)
     if (argv.open !== false) {
       var app = argv.open.length ? argv.open : ''
