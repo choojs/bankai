@@ -138,7 +138,7 @@ function start (entry, argv, done) {
     } else if (req.headers['accept'].indexOf('html') > 0) {
       assets.html(req, res).pipe(sink)
     } else if (staticAsset.test(req.url)) {
-      assets.static(req, res).pipe(sink)
+      assets.static(req).pipe(res)
     } else {
       res.writeHead(404, 'Not Found')
       sink.end()
