@@ -6,7 +6,7 @@ var prefix = css`
 `
 
 if (process.env.NODE_ENV !== 'production') {
-  alert('not in production!')
+  window.alert('not in production!')
 }
 
 var el = html`
