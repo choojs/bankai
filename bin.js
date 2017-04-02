@@ -7,7 +7,6 @@ var serverSink = require('server-sink')
 var resolve = require('resolve')
 var mkdirp = require('mkdirp')
 var subarg = require('subarg')
-var xtend = require('xtend')
 var http = require('http')
 var open = require('open')
 var path = require('path')
@@ -21,17 +20,18 @@ var log = pino({ name: 'bankai', level: 'debug' }, pretty)
 pretty.pipe(process.stdout)
 
 var argv = subarg(process.argv.slice(2), {
-  string: [ 'open', 'port', 'assets' ],
+  string: [ 'open', 'port', 'assets', 'watch' ],
   boolean: [ 'optimize', 'verbose', 'help', 'version', 'debug', 'electron' ],
   default: {
     assets: 'assets',
     debug: false,
-    open: '',
+    open: false,
     optimize: false,
     port: 8080,
     address: 'localhost'
   },
   alias: {
+    address: 'A',
     assets: 'a',
     css: 'c',
     debug: 'd',
@@ -43,8 +43,7 @@ var argv = subarg(process.argv.slice(2), {
     optimize: 'O',
     port: 'p',
     verbose: 'V',
-    version: 'v',
-    address: 'A'
+    version: 'v'
   }
 })
 
@@ -70,6 +69,7 @@ var usage = `
       -O, --optimize          Optimize assets served by bankai [default: false]
       -p, --port=<n>          Bind bankai to a port [default: 8080]
       -V, --verbose           Include debug messages
+      -w, --watch=<bool>      Toggle watch mode for start [default: true]
 
   Examples:
     $ bankai index.js -p 8080            # start bankai on port 8080
@@ -121,6 +121,11 @@ function start (entry, argv, done) {
   var port = argv.port
   var address = argv.address
 
+  // cast argv.watch to a boolean
+  argv.watch = argv.watch === ''
+    ? true
+    : argv.watch !== 'false'
+
   var server = http.createServer(handler)
   server.listen(port, address, onlisten)
 
@@ -162,7 +167,10 @@ function start (entry, argv, done) {
 function build (entry, outputDir, argv, done) {
   log.info('bundling assets')
 
-  argv = xtend({ watch: false }, argv)
+  // cast argv.watch to a boolean
+  argv.watch = argv.watch === ''
+    ? false
+    : argv.watch !== 'false'
 
   mkdirp.sync(outputDir)
   buildStaticAssets(entry, outputDir, argv, done)
