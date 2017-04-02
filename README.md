@@ -70,6 +70,7 @@
       -O, --optimize          Optimize assets served by bankai [default: false]
       -p, --port=<n>          Bind bankai to a port [default: 8080]
       -V, --verbose           Include debug messages
+      -w, --watch=<bool>      Toggle watch mode for start [default: true]
 
   Examples:
     $ bankai index.js -p 8080            # start bankai on port 8080
