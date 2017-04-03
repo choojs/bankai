@@ -31,10 +31,10 @@ function Bankai (entry, opts) {
 
   var self = this
 
+  this.watch = opts.watch === undefined ? true : opts.watch
   this.htmlDisabled = (opts.html === false)
   this.cssDisabled = (opts.css === false)
   this.optimize = opts.optimize
-  this.watch = opts.watch
   this.cssQueue = []
 
   opts.html = opts.html || {}
@@ -69,9 +69,9 @@ function Bankai (entry, opts) {
 
     var jsOpts = xtend(base, opts.js)
 
-    var b = self.optimize || self.watch === false
-      ? browserify(jsOpts)
-      : watchify(browserify(jsOpts))
+    var b = self.watch
+      ? watchify(browserify(jsOpts))
+      : browserify(jsOpts)
 
     if (!self.cssDisabled) {
       b.plugin(cssExtract, { out: createCssStream })
