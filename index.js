@@ -16,7 +16,7 @@ var from = require('from2')
 var pump = require('pump')
 var send = require('send')
 
-var createElectronOpts = require('./electron')
+var createElectronOpts = require('./lib/electron')
 
 module.exports = Bankai
 
