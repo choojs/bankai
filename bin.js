@@ -15,6 +15,7 @@ var fs = require('fs')
 
 var logHttpRequest = require('./lib/log-http-request')
 var zlibMaybe = require('./lib/gzip-maybe')
+var Sse = require('./lib/sse')
 var bankai = require('./')
 
 var pretty = pinoColada()
@@ -122,6 +123,7 @@ function start (entry, argv, done) {
   var staticAsset = new RegExp('/' + argv.assets)
   var port = argv.port
   var address = argv.address
+  var sse = Sse(assets)
 
   // cast argv.watch to a boolean
   argv.watch = argv.watch === ''
@@ -137,18 +139,18 @@ function start (entry, argv, done) {
   })
 
   function handler (req, res) {
-    var zlib = zlibMaybe(req, res)
-
     if (req.url === '/') {
-      assets.html(req, res).pipe(zlib).pipe(res)
+      assets.html(req, res).pipe(zlibMaybe(req, res)).pipe(res)
+    } else if (req.url === '/sse') {
+      sse(req, res)
     } else if (req.url === '/bundle.js') {
-      assets.js(req, res).pipe(zlib).pipe(res)
+      assets.js(req, res).pipe(zlibMaybe(req, res)).pipe(res)
     } else if (req.url === '/bundle.css') {
-      assets.css(req, res).pipe(zlib).pipe(res)
+      assets.css(req, res).pipe(zlibMaybe(req, res)).pipe(res)
     } else if (req.headers['accept'].indexOf('html') > 0) {
-      assets.html(req, res).pipe(zlib).pipe(res)
+      assets.html(req, res).pipe(zlibMaybe(req, res)).pipe(res)
     } else if (staticAsset.test(req.url)) {
-      assets.static(req).pipe(zlib).pipe(res)
+      assets.static(req).pipe(zlibMaybe(req, res)).pipe(res)
     } else {
       res.writeHead(404, 'Not Found')
       res.end()

@@ -1,4 +1,5 @@
 var collapser = require('bundle-collapser/plugin')
+var EventEmitter = require('events').EventEmitter
 var watchifyRequest = require('watchify-request')
 var sheetify = require('sheetify/transform')
 var unassertify = require('unassertify')
@@ -23,6 +24,7 @@ module.exports = Bankai
 // (str, obj) -> obj
 function Bankai (entry, opts) {
   if (!(this instanceof Bankai)) return new Bankai(entry, opts)
+  EventEmitter.call(this)
 
   opts = opts || {}
 
@@ -86,16 +88,22 @@ function Bankai (entry, opts) {
       b.plugin(collapser, { global: true })
     }
 
+    b.on('bundle', function (bundle) {
+      self.emit('js-bundle', bundle)
+    })
+
     return watchifyRequest(b)
 
     function createCssStream () {
       return concat({ encoding: 'buffer' }, function (css) {
         self._css = css
+        self.emit('css-bundle', css)
         while (self.cssQueue.length) self.cssQueue.shift()()
       })
     }
   }
 }
+Bankai.prototype = Object.create(EventEmitter.prototype)
 
 // (obj, obj) -> readStream
 Bankai.prototype.js = function (req, res) {
