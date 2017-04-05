@@ -23,15 +23,14 @@ pretty.pipe(process.stdout)
 var log = pino({ name: 'bankai', level: 'debug' }, pretty)
 
 var argv = subarg(process.argv.slice(2), {
-  string: [ 'open', 'port', 'assets', 'watch' ],
-  boolean: [ 'optimize', 'verbose', 'help', 'version', 'debug', 'electron' ],
+  string: [ 'open', 'port', 'assets' ],
+  boolean: [ 'watch', 'verbose', 'help', 'version', 'debug', 'electron' ],
   default: {
+    address: 'localhost',
     assets: 'assets',
     debug: false,
     open: false,
-    optimize: false,
-    port: 8080,
-    address: 'localhost'
+    port: 8080
   },
   alias: {
     address: 'A',
@@ -43,10 +42,10 @@ var argv = subarg(process.argv.slice(2), {
     html: 'H',
     js: 'j',
     open: 'o',
-    optimize: 'O',
     port: 'p',
     verbose: 'V',
-    version: 'v'
+    version: 'v',
+    watch: 'w'
   }
 })
 
@@ -69,10 +68,9 @@ var usage = `
       -H, --html=<subargs>    Pass subarguments to create-html
       -j, --js=<subargs>      Pass subarguments to browserify
       -o, --open=<browser>    Open html in a browser [default: system default]
-      -O, --optimize          Optimize assets served by bankai [default: false]
       -p, --port=<n>          Bind bankai to a port [default: 8080]
       -V, --verbose           Include debug messages
-      -w, --watch=<bool>      Toggle watch mode for start [default: true]
+      -w, --watch=<bool>      Toggle watch mode
 
   Examples:
     $ bankai index.js -p 8080            # start bankai on port 8080
@@ -80,7 +78,6 @@ var usage = `
     $ bankai -c [ -u sheetify-cssnext ]  # use cssnext in sheetify
     $ bankai -j [ -t brfs ]              # use brfs in browserify
     $ bankai build index.js dist/        # compile and export to dist/
-    $ bankai build -O index.js dist/     # optimize compiled files
 `
 
 main(argv)
@@ -89,6 +86,7 @@ function main (argv) {
   if ((argv._[0] !== 'build') && (argv._[0] !== 'start')) {
     argv._.unshift('start')
   }
+  console.log(argv)
 
   if (argv.h) {
     console.log(usage)
@@ -126,9 +124,9 @@ function start (entry, argv, done) {
   var sse = Sse(assets)
 
   // cast argv.watch to a boolean
-  argv.watch = argv.watch === ''
+  argv.watch = argv.watch === undefined
     ? true
-    : argv.watch !== 'false'
+    : argv.watch
 
   var server = http.createServer(handler)
   server.listen(port, address, onlisten)
@@ -175,9 +173,9 @@ function build (entry, outputDir, argv, done) {
   log.info('bundling assets')
 
   // cast argv.watch to a boolean
-  argv.watch = argv.watch === ''
+  argv.watch = argv.watch === undefined
     ? false
-    : argv.watch !== 'false'
+    : argv.watch
 
   mkdirp.sync(outputDir)
   buildStaticAssets(entry, outputDir, argv, done)
@@ -185,7 +183,14 @@ function build (entry, outputDir, argv, done) {
   var assets = bankai(entry, argv)
   var files = [ 'index.html', 'bundle.js', 'bundle.css' ]
 
-  mapLimit(files, Infinity, iterator, done)
+  assets.on('js-bundle', function () {
+    mapLimit(files, Infinity, iterator, done)
+  })
+
+  assets.on('css-bundle', function () {
+    mapLimit(files, Infinity, iterator, done)
+  })
+
   function iterator (file, done) {
     var fileStream = fs.createWriteStream(path.join(outputDir, file))
     var sourceStream = assets[file.replace(/^.*\./, '')]()

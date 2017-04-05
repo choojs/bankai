@@ -36,7 +36,7 @@ function Bankai (entry, opts) {
   this.watch = opts.watch === undefined ? true : opts.watch
   this.htmlDisabled = (opts.html === false)
   this.cssDisabled = (opts.css === false)
-  this.optimize = opts.optimize
+  this.optimize = true
   this.cssQueue = []
 
   opts.html = opts.html || {}
