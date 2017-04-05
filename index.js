@@ -36,7 +36,6 @@ function Bankai (entry, opts) {
   this.watch = opts.watch === undefined ? true : opts.watch
   this.htmlDisabled = (opts.html === false)
   this.cssDisabled = (opts.css === false)
-  this.optimize = true
   this.cssQueue = []
 
   opts.html = opts.html || {}
@@ -55,7 +54,7 @@ function Bankai (entry, opts) {
       head: '<meta name="viewport" content="width=device-width, initial-scale=1">'
     }
     var html = createHtml(xtend(base, opts.html))
-    return new Buffer(html)
+    return Buffer.from(html)
   }
 
   function js () {
@@ -81,12 +80,10 @@ function Bankai (entry, opts) {
       b.transform(sheetify, opts.css)
     }
 
-    if (self.optimize) {
-      b.transform(unassertify, { global: true })
-      b.transform(yoyoify, { global: true })
-      b.transform(uglifyify, { global: true })
-      b.plugin(collapser, { global: true })
-    }
+    b.transform(unassertify, { global: true })
+    b.transform(yoyoify, { global: true })
+    b.transform(uglifyify, { global: true })
+    b.plugin(collapser, { global: true })
 
     b.on('bundle', function (bundle) {
       self.emit('js-bundle', bundle)

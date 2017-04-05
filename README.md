@@ -60,6 +60,8 @@
     build <filename> <directory>   Compile and export files to a directory
 
     Options:
+      -a, --assets=<directory>  Serve static assets [default: assets]
+      -A, --address=<ip>      Ip address to listen [default: localhost]
       -c, --css=<subargs>     Pass subarguments to sheetify
       -d, --debug             Include sourcemaps [default: false]
       -e, --electron          Enable electron mode for the bundler
@@ -69,7 +71,7 @@
       -o, --open=<browser>    Open html in a browser [default: system default]
       -p, --port=<n>          Bind bankai to a port [default: 8080]
       -V, --verbose           Include debug messages
-      -w, --watch=<bool>      Toggle watch mode for start [default: true]
+      -w, --watch=<bool>      Toggle watch mode
 
   Examples:
     $ bankai index.js -p 8080            # start bankai on port 8080

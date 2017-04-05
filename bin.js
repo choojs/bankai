@@ -86,7 +86,6 @@ function main (argv) {
   if ((argv._[0] !== 'build') && (argv._[0] !== 'start')) {
     argv._.unshift('start')
   }
-  console.log(argv)
 
   if (argv.h) {
     console.log(usage)
@@ -123,10 +122,8 @@ function start (entry, argv, done) {
   var address = argv.address
   var sse = Sse(assets)
 
-  // cast argv.watch to a boolean
-  argv.watch = argv.watch === undefined
-    ? true
-    : argv.watch
+  // always enable watch for start
+  argv.watch = true
 
   var server = http.createServer(handler)
   server.listen(port, address, onlisten)
