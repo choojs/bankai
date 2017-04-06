@@ -1,4 +1,5 @@
 var collapser = require('bundle-collapser/plugin')
+var EventEmitter = require('events').EventEmitter
 var watchifyRequest = require('watchify-request')
 var sheetify = require('sheetify/transform')
 var unassertify = require('unassertify')
@@ -16,13 +17,14 @@ var from = require('from2')
 var pump = require('pump')
 var send = require('send')
 
-var createElectronOpts = require('./electron')
+var createElectronOpts = require('./lib/electron')
 
 module.exports = Bankai
 
 // (str, obj) -> obj
 function Bankai (entry, opts) {
   if (!(this instanceof Bankai)) return new Bankai(entry, opts)
+  EventEmitter.call(this)
 
   opts = opts || {}
 
@@ -31,10 +33,9 @@ function Bankai (entry, opts) {
 
   var self = this
 
+  this.watch = opts.watch === undefined ? true : opts.watch
   this.htmlDisabled = (opts.html === false)
   this.cssDisabled = (opts.css === false)
-  this.optimize = opts.optimize
-  this.watch = opts.watch
   this.cssQueue = []
 
   opts.html = opts.html || {}
@@ -53,7 +54,7 @@ function Bankai (entry, opts) {
       head: '<meta name="viewport" content="width=device-width, initial-scale=1">'
     }
     var html = createHtml(xtend(base, opts.html))
-    return new Buffer(html)
+    return Buffer.from(html)
   }
 
   function js () {
@@ -69,9 +70,9 @@ function Bankai (entry, opts) {
 
     var jsOpts = xtend(base, opts.js)
 
-    var b = self.optimize || self.watch === false
-      ? browserify(jsOpts)
-      : watchify(browserify(jsOpts))
+    var b = self.watch
+      ? watchify(browserify(jsOpts))
+      : browserify(jsOpts)
 
     if (!self.cssDisabled) {
       b.plugin(cssExtract, { out: createCssStream })
@@ -79,23 +80,27 @@ function Bankai (entry, opts) {
       b.transform(sheetify, opts.css)
     }
 
-    if (self.optimize) {
-      b.transform(unassertify, { global: true })
-      b.transform(yoyoify, { global: true })
-      b.transform(uglifyify, { global: true })
-      b.plugin(collapser, { global: true })
-    }
+    b.transform(unassertify, { global: true })
+    b.transform(yoyoify, { global: true })
+    b.transform(uglifyify, { global: true })
+    b.plugin(collapser, { global: true })
+
+    b.on('bundle', function (bundle) {
+      self.emit('js-bundle', bundle)
+    })
 
     return watchifyRequest(b)
 
     function createCssStream () {
       return concat({ encoding: 'buffer' }, function (css) {
         self._css = css
+        self.emit('css-bundle', css)
         while (self.cssQueue.length) self.cssQueue.shift()()
       })
     }
   }
 }
+Bankai.prototype = Object.create(EventEmitter.prototype)
 
 // (obj, obj) -> readStream
 Bankai.prototype.js = function (req, res) {

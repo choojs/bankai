@@ -60,6 +60,8 @@
     build <filename> <directory>   Compile and export files to a directory
 
     Options:
+      -a, --assets=<directory>  Serve static assets [default: assets]
+      -A, --address=<ip>      Ip address to listen [default: localhost]
       -c, --css=<subargs>     Pass subarguments to sheetify
       -d, --debug             Include sourcemaps [default: false]
       -e, --electron          Enable electron mode for the bundler
@@ -67,9 +69,9 @@
       -H, --html=<subargs>    Pass subarguments to create-html
       -j, --js=<subargs>      Pass subarguments to browserify
       -o, --open=<browser>    Open html in a browser [default: system default]
-      -O, --optimize          Optimize assets served by bankai [default: false]
       -p, --port=<n>          Bind bankai to a port [default: 8080]
       -V, --verbose           Include debug messages
+      -w, --watch=<bool>      Toggle watch mode
 
   Examples:
     $ bankai index.js -p 8080            # start bankai on port 8080
@@ -77,7 +79,6 @@
     $ bankai -c [ -u sheetify-cssnext ]  # use cssnext in sheetify
     $ bankai -j [ -t brfs ]              # use brfs in browserify
     $ bankai build index.js dist/        # compile and export to dist/
-    $ bankai build -O index.js dist/     # optimize compiled files
 ```
 
 
@@ -130,8 +131,6 @@ take the following options:
   disable
 - __opts.html:__ (default: `{}`). Pass options to `create-html`. Set to `false`
   to disable
-- __opts.optimize:__ (default `false`). Disable livereload scripts, cache
-  output and optimize all bundles
 - __opts.watch:__ Disable livereload scripts
 - __opts.electron:__ (default `false`). Enable [electron][electron] mode for
   the bundler.  Relies on `index.html` being served as a static file using
