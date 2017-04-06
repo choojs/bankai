@@ -116,14 +116,22 @@ function main (argv) {
 }
 
 function start (entry, argv, done) {
-  var assets = bankai(entry, argv)
-  var staticAsset = new RegExp('/' + argv.assets)
-  var port = argv.port
-  var address = argv.address
-  var sse = Sse(assets)
-
   // always enable watch for start
   argv.watch = true
+
+  var assets = bankai(entry, argv)
+  var staticAsset = new RegExp('/' + argv.assets)
+  var address = argv.address
+  var port = argv.port
+  var sse = Sse(assets)
+
+  assets.on('js-bundle', function () {
+    log.info('bundle:js')
+  })
+
+  assets.on('css-bundle', function () {
+    log.info('bundle:css')
+  })
 
   var server = http.createServer(handler)
   server.listen(port, address, onlisten)
