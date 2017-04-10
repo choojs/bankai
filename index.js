@@ -66,7 +66,7 @@ function Bankai (entry, opts) {
 
     base = (opts.electron)
       ? xtend(base, createElectronOpts())
-      : xtend(base, { fullPaths: true })
+      : xtend(base)
 
     var jsOpts = xtend(base, opts.js)
 
@@ -83,7 +83,7 @@ function Bankai (entry, opts) {
     b.transform(unassertify, { global: true })
     b.transform(yoyoify, { global: true })
     b.transform(uglifyify, { global: true })
-    b.plugin(collapser, { global: true })
+    b.plugin(collapser)
 
     b.on('bundle', function (bundle) {
       self.emit('js-bundle', bundle)
