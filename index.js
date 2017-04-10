@@ -82,7 +82,11 @@ function Bankai (entry, opts) {
 
     b.transform(unassertify, { global: true })
     b.transform(yoyoify, { global: true })
-    b.transform(uglifyify, { global: true })
+
+    if (opts.uglify) {
+      b.transform(uglifyify, { global: true })
+    }
+
     b.plugin(collapser)
 
     b.on('bundle', function (bundle) {
