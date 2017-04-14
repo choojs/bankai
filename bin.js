@@ -24,13 +24,14 @@ var log = pino({ name: 'bankai', level: 'debug' }, pretty)
 
 var argv = subarg(process.argv.slice(2), {
   string: [ 'open', 'port', 'assets' ],
-  boolean: [ 'watch', 'verbose', 'help', 'version', 'debug', 'electron' ],
+  boolean: [ 'watch', 'verbose', 'help', 'version', 'debug', 'electron', 'uglify' ],
   default: {
     address: 'localhost',
     assets: 'assets',
     debug: false,
     open: false,
-    port: 8080
+    port: 8080,
+    uglify: true
   },
   alias: {
     address: 'A',
@@ -41,6 +42,7 @@ var argv = subarg(process.argv.slice(2), {
     help: 'h',
     html: 'H',
     js: 'j',
+    uglify: 'u',
     open: 'o',
     port: 'p',
     verbose: 'V',
@@ -71,6 +73,7 @@ var usage = `
       -p, --port=<n>          Bind bankai to a port [default: 8080]
       -V, --verbose           Include debug messages
       -w, --watch=<bool>      Toggle watch mode
+      -u, --uglify=<bool>     Toggle uglifyify. [default: true]
 
   Examples:
     $ bankai index.js -p 8080            # start bankai on port 8080

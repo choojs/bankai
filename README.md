@@ -72,6 +72,7 @@
       -p, --port=<n>          Bind bankai to a port [default: 8080]
       -V, --verbose           Include debug messages
       -w, --watch=<bool>      Toggle watch mode
+      -u, --uglify=<bool>     Toggle uglifyify. [default: true]
 
   Examples:
     $ bankai index.js -p 8080            # start bankai on port 8080
@@ -152,6 +153,11 @@ passed. Uses [sheetify][sheetify] under the hood.
 ```sh
 $ npm install bankai
 ```
+
+## Uglify toggle
+Uglify only supports JavaScript syntax up to ES5. If you want to use later syntax
+you'll need to either disable the uglifyify transform with `--uglify=false` or
+add a compiler to convert your ES5+ syntax down to ES5.
 
 ## See Also
 - [stackcss/sheetify][sheetify]
