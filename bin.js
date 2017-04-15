@@ -156,7 +156,7 @@ function start (entry, argv, done) {
     } else if (req.headers['accept'].indexOf('html') > 0) {
       assets.html(req, res).pipe(zlibMaybe(req, res)).pipe(res)
     } else if (staticAsset.test(req.url)) {
-      assets.static(req).pipe(zlibMaybe(req, res)).pipe(res)
+      assets.static(req).pipe(res)
     } else {
       res.writeHead(404, 'Not Found')
       res.end()
