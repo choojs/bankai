@@ -71,8 +71,8 @@
       -o, --open=<browser>    Open html in a browser [default: system default]
       -p, --port=<n>          Bind bankai to a port [default: 8080]
       -V, --verbose           Include debug messages
-      -w, --watch=<bool>      Toggle watch mode
-      -u, --uglify=<bool>     Toggle uglifyify. [default: true]
+      -w, --watch <bool>      Toggle watch mode
+      -u, --uglify <bool>     Toggle uglifyify. [default: true]
 
   Examples:
     $ bankai index.js -p 8080            # start bankai on port 8080
@@ -80,6 +80,14 @@
     $ bankai -c [ -u sheetify-cssnext ]  # use cssnext in sheetify
     $ bankai -j [ -t brfs ]              # use brfs in browserify
     $ bankai build index.js dist/        # compile and export to dist/
+
+  Notes:
+    When specifying both --watch and --uglify using the long form, you must omit
+    the = when specifying them to be turned off.
+
+  Examples:
+    bankai example.js --open=firefox-aurora -p 3000
+    bankai example.js --uglify false -w false
 ```
 
 
