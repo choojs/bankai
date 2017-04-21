@@ -13,7 +13,7 @@ var pino = require('pino')
 var pump = require('pump')
 var fs = require('fs')
 
-var logHttpRequest = require('./lib/log-http-request')
+var logHttp = require('log-http')
 var zlibMaybe = require('./lib/gzip-maybe')
 var Sse = require('./lib/sse')
 var bankai = require('./')
@@ -147,7 +147,7 @@ function start (entry, argv, done) {
   var server = http.createServer(handler)
   server.listen(port, address, onlisten)
 
-  var stats = logHttpRequest(server)
+  var stats = logHttp(server)
   stats.on('data', function (level, data) {
     log[level](data)
   })
