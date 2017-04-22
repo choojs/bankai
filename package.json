@@ -8,6 +8,7 @@
   },
   "scripts": {
     "start": "./bin.js example.js --open -p 8080 -A 0.0.0.0",
+    "build": "NODE_ENV=production ./bin.js build example.js --optimize",
     "deps": "dependency-check . && dependency-check . --extra --no-dev",
     "test": "standard && npm run deps",
     "test:cov": "standard && npm run deps"
@@ -32,6 +33,7 @@
     "concat-stream": "^1.5.2",
     "create-html": "^1.1.0",
     "css-extract": "^1.2.0",
+    "envify": "^4.0.0",
     "explain-error": "^1.0.3",
     "from2": "^2.3.0",
     "log-http": "^1.0.0",

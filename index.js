@@ -10,6 +10,7 @@ var concat = require('concat-stream')
 var uglifyify = require('uglifyify')
 var watchify = require('watchify')
 var yoyoify = require('yo-yoify')
+var envify = require('envify')
 var assert = require('assert')
 var stream = require('stream')
 var xtend = require('xtend')
@@ -82,6 +83,7 @@ function Bankai (entry, opts) {
 
     b.transform(unassertify, { global: true })
     b.transform(yoyoify, { global: true })
+    b.transform(envify, { global: true })
 
     if (opts.uglify) {
       b.transform(uglifyify, { global: true })
