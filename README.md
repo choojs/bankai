@@ -60,6 +60,8 @@
     build <filename> <directory>   Compile and export files to a directory
 
     Options:
+      -a, --assets=<directory>  Serve static assets [default: assets]
+      -A, --address=<ip>      Ip address to listen [default: localhost]
       -c, --css=<subargs>     Pass subarguments to sheetify
       -d, --debug             Include sourcemaps [default: false]
       -e, --electron          Enable electron mode for the bundler
@@ -67,9 +69,10 @@
       -H, --html=<subargs>    Pass subarguments to create-html
       -j, --js=<subargs>      Pass subarguments to browserify
       -o, --open=<browser>    Open html in a browser [default: system default]
-      -O, --optimize          Optimize assets served by bankai [default: false]
       -p, --port=<n>          Bind bankai to a port [default: 8080]
       -V, --verbose           Include debug messages
+      -w, --watch <bool>      Toggle watch mode
+      -u, --uglify <bool>     Toggle uglifyify. [default: true]
 
   Examples:
     $ bankai index.js -p 8080            # start bankai on port 8080
@@ -77,7 +80,14 @@
     $ bankai -c [ -u sheetify-cssnext ]  # use cssnext in sheetify
     $ bankai -j [ -t brfs ]              # use brfs in browserify
     $ bankai build index.js dist/        # compile and export to dist/
-    $ bankai build -O index.js dist/     # optimize compiled files
+
+  Notes:
+    When specifying both --watch and --uglify using the long form, you must omit
+    the = when specifying them to be turned off.
+
+  Examples:
+    bankai example.js --open=firefox-aurora -p 3000
+    bankai example.js --uglify false -w false
 ```
 
 
@@ -130,8 +140,6 @@ take the following options:
   disable
 - __opts.html:__ (default: `{}`). Pass options to `create-html`. Set to `false`
   to disable
-- __opts.optimize:__ (default `false`). Disable livereload scripts, cache
-  output and optimize all bundles
 - __opts.watch:__ Disable livereload scripts
 - __opts.electron:__ (default `false`). Enable [electron][electron] mode for
   the bundler.  Relies on `index.html` being served as a static file using
@@ -153,6 +161,11 @@ passed. Uses [sheetify][sheetify] under the hood.
 ```sh
 $ npm install bankai
 ```
+
+## Uglify toggle
+Uglify only supports JavaScript syntax up to ES5. If you want to use later syntax
+you'll need to either disable the uglifyify transform with `--uglify=false` or
+add a compiler to convert your ES5+ syntax down to ES5.
 
 ## See Also
 - [stackcss/sheetify][sheetify]

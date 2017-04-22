@@ -3,11 +3,9 @@
 var explain = require('explain-error')
 var pinoColada = require('pino-colada')
 var mapLimit = require('map-limit')
-var serverSink = require('server-sink')
 var resolve = require('resolve')
 var mkdirp = require('mkdirp')
 var subarg = require('subarg')
-var xtend = require('xtend')
 var http = require('http')
 var open = require('open')
 var path = require('path')
@@ -15,23 +13,28 @@ var pino = require('pino')
 var pump = require('pump')
 var fs = require('fs')
 
+var logHttp = require('log-http')
+var zlibMaybe = require('./lib/gzip-maybe')
+var Sse = require('./lib/sse')
 var bankai = require('./')
+
 var pretty = pinoColada()
-var log = pino({ name: 'bankai', level: 'debug' }, pretty)
 pretty.pipe(process.stdout)
+var log = pino({ name: 'bankai', level: 'debug' }, pretty)
 
 var argv = subarg(process.argv.slice(2), {
   string: [ 'open', 'port', 'assets' ],
-  boolean: [ 'optimize', 'verbose', 'help', 'version', 'debug', 'electron' ],
+  boolean: [ 'watch', 'verbose', 'help', 'version', 'debug', 'electron' ],
   default: {
+    address: 'localhost',
     assets: 'assets',
     debug: false,
-    open: '',
-    optimize: false,
+    open: false,
     port: 8080,
-    address: 'localhost'
+    uglify: true
   },
   alias: {
+    address: 'A',
     assets: 'a',
     css: 'c',
     debug: 'd',
@@ -39,12 +42,12 @@ var argv = subarg(process.argv.slice(2), {
     help: 'h',
     html: 'H',
     js: 'j',
+    uglify: 'u',
     open: 'o',
-    optimize: 'O',
     port: 'p',
     verbose: 'V',
     version: 'v',
-    address: 'A'
+    watch: 'w'
   }
 })
 
@@ -67,9 +70,10 @@ var usage = `
       -H, --html=<subargs>    Pass subarguments to create-html
       -j, --js=<subargs>      Pass subarguments to browserify
       -o, --open=<browser>    Open html in a browser [default: system default]
-      -O, --optimize          Optimize assets served by bankai [default: false]
       -p, --port=<n>          Bind bankai to a port [default: 8080]
       -V, --verbose           Include debug messages
+      -w, --watch <bool>      Toggle watch mode
+      -u, --uglify <bool>     Toggle uglifyify. [default: true]
 
   Examples:
     $ bankai index.js -p 8080            # start bankai on port 8080
@@ -77,7 +81,14 @@ var usage = `
     $ bankai -c [ -u sheetify-cssnext ]  # use cssnext in sheetify
     $ bankai -j [ -t brfs ]              # use brfs in browserify
     $ bankai build index.js dist/        # compile and export to dist/
-    $ bankai build -O index.js dist/     # optimize compiled files
+
+  Notes:
+    When specifying both --watch and --uglify using the long form, you must omit
+    the = when specifying them to be turned off.
+
+  Examples:
+    bankai example.js --open=firefox-aurora -p 3000
+    bankai example.js --uglify false -w false
 `
 
 main(argv)
@@ -116,32 +127,47 @@ function main (argv) {
 }
 
 function start (entry, argv, done) {
+  // always enable watch for start
+  argv.watch = true
+
   var assets = bankai(entry, argv)
   var staticAsset = new RegExp('/' + argv.assets)
-  var port = argv.port
   var address = argv.address
+  var port = argv.port
+  var sse = Sse(assets)
+
+  assets.on('js-bundle', function () {
+    log.info('bundle:js')
+  })
+
+  assets.on('css-bundle', function () {
+    log.info('bundle:css')
+  })
 
   var server = http.createServer(handler)
   server.listen(port, address, onlisten)
 
-  function handler (req, res) {
-    var sink = serverSink(req, res, function (msg) {
-      log.info(msg)
-    })
+  var stats = logHttp(server)
+  stats.on('data', function (level, data) {
+    log[level](data)
+  })
 
+  function handler (req, res) {
     if (req.url === '/') {
-      assets.html(req, res).pipe(sink)
+      assets.html(req, res).pipe(zlibMaybe(req, res)).pipe(res)
+    } else if (req.url === '/sse') {
+      sse(req, res)
     } else if (req.url === '/bundle.js') {
-      assets.js(req, res).pipe(sink)
+      assets.js(req, res).pipe(zlibMaybe(req, res)).pipe(res)
     } else if (req.url === '/bundle.css') {
-      assets.css(req, res).pipe(sink)
+      assets.css(req, res).pipe(zlibMaybe(req, res)).pipe(res)
     } else if (req.headers['accept'].indexOf('html') > 0) {
-      assets.html(req, res).pipe(sink)
+      assets.html(req, res).pipe(zlibMaybe(req, res)).pipe(res)
     } else if (staticAsset.test(req.url)) {
       assets.static(req).pipe(res)
     } else {
       res.writeHead(404, 'Not Found')
-      sink.end()
+      res.end()
     }
   }
 
@@ -162,7 +188,10 @@ function start (entry, argv, done) {
 function build (entry, outputDir, argv, done) {
   log.info('bundling assets')
 
-  argv = xtend({ watch: false }, argv)
+  // cast argv.watch to a boolean
+  argv.watch = argv.watch === undefined
+    ? false
+    : argv.watch
 
   mkdirp.sync(outputDir)
   buildStaticAssets(entry, outputDir, argv, done)
@@ -170,7 +199,14 @@ function build (entry, outputDir, argv, done) {
   var assets = bankai(entry, argv)
   var files = [ 'index.html', 'bundle.js', 'bundle.css' ]
 
-  mapLimit(files, Infinity, iterator, done)
+  assets.on('js-bundle', function () {
+    mapLimit(files, Infinity, iterator, done)
+  })
+
+  assets.on('css-bundle', function () {
+    mapLimit(files, Infinity, iterator, done)
+  })
+
   function iterator (file, done) {
     var fileStream = fs.createWriteStream(path.join(outputDir, file))
     var sourceStream = assets[file.replace(/^.*\./, '')]()
