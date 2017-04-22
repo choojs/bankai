@@ -193,26 +193,17 @@ function start (entry, argv, done) {
 }
 
 function build (entry, outputDir, argv, done) {
-  log.info('bundling assets')
+  log.debug('bundling assets')
 
   // cast argv.watch to a boolean
-  argv.watch = argv.watch === undefined
-    ? false
-    : argv.watch
+  argv.watch = argv.watch === undefined ? false : argv.watch
 
   mkdirp.sync(outputDir)
   buildStaticAssets(entry, outputDir, argv, done)
 
   var assets = bankai(entry, argv)
   var files = [ 'index.html', 'bundle.js', 'bundle.css' ]
-
-  assets.on('js-bundle', function () {
-    mapLimit(files, Infinity, iterator, done)
-  })
-
-  assets.on('css-bundle', function () {
-    mapLimit(files, Infinity, iterator, done)
-  })
+  mapLimit(files, Infinity, iterator, done)
 
   function iterator (file, done) {
     var fileStream = fs.createWriteStream(path.join(outputDir, file))
