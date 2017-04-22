@@ -58,6 +58,7 @@
     <default>                      Run 'bankai start'
     start <filename>               Start a bankai server
     build <filename> <directory>   Compile and export files to a directory
+    inspect <filename>             Visualize the dependency tree
 
     Options:
       -a, --assets=<directory>  Serve static assets [default: assets]

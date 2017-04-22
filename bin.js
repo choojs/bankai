@@ -1,19 +1,21 @@
 #!/usr/bin/env node
 
-var explain = require('explain-error')
 var pinoColada = require('pino-colada')
+var explain = require('explain-error')
 var mapLimit = require('map-limit')
+var logHttp = require('log-http')
 var resolve = require('resolve')
 var mkdirp = require('mkdirp')
 var subarg = require('subarg')
+var disc = require('disc')
 var http = require('http')
 var open = require('open')
 var path = require('path')
 var pino = require('pino')
 var pump = require('pump')
+var tmp = require('temp-path')
 var fs = require('fs')
 
-var logHttp = require('log-http')
 var zlibMaybe = require('./lib/gzip-maybe')
 var Sse = require('./lib/sse')
 var bankai = require('./')
@@ -59,6 +61,7 @@ var usage = `
     <default>                      Run 'bankai start'
     start <filename>               Start a bankai server
     build <filename> <directory>   Compile and export files to a directory
+    inspect <filename>             Visualize the dependency tree
 
     Options:
       -a, --assets=<directory>  Serve static assets [default: assets]
@@ -94,7 +97,7 @@ var usage = `
 main(argv)
 
 function main (argv) {
-  if ((argv._[0] !== 'build') && (argv._[0] !== 'start')) {
+  if ((argv._[0] !== 'build') && (argv._[0] !== 'start') && argv._[0] !== 'inspect') {
     argv._.unshift('start')
   }
 
@@ -116,6 +119,8 @@ function main (argv) {
     start(entry, argv, handleError)
   } else if (cmd === 'build') {
     build(entry, outputDir, argv, handleError)
+  } else if (cmd === 'inspect') {
+    inspect(entry, argv, handleError)
   } else {
     log.error(usage)
     return process.exit(1)
@@ -242,4 +247,26 @@ function buildStaticAssets (entry, outputDir, argv, done) {
       copy(path.join(src, files[i]), path.join(dest, files[i]))
     }
   }
+}
+
+function inspect (entry, argv, done) {
+  argv.watch = false
+  argv.js = argv.js || {}
+  argv.js.fullPaths = true
+
+  var assets = bankai(entry, argv)
+  var js = assets.js()
+  var filename = tmp() + '.html'
+
+  var ws = fs.createWriteStream(filename)
+  var d = disc()
+  pump(js, d, function (err) {
+    if (err) return done(err)
+  })
+
+  pump(d, ws, function (err) {
+    if (err) return done(err)
+    log.info('Opening ' + filename)
+    open(filename)
+  })
 }
