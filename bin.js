@@ -7,13 +7,13 @@ var logHttp = require('log-http')
 var resolve = require('resolve')
 var mkdirp = require('mkdirp')
 var subarg = require('subarg')
+var tmp = require('temp-path')
 var disc = require('disc')
 var http = require('http')
 var open = require('open')
 var path = require('path')
 var pino = require('pino')
 var pump = require('pump')
-var tmp = require('temp-path')
 var fs = require('fs')
 
 var zlibMaybe = require('./lib/gzip-maybe')
@@ -22,7 +22,6 @@ var bankai = require('./')
 
 var pretty = pinoColada()
 pretty.pipe(process.stdout)
-var log = pino({ name: 'bankai', level: 'debug' }, pretty)
 
 var argv = subarg(process.argv.slice(2), {
   string: [ 'open', 'port', 'assets' ],
@@ -52,6 +51,9 @@ var argv = subarg(process.argv.slice(2), {
     watch: 'w'
   }
 })
+
+var logLevel = argv.verbose ? 'debug' : 'info'
+var log = pino({ name: 'bankai', level: logLevel }, pretty)
 
 var usage = `
   Usage:
