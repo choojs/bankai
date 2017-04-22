@@ -14,6 +14,7 @@ var open = require('open')
 var path = require('path')
 var pino = require('pino')
 var pump = require('pump')
+var zlib = require('zlib')
 var fs = require('fs')
 
 var zlibMaybe = require('./lib/gzip-maybe')
@@ -206,12 +207,33 @@ function build (entry, outputDir, argv, done) {
   mapLimit(files, Infinity, iterator, done)
 
   function iterator (file, done) {
-    var fileStream = fs.createWriteStream(path.join(outputDir, file))
+    var outfile = path.join(outputDir, file)
+    var fileStream = fs.createWriteStream(outfile)
     var sourceStream = assets[file.replace(/^.*\./, '')]()
     log.debug(file + ' started')
+
+    var src = Buffer.from('')
+
+    sourceStream.on('data', function (chunk) {
+      src = Buffer.concat([src, chunk])
+    })
+
     pump(sourceStream, fileStream, function (err) {
-      log.info(file + ' done')
-      done(err)
+      if (err) return done(err)
+
+      zlib.deflate(src, function (err, buf) {
+        if (err) return done(err)
+        var length = buf.length
+        var location = path.relative(process.cwd(), outfile)
+        // Warn if serving up more than 60kb in {html,css,js}
+        var level = buf.length < 60000 ? 'info' : 'warn'
+        var msg = level === 'warn' ? location + ' (large)' : location
+        log[level]({
+          message: msg,
+          contentLength: length
+        })
+        done()
+      })
     })
   }
 }
