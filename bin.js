@@ -7,13 +7,14 @@ var logHttp = require('log-http')
 var resolve = require('resolve')
 var mkdirp = require('mkdirp')
 var subarg = require('subarg')
+var tmp = require('temp-path')
 var disc = require('disc')
 var http = require('http')
 var open = require('open')
 var path = require('path')
 var pino = require('pino')
 var pump = require('pump')
-var tmp = require('temp-path')
+var zlib = require('zlib')
 var fs = require('fs')
 
 var zlibMaybe = require('./lib/gzip-maybe')
@@ -22,7 +23,6 @@ var bankai = require('./')
 
 var pretty = pinoColada()
 pretty.pipe(process.stdout)
-var log = pino({ name: 'bankai', level: 'debug' }, pretty)
 
 var argv = subarg(process.argv.slice(2), {
   string: [ 'open', 'port', 'assets' ],
@@ -52,6 +52,9 @@ var argv = subarg(process.argv.slice(2), {
     watch: 'w'
   }
 })
+
+var logLevel = argv.verbose ? 'debug' : 'info'
+var log = pino({ name: 'bankai', level: logLevel }, pretty)
 
 var usage = `
   Usage:
@@ -191,34 +194,46 @@ function start (entry, argv, done) {
 }
 
 function build (entry, outputDir, argv, done) {
-  log.info('bundling assets')
+  log.debug('bundling assets')
 
   // cast argv.watch to a boolean
-  argv.watch = argv.watch === undefined
-    ? false
-    : argv.watch
+  argv.watch = argv.watch === undefined ? false : argv.watch
 
   mkdirp.sync(outputDir)
   buildStaticAssets(entry, outputDir, argv, done)
 
   var assets = bankai(entry, argv)
   var files = [ 'index.html', 'bundle.js', 'bundle.css' ]
-
-  assets.on('js-bundle', function () {
-    mapLimit(files, Infinity, iterator, done)
-  })
-
-  assets.on('css-bundle', function () {
-    mapLimit(files, Infinity, iterator, done)
-  })
+  mapLimit(files, Infinity, iterator, done)
 
   function iterator (file, done) {
-    var fileStream = fs.createWriteStream(path.join(outputDir, file))
+    var outfile = path.join(outputDir, file)
+    var fileStream = fs.createWriteStream(outfile)
     var sourceStream = assets[file.replace(/^.*\./, '')]()
     log.debug(file + ' started')
+
+    var src = Buffer.from('')
+
+    sourceStream.on('data', function (chunk) {
+      src = Buffer.concat([src, chunk])
+    })
+
     pump(sourceStream, fileStream, function (err) {
-      log.info(file + ' done')
-      done(err)
+      if (err) return done(err)
+
+      zlib.deflate(src, function (err, buf) {
+        if (err) return done(err)
+        var length = buf.length
+        var location = path.relative(process.cwd(), outfile)
+        // Warn if serving up more than 60kb in {html,css,js}
+        var level = buf.length < 60000 ? 'info' : 'warn'
+        var msg = level === 'warn' ? location + ' (large)' : location
+        log[level]({
+          message: msg,
+          contentLength: length
+        })
+        done()
+      })
     })
   }
 }
