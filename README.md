@@ -1,10 +1,7 @@
 <h1 align="center">bankai</h1>
 
 <div align="center">
-  <strong>Streaming asset compiler</strong>
-</div>
-<div align="center">
-  Bundle and optimize CSS, HTML and JS
+  <strong>Streaming {js,html,css} compiler</strong>
 </div>
 
 ---
@@ -42,12 +39,12 @@
   </a>
 </div>
 
-## Features
-- Thin wrapper around `browserify` in ~100 lines
-- CLI supports HTTP and Filesystem
-- Incremental compilation & build caching
-- Sensible defaults make it easy to use
-- Optimization mode for production grade artifacts
+## Philosophy
+Building things takes time. Configuring tooling takes time. We believe that by
+taking modular tools, and wrapping them in a zero-configuration package we
+can help people iterate faster and produce better results. And once people are
+deep enough into a project that they might need something different, we make
+sure they can easily create their own tooling from the components we use.
 
 ## Usage
 ```txt
@@ -91,45 +88,6 @@
     bankai example.js --uglify false -w false
 ```
 
-
-## JS Usage
-Given the following `client.js`:
-```js
-var css = require('sheetify')
-var html = require('bel')
-
-var prefix = css`
-  :host > h1 { font-size: 12rem }
-`
-
-var el = html`
-  <section class=${prefix}>
-    <h1>hello planet</h1>
-  </section>
-`
-
-document.body.appendChild(el)
-```
-
-Render with `server.js`:
-```js
-var bankai = require('bankai')
-var http = require('http')
-var path = require('path')
-
-var clientPath = path.join(__dirname, 'client.js')
-var assets = bankai(clientPath)
-
-http.createServer(function (req, res) {
-  switch (req.url) {
-    case '/': return assets.html(req, res).pipe(res)
-    case '/bundle.js': return assets.js(req, res).pipe(res)
-    case '/bundle.css': return assets.css(req, res).pipe(res)
-    default: return (res.statusCode = 404) && res.end('404 not found')
-  }
-}).listen(8080)
-```
-
 ## API
 ### assets = bankai(entryFile, [opts])
 Create a new instance of `bankai`. The first argument is a route to the entry
@@ -164,9 +122,9 @@ $ npm install bankai
 ```
 
 ## Uglify toggle
-Uglify only supports JavaScript syntax up to ES5. If you want to use later syntax
-you'll need to either disable the uglifyify transform with `--uglify=false` or
-add a compiler to convert your ES5+ syntax down to ES5.
+Uglify only supports JavaScript syntax up to ES5. If you want to use later
+syntax you'll need to either disable the uglifyify transform with
+`--uglify=false` or add a compiler to convert your ES5+ syntax down to ES5.
 
 ## See Also
 - [stackcss/sheetify][sheetify]
