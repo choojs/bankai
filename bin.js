@@ -26,7 +26,7 @@ pretty.pipe(process.stdout)
 
 var argv = subarg(process.argv.slice(2), {
   string: [ 'open', 'port', 'assets' ],
-  boolean: [ 'watch', 'verbose', 'help', 'version', 'debug', 'electron' ],
+  boolean: [ 'watch', 'verbose', 'help', 'version', 'debug', 'electron', 'uglify' ],
   default: {
     address: 'localhost',
     assets: 'assets',
