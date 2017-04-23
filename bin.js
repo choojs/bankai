@@ -1,13 +1,20 @@
 #!/usr/bin/env node
 
+var hyperstream = require('hyperstream')
+var fromString = require('from2-string')
 var pinoColada = require('pino-colada')
+var parallel = require('run-parallel')
 var explain = require('explain-error')
+var concat = require('concat-stream')
 var mapLimit = require('map-limit')
+var purify = require('purify-css')
 var logHttp = require('log-http')
+var uglify = require('uglify-js')
 var resolve = require('resolve')
 var mkdirp = require('mkdirp')
 var subarg = require('subarg')
 var tmp = require('temp-path')
+var from = require('from2')
 var disc = require('disc')
 var http = require('http')
 var open = require('open')
@@ -17,6 +24,7 @@ var pump = require('pump')
 var zlib = require('zlib')
 var fs = require('fs')
 
+var htmlMinifyStream = require('./lib/html-minify-stream')
 var zlibMaybe = require('./lib/gzip-maybe')
 var Sse = require('./lib/sse')
 var bankai = require('./')
@@ -202,40 +210,96 @@ function build (entry, outputDir, argv, done) {
   mkdirp.sync(outputDir)
   buildStaticAssets(entry, outputDir, argv, done)
 
+  var buffers = {}
   var assets = bankai(entry, argv)
-  var files = [ 'index.html', 'bundle.js', 'bundle.css' ]
-  mapLimit(files, Infinity, iterator, done)
+  var files = ['index.html', 'bundle.js', 'bundle.css']
+
+  mapLimit(files, Infinity, iterator, function (err) {
+    if (err) return done(err)
+    parallel([ buildHtml, buildJs, buildCss ], done)
+  })
 
   function iterator (file, done) {
-    var outfile = path.join(outputDir, file)
-    var fileStream = fs.createWriteStream(outfile)
-    var sourceStream = assets[file.replace(/^.*\./, '')]()
+    var source = assets[file.replace(/^.*\./, '')]()
     log.debug(file + ' started')
 
-    var src = Buffer.from('')
-
-    sourceStream.on('data', function (chunk) {
-      src = Buffer.concat([src, chunk])
+    var sink = concat(function (buf) {
+      buffers[file] = buf
     })
+    pump(source, sink, done)
+  }
 
-    pump(sourceStream, fileStream, function (err) {
+  function buildHtml (done) {
+    var file = 'index.html'
+    var buf = buffers[file]
+    var outfile = path.join(outputDir, file)
+
+    var sink = fs.createWriteStream(outfile)
+    var source = hyperstream()
+    source.end(buf)
+
+    pump(source, htmlMinifyStream(), sink, done)
+    printSize(buf, outfile, function (err) {
       if (err) return done(err)
-
-      zlib.deflate(src, function (err, buf) {
-        if (err) return done(err)
-        var length = buf.length
-        var location = path.relative(process.cwd(), outfile)
-        // Warn if serving up more than 60kb in {html,css,js}
-        var level = buf.length < 60000 ? 'info' : 'warn'
-        var msg = level === 'warn' ? location + ' (large)' : location
-        log[level]({
-          message: msg,
-          contentLength: length
-        })
-        done()
-      })
     })
   }
+
+  function buildCss (done) {
+    var css = buffers['bundle.css'].toString()
+    var js = buffers['bundle.js'].toString()
+    css = purify(js, css, { minify: true })
+
+    var outfile = path.join(outputDir, 'bundle.css')
+    var sink = fs.createWriteStream(outfile)
+    var source = fromString(css)
+
+    pump(source, sink, done)
+    printSize(Buffer.from(css), outfile, function (err) {
+      if (err) return done(err)
+    })
+  }
+
+  function buildJs (done) {
+    var file = 'bundle.js'
+    var buf = buffers[file]
+    var js = buf.toString()
+
+    // FIXME argv.uglify should always be a bool
+    if (argv.uglify !== false && argv.uglify !== 'false') {
+      js = uglify.minify(js, {
+        fromString: true,
+        compress: true,
+        mangle: true,
+        filename: file,
+        sourceMaps: false
+      })
+      buf = Buffer.from(js.code)
+    }
+
+    var outfile = path.join(outputDir, 'bundle.js')
+    var sink = fs.createWriteStream(outfile)
+    var source = from([buf])
+
+    pump(source, sink, done)
+    printSize(buf, outfile, function (err) {
+      if (err) return done(err)
+    })
+  }
+}
+
+function printSize (buf, outfile, done) {
+  zlib.deflate(buf, function (err, buf) {
+    if (err) return done(err)
+    var length = buf.length
+    var location = path.relative(process.cwd(), outfile)
+    // Warn if serving up more than 60kb in {html,css,js}
+    var level = buf.length < 60000 ? 'info' : 'warn'
+    var msg = level === 'warn' ? location + ' (large)' : location
+    log[level]({
+      message: msg,
+      contentLength: length
+    })
+  })
 }
 
 function buildStaticAssets (entry, outputDir, argv, done) {
