@@ -264,14 +264,17 @@ function build (entry, outputDir, argv, done) {
     var buf = buffers[file]
     var js = buf.toString()
 
-    js = uglify.minify(js, {
-      fromString: true,
-      compress: true,
-      mangle: true,
-      filename: file,
-      sourceMaps: false
-    })
-    buf = Buffer.from(js.code)
+    // FIXME argv.uglify should always be a bool
+    if (argv.uglify !== false && argv.uglify !== 'false') {
+      js = uglify.minify(js, {
+        fromString: true,
+        compress: true,
+        mangle: true,
+        filename: file,
+        sourceMaps: false
+      })
+      buf = Buffer.from(js.code)
+    }
 
     var outfile = path.join(outputDir, 'bundle.js')
     var sink = fs.createWriteStream(outfile)
