@@ -26,14 +26,15 @@ pretty.pipe(process.stdout)
 
 var argv = subarg(process.argv.slice(2), {
   string: [ 'open', 'port', 'assets' ],
-  boolean: [ 'watch', 'verbose', 'help', 'version', 'debug', 'electron', 'uglify' ],
+  boolean: [ 'watch', 'verbose', 'help', 'version', 'debug', 'electron', 'uglify', 'yoyoify' ],
   default: {
     address: 'localhost',
     assets: 'assets',
     debug: false,
     open: false,
     port: 8080,
-    uglify: true
+    uglify: true,
+    yoyoify: true
   },
   alias: {
     address: 'A',
@@ -49,7 +50,8 @@ var argv = subarg(process.argv.slice(2), {
     port: 'p',
     verbose: 'V',
     version: 'v',
-    watch: 'w'
+    watch: 'w',
+    yoyoify: 'y'
   }
 })
 
@@ -80,6 +82,7 @@ var usage = `
       -V, --verbose           Include debug messages
       -w, --watch <bool>      Toggle watch mode
       -u, --uglify <bool>     Toggle uglifyify. [default: true]
+      -y, --yoyoify <bool>    Toggle yoyoify. [default: true]
 
   Examples:
     $ bankai index.js -p 8080            # start bankai on port 8080
