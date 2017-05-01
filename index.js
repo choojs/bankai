@@ -88,7 +88,7 @@ function Bankai (entry, opts) {
     }
     b.transform(envify, { global: true })
 
-    if (opts.uglify) {
+    if (opts.uglify !== false && opts.uglify !== 'false') {
       b.transform(uglifyify, { global: true })
     }
 
