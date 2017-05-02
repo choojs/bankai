@@ -144,6 +144,7 @@ function main (argv) {
 
 function start (entry, argv, done) {
   // always enable watch for start
+  log.debug('running command: start')
   argv.watch = true
 
   var assets = bankai(entry, argv)
@@ -169,17 +170,19 @@ function start (entry, argv, done) {
   })
 
   function handler (req, res) {
-    if (req.url === '/') {
+    var url = req.url
+    log.debug('received request on url: ' + url)
+    if (url === '/') {
       assets.html(req, res).pipe(zlibMaybe(req, res)).pipe(res)
-    } else if (req.url === '/sse') {
+    } else if (url === '/sse') {
       sse(req, res)
-    } else if (req.url === '/bundle.js') {
+    } else if (url === '/bundle.js') {
       assets.js(req, res).pipe(zlibMaybe(req, res)).pipe(res)
-    } else if (req.url === '/bundle.css') {
+    } else if (url === '/bundle.css') {
       assets.css(req, res).pipe(zlibMaybe(req, res)).pipe(res)
     } else if (req.headers['accept'].indexOf('html') > 0) {
       assets.html(req, res).pipe(zlibMaybe(req, res)).pipe(res)
-    } else if (staticAsset.test(req.url)) {
+    } else if (staticAsset.test(url)) {
       assets.static(req).pipe(res)
     } else {
       res.writeHead(404, 'Not Found')
@@ -202,7 +205,7 @@ function start (entry, argv, done) {
 }
 
 function build (entry, outputDir, argv, done) {
-  log.debug('bundling assets')
+  log.debug('running command: build')
 
   // cast argv.watch to a boolean
   argv.watch = argv.watch === undefined ? false : argv.watch
@@ -266,6 +269,7 @@ function build (entry, outputDir, argv, done) {
 
     // FIXME argv.uglify should always be a bool
     if (argv.uglify !== false && argv.uglify !== 'false') {
+      log.debug('uglify starting')
       js = uglify.minify(js, {
         fromString: true,
         compress: true,
@@ -273,10 +277,12 @@ function build (entry, outputDir, argv, done) {
         filename: file,
         sourceMaps: false
       })
+      log.debug('uglify finished')
       buf = Buffer.from(js.code)
     }
 
     var outfile = path.join(outputDir, 'bundle.js')
+    log.debug('writing to file ' + outfile)
     var sink = fs.createWriteStream(outfile)
     var source = from([buf])
 

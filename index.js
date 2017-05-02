@@ -76,6 +76,7 @@ function Bankai (entry, opts) {
       : browserify(jsOpts)
 
     if (!self.cssDisabled) {
+      opts.css.use = Array.isArray(opts.css.use) ? opts.css.use : [opts.css.use]
       b.plugin(cssExtract, { out: createCssStream })
       b.ignore('sheetify/insert')
       b.transform(sheetify, opts.css)
