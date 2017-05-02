@@ -143,7 +143,6 @@ function main (argv) {
 }
 
 function start (entry, argv, done) {
-  // always enable watch for start
   log.debug('running command: start')
   argv.watch = true
 
@@ -209,6 +208,7 @@ function build (entry, outputDir, argv, done) {
 
   // cast argv.watch to a boolean
   argv.watch = argv.watch === undefined ? false : argv.watch
+  argv.assert = false
 
   mkdirp.sync(outputDir)
   buildStaticAssets(entry, outputDir, argv, done)

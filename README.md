@@ -103,6 +103,7 @@ take the following options:
 - __opts.electron:__ (default `false`). Enable [electron][electron] mode for
   the bundler.  Relies on `index.html` being served as a static file using
   `file://` to ensure `require()` paths are resolved correctly
+- __opts.assert:__ (default: `true`) disable all calls to `require('assert')`
 
 ### readableStream = assets.js([req], [res])
 Return a `js` stream. Sets correct header values if `req` and `res` are passed.

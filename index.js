@@ -82,7 +82,10 @@ function Bankai (entry, opts) {
       b.transform(sheetify, opts.css)
     }
 
-    b.transform(unassertify, { global: true })
+    if (opts.assert === false || opts.assert === 'false') {
+      b.transform(unassertify, { global: true })
+    }
+
     b.transform(yoyoify, { global: true })
     b.transform(envify, { global: true })
 
