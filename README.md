@@ -85,6 +85,7 @@ sure they can easily create their own tooling from the components we use.
   Examples:
     bankai example.js --open=firefox-aurora -p 3000
     bankai example.js --watch false
+    bankai example.js -H=[ --head='<meta name="description" content="example">' ]
 ```
 
 ## API
