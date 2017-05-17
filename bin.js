@@ -9,7 +9,7 @@ var concat = require('concat-stream')
 var mapLimit = require('map-limit')
 var purify = require('purify-css')
 var logHttp = require('log-http')
-var uglify = require('uglify-js')
+var uglify = require('uglify-es')
 var resolve = require('resolve')
 var mkdirp = require('mkdirp')
 var subarg = require('subarg')
@@ -40,8 +40,7 @@ var argv = subarg(process.argv.slice(2), {
     assets: 'assets',
     debug: false,
     open: false,
-    port: 8080,
-    uglify: true
+    port: 8080
   },
   alias: {
     address: 'A',
@@ -52,7 +51,6 @@ var argv = subarg(process.argv.slice(2), {
     help: 'h',
     html: 'H',
     js: 'j',
-    uglify: 'u',
     open: 'o',
     port: 'p',
     verbose: 'V',
@@ -87,7 +85,6 @@ var usage = `
       -p, --port=<n>          Bind bankai to a port [default: 8080]
       -V, --verbose           Include debug messages
       -w, --watch <bool>      Toggle watch mode
-      -u, --uglify <bool>     Toggle uglifyify. [default: true]
 
   Examples:
     $ bankai index.js -p 8080            # start bankai on port 8080
@@ -96,13 +93,9 @@ var usage = `
     $ bankai -j [ -t brfs ]              # use brfs in browserify
     $ bankai build index.js dist/        # compile and export to dist/
 
-  Notes:
-    When specifying both --watch and --uglify using the long form, you must omit
-    the = when specifying them to be turned off.
-
   Examples:
     bankai example.js --open=firefox-aurora -p 3000
-    bankai example.js --uglify false -w false
+    bankai example.js --debug -w false
 `
 
 main(argv)
@@ -266,20 +259,31 @@ function build (entry, outputDir, argv, done) {
     var file = 'bundle.js'
     var buf = buffers[file]
     var js = buf.toString()
-
-    // FIXME argv.uglify should always be a bool
-    if (argv.uglify !== false && argv.uglify !== 'false') {
-      log.debug('uglify starting')
-      js = uglify.minify(js, {
-        fromString: true,
-        compress: true,
-        mangle: true,
-        filename: file,
-        sourceMaps: false
-      })
-      log.debug('uglify finished')
-      buf = Buffer.from(js.code)
+    var uglifyOpts = {
+      mangle: {
+        properties: true
+      },
+      compress: {
+        unsafe: true,
+        properties: true,
+        dead_code: true,
+        comparisons: true,
+        evaluate: true,
+        hoist_funs: true,
+        if_returns: true,
+        join_vars: true,
+        pure_getters: true,
+        reduce_vars: true,
+        collapse_vars: true
+      },
+      toplevel: true
     }
+
+    log.debug('uglify starting')
+    if (argv.debug) uglifyOpts.sourceMap.filename = file
+    js = uglify.minify(js, uglifyOpts)
+    log.debug('uglify finished')
+    buf = Buffer.from(js.code)
 
     var outfile = path.join(outputDir, 'bundle.js')
     log.debug('writing to file ' + outfile)
