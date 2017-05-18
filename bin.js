@@ -116,7 +116,7 @@ function main (argv) {
     console.log(usage)
     return process.exit()
   } else if (argv.v) {
-    console.log(require('../package.json').version)
+    console.log(require('./package.json').version)
     return process.exit()
   }
 
