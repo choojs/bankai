@@ -117,6 +117,10 @@ passed. Uses [create-html][chtml] under the hood.
 Return a `css` stream. Sets correct header values if `req` and `res` are
 passed. Uses [sheetify][sheetify] under the hood.
 
+### readableStream = assets.static([req], [res])
+Return a `static` stream. Don't set any header. Useful to serve static assets
+like images, icons, fonts, etc. Uses [send][send] under the hood. 
+
 ## Installation
 ```sh
 $ npm install bankai
@@ -155,3 +159,4 @@ syntax you'll need to either disable the uglifyify transform with
 [watchify]: https://github.com/substack/watchify
 [browserify]: https://github.com/substack/node-browserify
 [chtml]: https://github.com/sethvincent/create-html
+[send]: https://github.com/pillarjs/send
