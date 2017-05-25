@@ -64,7 +64,7 @@
     "yo-yoify": "^3.5.0"
   },
   "devDependencies": {
-    "bel": "^4.5.0",
+    "bel": "^5.0.0",
     "choo": "^5.0.4",
     "dependency-check": "^2.6.0",
     "is-html": "^1.0.0",
