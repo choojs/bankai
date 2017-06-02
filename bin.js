@@ -223,7 +223,9 @@ function build (entry, outputDir, argv, done) {
 
   var buffers = {}
   var assets = bankai(entry, argv)
-  var files = ['index.html', 'bundle.js', 'bundle.css']
+  var files = fs.existsSync(path.join(process.cwd(), 'index.html'))
+              ? ['bundle.js', 'bundle.css']
+              : ['index.html', 'bundle.js', 'bundle.css']
 
   mapLimit(files, Infinity, iterator, function (err) {
     if (err) return done(err)
@@ -242,17 +244,29 @@ function build (entry, outputDir, argv, done) {
 
   function buildHtml (done) {
     var file = 'index.html'
-    var buf = buffers[file]
     var outfile = path.join(outputDir, file)
+    var source
+    var buf
 
     var sink = fs.createWriteStream(outfile)
-    var source = hyperstream()
-    source.end(buf)
-
-    pump(source, htmlMinifyStream(), sink, done)
-    printSize(buf, outfile, function (err) {
-      if (err) return done(err)
-    })
+    if (fs.existsSync(path.join(process.cwd(), 'index.html'))) {
+      source = fs.createReadStream(path.join(process.cwd(), 'index.html'))
+      var sizeStream = concat(function (buf) {
+        printSize(buf, outfile, function (err) {
+          if (err) return done(err)
+        })
+      })
+      source.pipe(sizeStream)
+      pump(source, htmlMinifyStream(), sink, done)
+    } else {
+      buf = buffers[file]
+      source = hyperstream()
+      source.end(buf)
+      pump(source, htmlMinifyStream(), sink, done)
+      printSize(buf, outfile, function (err) {
+        if (err) return done(err)
+      })
+    }
   }
 
   function buildCss (done) {
