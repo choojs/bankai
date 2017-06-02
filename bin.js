@@ -172,7 +172,11 @@ function start (entry, argv, done) {
     var url = req.url
     log.debug('received request on url: ' + url)
     if (url === '/') {
-      assets.html(req, res).pipe(zlibMaybe(req, res)).pipe(res)
+      if (fs.existsSync(path.join(process.cwd(), 'index.html'))) {
+        fs.createReadStream(path.join(process.cwd(), 'index.html')).pipe(res)
+      } else {
+        assets.html(req, res).pipe(zlibMaybe(req, res)).pipe(res)
+      }
     } else if (url === '/sse') {
       sse(req, res)
     } else if (url === '/bundle.js') {
@@ -180,7 +184,11 @@ function start (entry, argv, done) {
     } else if (url === '/bundle.css') {
       assets.css(req, res).pipe(zlibMaybe(req, res)).pipe(res)
     } else if (req.headers['accept'].indexOf('html') > 0) {
-      assets.html(req, res).pipe(zlibMaybe(req, res)).pipe(res)
+      if (fs.existsSync(path.join(process.cwd(), 'index.html'))) {
+        fs.createReadStream(path.join(process.cwd(), 'index.html')).pipe(res)
+      } else {
+        assets.html(req, res).pipe(zlibMaybe(req, res)).pipe(res)
+      }
     } else if (staticAsset.test(url)) {
       assets.static(req).pipe(res)
     } else {

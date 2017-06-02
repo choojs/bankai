@@ -15,4 +15,4 @@ var el = html`
   </section>
 `
 
-document.body.appendChild(el)
+document.querySelector('main').appendChild(el)
