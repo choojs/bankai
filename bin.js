@@ -283,7 +283,7 @@ function build (entry, outputDir, argv, done) {
     if (argv.debug) uglifyOpts.sourceMap.filename = file
     js = uglify.minify(js, uglifyOpts)
     log.debug('uglify finished')
-    buf = Buffer.from(js.code)
+    buf = Buffer.from(js.code || '')
 
     var outfile = path.join(outputDir, 'bundle.js')
     log.debug('writing to file ' + outfile)
