@@ -87,9 +87,28 @@ function Bankai (entry, opts) {
 
     b.transform(yoyoify, { global: true })
     b.transform(envify, { global: true })
-
     if (opts.uglify !== false && opts.uglify !== 'false') {
-      b.transform(uglifyify, { global: true })
+      var uglifyOpts = {
+        global: true,
+        mangle: {
+          properties: true
+        },
+        compress: {
+          unsafe: true,
+          properties: true,
+          dead_code: true,
+          comparisons: true,
+          evaluate: true,
+          hoist_funs: true,
+          join_vars: true,
+          pure_getters: true,
+          reduce_vars: true,
+          collapse_vars: true
+        },
+        toplevel: true
+      }
+      if (opts.debug) uglifyOpts.sourceMap = { filename: entry }
+      b.transform(uglifyify, uglifyOpts)
     }
 
     b.plugin(collapser)

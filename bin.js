@@ -9,7 +9,6 @@ var concat = require('concat-stream')
 var mapLimit = require('map-limit')
 var purify = require('purify-css')
 var logHttp = require('log-http')
-var uglify = require('uglify-js')
 var resolve = require('resolve')
 var mkdirp = require('mkdirp')
 var subarg = require('subarg')
@@ -40,8 +39,7 @@ var argv = subarg(process.argv.slice(2), {
     assets: 'assets',
     debug: false,
     open: false,
-    port: 8080,
-    uglify: true
+    port: 8080
   },
   alias: {
     address: 'A',
@@ -52,7 +50,6 @@ var argv = subarg(process.argv.slice(2), {
     help: 'h',
     html: 'H',
     js: 'j',
-    uglify: 'u',
     open: 'o',
     port: 'p',
     verbose: 'V',
@@ -87,7 +84,6 @@ var usage = `
       -p, --port=<n>          Bind bankai to a port [default: 8080]
       -V, --verbose           Include debug messages
       -w, --watch <bool>      Toggle watch mode
-      -u, --uglify <bool>     Toggle uglifyify. [default: true]
 
   Examples:
     $ bankai index.js -p 8080            # start bankai on port 8080
@@ -96,13 +92,9 @@ var usage = `
     $ bankai -j [ -t brfs ]              # use brfs in browserify
     $ bankai build index.js dist/        # compile and export to dist/
 
-  Notes:
-    When specifying both --watch and --uglify using the long form, you must omit
-    the = when specifying them to be turned off.
-
   Examples:
     bankai example.js --open=firefox-aurora -p 3000
-    bankai example.js --uglify false -w false
+    bankai example.js --debug -w false
 `
 
 main(argv)
@@ -138,7 +130,10 @@ function main (argv) {
   }
 
   function handleError (err) {
-    if (err) log.error(err)
+    if (err) {
+      if (argv.verbose) throw err
+      else log.error(err)
+    }
   }
 }
 
@@ -228,16 +223,16 @@ function build (entry, outputDir, argv, done) {
               : ['index.html', 'bundle.js', 'bundle.css']
 
   mapLimit(files, Infinity, iterator, function (err) {
-    if (err) return done(err)
+    if (err) return done(explain(err, 'error iterating over files'))
     parallel([ buildHtml, buildJs, buildCss ], done)
   })
 
-  function iterator (file, done) {
-    var source = assets[file.replace(/^.*\./, '')]()
-    log.debug(file + ' started')
+  function iterator (filename, done) {
+    log.debug('processing file: ' + filename)
+    var source = assets[filename.replace(/^.*\./, '')]()
 
     var sink = concat(function (buf) {
-      buffers[file] = buf
+      buffers[filename] = buf
     })
     pump(source, sink, done)
   }
@@ -278,6 +273,7 @@ function build (entry, outputDir, argv, done) {
     var sink = fs.createWriteStream(outfile)
     var source = fromString(css)
 
+    log.debug('writing to file ' + outfile)
     pump(source, sink, done)
     printSize(Buffer.from(css), outfile, function (err) {
       if (err) return done(err)
@@ -287,22 +283,6 @@ function build (entry, outputDir, argv, done) {
   function buildJs (done) {
     var file = 'bundle.js'
     var buf = buffers[file]
-    var js = buf.toString()
-
-    // FIXME argv.uglify should always be a bool
-    if (argv.uglify !== false && argv.uglify !== 'false') {
-      log.debug('uglify starting')
-      js = uglify.minify(js, {
-        fromString: true,
-        compress: true,
-        mangle: true,
-        filename: file,
-        sourceMaps: false
-      })
-      log.debug('uglify finished')
-      buf = Buffer.from(js.code)
-    }
-
     var outfile = path.join(outputDir, 'bundle.js')
     log.debug('writing to file ' + outfile)
     var sink = fs.createWriteStream(outfile)
@@ -338,7 +318,7 @@ function buildStaticAssets (entry, outputDir, argv, done) {
   function copy (src, dest) {
     if (!fs.statSync(src).isDirectory()) {
       var relativeName = path.relative(path.join(argv.assets, '../'), src)
-      log.debug(relativeName + ' started')
+      log.debug('writing to file ' + dest)
       return pump(fs.createReadStream(src), fs.createWriteStream(dest), function (err) {
         if (err) {
           log.error(relativeName + ' error')
