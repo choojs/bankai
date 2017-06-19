@@ -222,6 +222,29 @@ function build (entry, outputDir, argv, done) {
               ? ['bundle.js', 'bundle.css']
               : ['index.html', 'bundle.js', 'bundle.css']
 
+  // Write to disk during watch mode
+  if (argv.watch) {
+    assets.on('js-bundle', function () {
+      log.info('bundle:js')
+      iterator('bundle.js', function (err) {
+        if (err) return log.error(explain(err), 'error bundling JS')
+        buildJs(function (err) {
+          if (err) log.error(explain(err), 'error building JS')
+        })
+      })
+    })
+
+    assets.on('css-bundle', function () {
+      log.info('bundle:css')
+      iterator('bundle.css', function (err) {
+        if (err) return log.error(explain(err), 'error bundling CSS')
+        buildCss(function (err) {
+          if (err) log.error(explain(err), 'error writing CSS')
+        })
+      })
+    })
+  }
+
   mapLimit(files, Infinity, iterator, function (err) {
     if (err) return done(explain(err, 'error iterating over files'))
     parallel([ buildHtml, buildJs, buildCss ], done)
@@ -265,8 +288,8 @@ function build (entry, outputDir, argv, done) {
   }
 
   function buildCss (done) {
-    var css = buffers['bundle.css'].toString()
-    var js = buffers['bundle.js'].toString()
+    var css = String(buffers['bundle.css'])
+    var js = String(buffers['bundle.js'])
     css = purify(js, css, { minify: true })
 
     var outfile = path.join(outputDir, 'bundle.css')

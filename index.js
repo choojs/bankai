@@ -94,7 +94,7 @@ function Bankai (entry, opts) {
           properties: true
         },
         compress: {
-          unsafe: true,
+          // unsafe: true,
           properties: true,
           dead_code: true,
           comparisons: true,
