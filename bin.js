@@ -9,7 +9,6 @@ var concat = require('concat-stream')
 var mapLimit = require('map-limit')
 var purify = require('purify-css')
 var logHttp = require('log-http')
-var uglify = require('uglify-es')
 var resolve = require('resolve')
 var mkdirp = require('mkdirp')
 var subarg = require('subarg')
@@ -131,7 +130,10 @@ function main (argv) {
   }
 
   function handleError (err) {
-    if (err) log.error(err)
+    if (err) {
+      if (argv.verbose) throw err
+      else log.error(err)
+    }
   }
 }
 
@@ -211,16 +213,16 @@ function build (entry, outputDir, argv, done) {
   var files = ['index.html', 'bundle.js', 'bundle.css']
 
   mapLimit(files, Infinity, iterator, function (err) {
-    if (err) return done(err)
+    if (err) return done(explain(err, 'error iterating over files'))
     parallel([ buildHtml, buildJs, buildCss ], done)
   })
 
-  function iterator (file, done) {
-    var source = assets[file.replace(/^.*\./, '')]()
-    log.debug(file + ' started')
+  function iterator (filename, done) {
+    log.debug('processing file: ' + filename)
+    var source = assets[filename.replace(/^.*\./, '')]()
 
     var sink = concat(function (buf) {
-      buffers[file] = buf
+      buffers[filename] = buf
     })
     pump(source, sink, done)
   }
@@ -234,6 +236,7 @@ function build (entry, outputDir, argv, done) {
     var source = hyperstream()
     source.end(buf)
 
+    log.debug('writing to file ' + outfile)
     pump(source, htmlMinifyStream(), sink, done)
     printSize(buf, outfile, function (err) {
       if (err) return done(err)
@@ -249,6 +252,7 @@ function build (entry, outputDir, argv, done) {
     var sink = fs.createWriteStream(outfile)
     var source = fromString(css)
 
+    log.debug('writing to file ' + outfile)
     pump(source, sink, done)
     printSize(Buffer.from(css), outfile, function (err) {
       if (err) return done(err)
@@ -258,33 +262,6 @@ function build (entry, outputDir, argv, done) {
   function buildJs (done) {
     var file = 'bundle.js'
     var buf = buffers[file]
-    var js = buf.toString()
-    var uglifyOpts = {
-      mangle: {
-        properties: true
-      },
-      compress: {
-        unsafe: true,
-        properties: true,
-        dead_code: true,
-        comparisons: true,
-        evaluate: true,
-        hoist_funs: true,
-        if_returns: true,
-        join_vars: true,
-        pure_getters: true,
-        reduce_vars: true,
-        collapse_vars: true
-      },
-      toplevel: true
-    }
-
-    log.debug('uglify starting')
-    if (argv.debug) uglifyOpts.sourceMap.filename = file
-    js = uglify.minify(js, uglifyOpts)
-    log.debug('uglify finished')
-    buf = Buffer.from(js.code || '')
-
     var outfile = path.join(outputDir, 'bundle.js')
     log.debug('writing to file ' + outfile)
     var sink = fs.createWriteStream(outfile)
@@ -320,7 +297,7 @@ function buildStaticAssets (entry, outputDir, argv, done) {
   function copy (src, dest) {
     if (!fs.statSync(src).isDirectory()) {
       var relativeName = path.relative(path.join(argv.assets, '../'), src)
-      log.debug(relativeName + ' started')
+      log.debug('writing to file ' + dest)
       return pump(fs.createReadStream(src), fs.createWriteStream(dest), function (err) {
         if (err) {
           log.error(relativeName + ' error')
