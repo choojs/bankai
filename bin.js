@@ -167,7 +167,11 @@ function start (entry, argv, done) {
     var url = req.url
     log.debug('received request on url: ' + url)
     if (url === '/') {
-      assets.html(req, res).pipe(zlibMaybe(req, res)).pipe(res)
+      if (fs.existsSync(path.join(process.cwd(), 'index.html'))) {
+        fs.createReadStream(path.join(process.cwd(), 'index.html')).pipe(res)
+      } else {
+        assets.html(req, res).pipe(zlibMaybe(req, res)).pipe(res)
+      }
     } else if (url === '/sse') {
       sse(req, res)
     } else if (url === '/bundle.js') {
@@ -175,7 +179,11 @@ function start (entry, argv, done) {
     } else if (url === '/bundle.css') {
       assets.css(req, res).pipe(zlibMaybe(req, res)).pipe(res)
     } else if (req.headers['accept'].indexOf('html') > 0) {
-      assets.html(req, res).pipe(zlibMaybe(req, res)).pipe(res)
+      if (fs.existsSync(path.join(process.cwd(), 'index.html'))) {
+        fs.createReadStream(path.join(process.cwd(), 'index.html')).pipe(res)
+      } else {
+        assets.html(req, res).pipe(zlibMaybe(req, res)).pipe(res)
+      }
     } else if (staticAsset.test(url)) {
       assets.static(req).pipe(res)
     } else {
@@ -210,7 +218,9 @@ function build (entry, outputDir, argv, done) {
 
   var buffers = {}
   var assets = bankai(entry, argv)
-  var files = ['index.html', 'bundle.js', 'bundle.css']
+  var files = fs.existsSync(path.join(process.cwd(), 'index.html'))
+              ? ['bundle.js', 'bundle.css']
+              : ['index.html', 'bundle.js', 'bundle.css']
 
   mapLimit(files, Infinity, iterator, function (err) {
     if (err) return done(explain(err, 'error iterating over files'))
@@ -229,18 +239,29 @@ function build (entry, outputDir, argv, done) {
 
   function buildHtml (done) {
     var file = 'index.html'
-    var buf = buffers[file]
     var outfile = path.join(outputDir, file)
+    var source
+    var buf
 
     var sink = fs.createWriteStream(outfile)
-    var source = hyperstream()
-    source.end(buf)
-
-    log.debug('writing to file ' + outfile)
-    pump(source, htmlMinifyStream(), sink, done)
-    printSize(buf, outfile, function (err) {
-      if (err) return done(err)
-    })
+    if (fs.existsSync(path.join(process.cwd(), 'index.html'))) {
+      source = fs.createReadStream(path.join(process.cwd(), 'index.html'))
+      var sizeStream = concat(function (buf) {
+        printSize(buf, outfile, function (err) {
+          if (err) return done(err)
+        })
+      })
+      source.pipe(sizeStream)
+      pump(source, htmlMinifyStream(), sink, done)
+    } else {
+      buf = buffers[file]
+      source = hyperstream()
+      source.end(buf)
+      pump(source, htmlMinifyStream(), sink, done)
+      printSize(buf, outfile, function (err) {
+        if (err) return done(err)
+      })
+    }
   }
 
   function buildCss (done) {
