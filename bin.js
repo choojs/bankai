@@ -25,6 +25,7 @@ var zlib = require('zlib')
 var fs = require('fs')
 
 var htmlMinifyStream = require('./lib/html-minify-stream')
+var detectRouter = require('./lib/detect-router')
 var zlibMaybe = require('./lib/gzip-maybe')
 var Sse = require('./lib/sse')
 var bankai = require('./')
@@ -196,6 +197,10 @@ function start (entry, argv, done) {
   }
 }
 
+// Optimize the build output and write it to disk
+// 1. We stream out the individual files out to buffers
+// 2. We optimize each individual buffer using knowledge of the other buffers
+// 3. We stream each buffer to disk
 function build (entry, outputDir, argv, done) {
   log.debug('running command: build')
 
@@ -217,7 +222,7 @@ function build (entry, outputDir, argv, done) {
 
   function iterator (file, done) {
     var source = assets[file.replace(/^.*\./, '')]()
-    log.debug(file + ' started')
+    log.debug('casting to buffer ' + file)
 
     var sink = concat(function (buf) {
       buffers[file] = buf
@@ -225,22 +230,40 @@ function build (entry, outputDir, argv, done) {
     pump(source, sink, done)
   }
 
+  // Render HTML to disk
+  // 1. Figure out if we know the router used, and get a kv object with routes
+  // 2. Mount the resulting HTML on the body tag
+  // 3. Pipe through html optimizer and to disk
   function buildHtml (done) {
+    log.debug('building html')
     var file = 'index.html'
     var buf = buffers[file]
-    var outfile = path.join(outputDir, file)
 
-    var sink = fs.createWriteStream(outfile)
-    var source = hyperstream()
-    source.end(buf)
+    var routes = detectRouter(require(entry))
+    routes = routes || { '/': buf.toString() }
+    var keys = Object.keys(routes)
+    mapLimit(keys, Infinity, iterator, done)
 
-    pump(source, htmlMinifyStream(), sink, done)
-    printSize(buf, outfile, function (err) {
-      if (err) return done(err)
-    })
+    function iterator (route, done) {
+      var html = routes[route]
+      route = route === '/' ? 'index.html' : route + '.html'
+      log.debug('building html: ' + route)
+
+      var outfile = path.join(outputDir, route)
+      var sink = fs.createWriteStream(outfile)
+
+      var source = hyperstream({ body: { _html: html } })
+      source.end(buf)
+
+      pump(source, htmlMinifyStream(), sink, done)
+      printSize(buf, outfile, function (err) {
+        if (err) return done(err)
+      })
+    }
   }
 
   function buildCss (done) {
+    log.debug('building css')
     var css = buffers['bundle.css'].toString()
     var js = buffers['bundle.js'].toString()
     css = purify(js, css, { minify: true })
@@ -256,6 +279,7 @@ function build (entry, outputDir, argv, done) {
   }
 
   function buildJs (done) {
+    log.debug('building js')
     var file = 'bundle.js'
     var buf = buffers[file]
     var js = buf.toString()
@@ -300,11 +324,14 @@ function build (entry, outputDir, argv, done) {
 function printSize (buf, outfile, done) {
   zlib.deflate(buf, function (err, buf) {
     if (err) return done(err)
+
     var length = buf.length
     var location = path.relative(process.cwd(), outfile)
+
     // Warn if serving up more than 60kb in {html,css,js}
     var level = buf.length < 60000 ? 'info' : 'warn'
     var msg = level === 'warn' ? location + ' (large)' : location
+
     log[level]({
       message: msg,
       contentLength: length
