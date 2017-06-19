@@ -335,7 +335,7 @@ function printSize (buf, outfile, done) {
 
 function buildStaticAssets (entry, outputDir, argv, done) {
   var src = path.join(path.dirname(entry), argv.assets)
-  var dest = path.join(path.dirname(entry), outputDir, argv.assets)
+  var dest = path.join(process.cwd(), outputDir, argv.assets)
   if (fs.existsSync(src)) copy(src, dest)
 
   function copy (src, dest) {
