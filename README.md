@@ -79,7 +79,7 @@ sure they can easily create their own tooling from the components we use.
     $ bankai build index.js dist/        # compile and export to dist/
 
   Notes:
-    When specifying both --watch using the long form, you must omit
+    When specifying --watch using the long form, you must omit
     the = when specifying them to be turned off.
 
   Examples:
