@@ -70,7 +70,6 @@ sure they can easily create their own tooling from the components we use.
       -p, --port=<n>          Bind bankai to a port [default: 8080]
       -V, --verbose           Include debug messages
       -w, --watch <bool>      Toggle watch mode
-      -u, --uglify <bool>     Toggle uglifyify. [default: true]
 
   Examples:
     $ bankai index.js -p 8080            # start bankai on port 8080
@@ -80,12 +79,12 @@ sure they can easily create their own tooling from the components we use.
     $ bankai build index.js dist/        # compile and export to dist/
 
   Notes:
-    When specifying both --watch and --uglify using the long form, you must omit
+    When specifying --watch using the long form, you must omit
     the = when specifying them to be turned off.
 
   Examples:
     bankai example.js --open=firefox-aurora -p 3000
-    bankai example.js --uglify false -w false
+    bankai example.js --watch false
 ```
 
 ## API
@@ -119,17 +118,12 @@ passed. Uses [sheetify][sheetify] under the hood.
 
 ### readableStream = assets.static([req], [res])
 Return a `static` stream. Don't set any header. Useful to serve static assets
-like images, icons, fonts, etc. Uses [send][send] under the hood. 
+like images, icons, fonts, etc. Uses [send][send] under the hood.
 
 ## Installation
 ```sh
 $ npm install bankai
 ```
-
-## Uglify toggle
-Uglify only supports JavaScript syntax up to ES5. If you want to use later
-syntax you'll need to either disable the uglifyify transform with
-`--uglify=false` or add a compiler to convert your ES5+ syntax down to ES5.
 
 ## See Also
 - [stackcss/sheetify][sheetify]
