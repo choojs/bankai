@@ -104,8 +104,7 @@ function Bankai (entry, opts) {
         collapse_vars: true
       }
     }
-    if (opts.debug) uglifyOpts.sourceMap = { filename: entry }
-    b.transform(uglifyify, uglifyOpts)
+    if (!opts.debug) b.transform(uglifyify, uglifyOpts)
 
     b.plugin(collapser)
 
