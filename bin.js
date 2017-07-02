@@ -11,10 +11,7 @@ var purify = require('purify-css')
 var resolve = require('resolve')
 var mkdirp = require('mkdirp')
 var subarg = require('subarg')
-var tmp = require('temp-path')
 var from = require('from2')
-var disc = require('disc')
-var open = require('open')
 var path = require('path')
 var pino = require('pino')
 var pump = require('pump')
@@ -22,6 +19,7 @@ var zlib = require('zlib')
 var fs = require('fs')
 
 var htmlMinifyStream = require('./lib/html-minify-stream')
+var inspect = require('./bin/inspect')
 var start = require('./bin/start')
 var bankai = require('./')
 
@@ -286,28 +284,4 @@ function build (entry, outputDir, argv, done) {
       }
     }
   }
-}
-
-function inspect (entry, argv, done) {
-  var log = argv.log
-
-  argv.watch = false
-  argv.js = argv.js || {}
-  argv.js.fullPaths = true
-
-  var assets = bankai(entry, argv)
-  var js = assets.js()
-  var filename = tmp() + '.html'
-
-  var ws = fs.createWriteStream(filename)
-  var d = disc()
-  pump(js, d, function (err) {
-    if (err) return done(err)
-  })
-
-  pump(d, ws, function (err) {
-    if (err) return done(err)
-    log.info('Opening ' + filename)
-    open(filename)
-  })
 }
