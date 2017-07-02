@@ -72,7 +72,7 @@ function start (entry, argv, done) {
         fs.createReadStream(path.join(process.cwd(), 'index.html')).pipe(res)
       } else {
         pump(assets.html(req, res), res, function (err) {
-          if (err) throw err
+          if (err) log.error(err)
         })
       }
     } else if (url === '/sse') {

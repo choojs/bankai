@@ -4,5 +4,6 @@
   "start_url": ".",
   "display": "standalone",
   "background_color": "#fff",
+  "theme_color": "#fff",
   "description": "A super cute example app."
 }
