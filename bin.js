@@ -8,14 +8,12 @@ var explain = require('explain-error')
 var concat = require('concat-stream')
 var mapLimit = require('map-limit')
 var purify = require('purify-css')
-var logHttp = require('log-http')
 var resolve = require('resolve')
 var mkdirp = require('mkdirp')
 var subarg = require('subarg')
 var tmp = require('temp-path')
 var from = require('from2')
 var disc = require('disc')
-var http = require('http')
 var open = require('open')
 var path = require('path')
 var pino = require('pino')
@@ -24,8 +22,7 @@ var zlib = require('zlib')
 var fs = require('fs')
 
 var htmlMinifyStream = require('./lib/html-minify-stream')
-var zlibMaybe = require('./lib/gzip-maybe')
-var Sse = require('./lib/sse')
+var start = require('./bin/start')
 var bankai = require('./')
 
 var pretty = pinoColada()
@@ -57,9 +54,6 @@ var argv = subarg(process.argv.slice(2), {
     watch: 'w'
   }
 })
-
-var logLevel = argv.verbose ? 'debug' : 'info'
-var log = pino({ name: 'bankai', level: logLevel }, pretty)
 
 var usage = `
   Usage:
@@ -118,6 +112,9 @@ function main (argv) {
   var entry = resolve.sync(localEntry, { basedir: process.cwd() })
   var outputDir = argv._[2] || 'dist'
 
+  var logLevel = argv.verbose ? 'debug' : 'info'
+  argv.log = pino({ name: 'bankai', level: logLevel }, pretty)
+
   if (cmd === 'start') {
     start(entry, argv, handleError)
   } else if (cmd === 'build') {
@@ -125,88 +122,20 @@ function main (argv) {
   } else if (cmd === 'inspect') {
     inspect(entry, argv, handleError)
   } else {
-    log.error(usage)
+    argv.log.error(usage)
     return process.exit(1)
   }
 
   function handleError (err) {
     if (err) {
       if (argv.verbose) throw err
-      else log.error(err)
-    }
-  }
-}
-
-function start (entry, argv, done) {
-  log.debug('running command: start')
-  argv.watch = true
-
-  var assets = bankai(entry, argv)
-  var staticAsset = new RegExp('/' + argv.assets)
-  var address = argv.address
-  var port = argv.port
-  var sse = Sse(assets)
-
-  assets.on('js-bundle', function () {
-    log.info('bundle:js')
-  })
-
-  assets.on('css-bundle', function () {
-    log.info('bundle:css')
-  })
-
-  var server = http.createServer(handler)
-  server.listen(port, address, onlisten)
-
-  var stats = logHttp(server)
-  stats.on('data', function (level, data) {
-    log[level](data)
-  })
-
-  function handler (req, res) {
-    var url = req.url
-    log.debug('received request on url: ' + url)
-    if (url === '/') {
-      if (fs.existsSync(path.join(process.cwd(), 'index.html'))) {
-        fs.createReadStream(path.join(process.cwd(), 'index.html')).pipe(res)
-      } else {
-        assets.html(req, res).pipe(zlibMaybe(req, res)).pipe(res)
-      }
-    } else if (url === '/sse') {
-      sse(req, res)
-    } else if (url === '/bundle.js') {
-      assets.js(req, res).pipe(zlibMaybe(req, res)).pipe(res)
-    } else if (url === '/bundle.css') {
-      assets.css(req, res).pipe(zlibMaybe(req, res)).pipe(res)
-    } else if (req.headers['accept'].indexOf('html') > 0) {
-      if (fs.existsSync(path.join(process.cwd(), 'index.html'))) {
-        fs.createReadStream(path.join(process.cwd(), 'index.html')).pipe(res)
-      } else {
-        assets.html(req, res).pipe(zlibMaybe(req, res)).pipe(res)
-      }
-    } else if (staticAsset.test(url)) {
-      assets.static(req).pipe(res)
-    } else {
-      res.writeHead(404, 'Not Found')
-      res.end()
-    }
-  }
-
-  function onlisten () {
-    var relative = path.relative(process.cwd(), entry)
-    var addr = 'http://' + address + ':' + port
-    log.info('Started for ' + relative + ' on ' + addr)
-    if (argv.open !== false) {
-      var app = argv.open.length ? argv.open : ''
-      open(addr, app, function (err) {
-        if (err) return done(explain(err, `err running ${app}`))
-        done()
-      })
+      else argv.log.error(err)
     }
   }
 }
 
 function build (entry, outputDir, argv, done) {
+  var log = argv.log
   log.debug('running command: build')
 
   // cast argv.watch to a boolean
@@ -316,50 +245,52 @@ function build (entry, outputDir, argv, done) {
       if (err) return done(err)
     })
   }
-}
 
-function printSize (buf, outfile, done) {
-  zlib.deflate(buf, function (err, buf) {
-    if (err) return done(err)
-    var length = buf.length
-    var location = path.relative(process.cwd(), outfile)
-    // Warn if serving up more than 60kb in {html,css,js}
-    var level = buf.length < 60000 ? 'info' : 'warn'
-    var msg = level === 'warn' ? location + ' (large)' : location
-    log[level]({
-      message: msg,
-      contentLength: length
-    })
-  })
-}
-
-function buildStaticAssets (entry, outputDir, argv, done) {
-  var src = path.join(path.dirname(entry), argv.assets)
-  var dest = path.join(path.dirname(entry), outputDir, argv.assets)
-  if (fs.existsSync(src)) copy(src, dest)
-
-  function copy (src, dest) {
-    if (!fs.statSync(src).isDirectory()) {
-      var relativeName = path.relative(path.join(argv.assets, '../'), src)
-      log.debug('writing to file ' + dest)
-      return pump(fs.createReadStream(src), fs.createWriteStream(dest), function (err) {
-        if (err) {
-          log.error(relativeName + ' error')
-          return done(err)
-        }
-        log.info(relativeName + ' done')
-        done()
+  function printSize (buf, outfile, done) {
+    zlib.deflate(buf, function (err, buf) {
+      if (err) return done(err)
+      var length = buf.length
+      var location = path.relative(process.cwd(), outfile)
+      // Warn if serving up more than 60kb in {html,css,js}
+      var level = buf.length < 60000 ? 'info' : 'warn'
+      var msg = level === 'warn' ? location + ' (large)' : location
+      log[level]({
+        message: msg,
+        contentLength: length
       })
-    }
-    if (!fs.existsSync(dest)) fs.mkdirSync(dest)
-    var files = fs.readdirSync(src)
-    for (var i = 0; i < files.length; i++) {
-      copy(path.join(src, files[i]), path.join(dest, files[i]))
+    })
+  }
+
+  function buildStaticAssets (entry, outputDir, argv, done) {
+    var src = path.join(path.dirname(entry), argv.assets)
+    var dest = path.join(path.dirname(entry), outputDir, argv.assets)
+    if (fs.existsSync(src)) copy(src, dest)
+
+    function copy (src, dest) {
+      if (!fs.statSync(src).isDirectory()) {
+        var relativeName = path.relative(path.join(argv.assets, '../'), src)
+        log.debug('writing to file ' + dest)
+        return pump(fs.createReadStream(src), fs.createWriteStream(dest), function (err) {
+          if (err) {
+            log.error(relativeName + ' error')
+            return done(err)
+          }
+          log.info(relativeName + ' done')
+          done()
+        })
+      }
+      if (!fs.existsSync(dest)) fs.mkdirSync(dest)
+      var files = fs.readdirSync(src)
+      for (var i = 0; i < files.length; i++) {
+        copy(path.join(src, files[i]), path.join(dest, files[i]))
+      }
     }
   }
 }
 
 function inspect (entry, argv, done) {
+  var log = argv.log
+
   argv.watch = false
   argv.js = argv.js || {}
   argv.js.fullPaths = true
