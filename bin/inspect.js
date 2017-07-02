@@ -1,10 +1,10 @@
+var tmp = require('temp-path')
 var open = require('open')
 var disc = require('disc')
 var pump = require('pump')
-var tmp = require('tmp')
 var fs = require('fs')
 
-var bankai = require('../bankai')
+var bankai = require('../')
 
 module.exports = inspect
 

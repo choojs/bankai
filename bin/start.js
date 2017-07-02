@@ -1,11 +1,11 @@
+var explain = require('explain-error')
 var logHttp = require('log-http')
-var explain = require('explain')
 var open = require('open')
 var http = require('http')
 var path = require('path')
 var fs = require('fs')
 
-var findManifest = require('../lib/find-manifest')
+// var findManifest = require('../lib/find-manifest')
 var zlibMaybe = require('../lib/gzip-maybe')
 var Sse = require('../lib/sse')
 var bankai = require('../')
