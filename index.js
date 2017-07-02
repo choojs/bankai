@@ -18,6 +18,7 @@ var from = require('from2')
 var pump = require('pump')
 var send = require('send')
 
+var manifestStream = require('./lib/html-manifest-stream')
 var createElectronOpts = require('./lib/electron')
 
 module.exports = Bankai
@@ -45,6 +46,7 @@ function Bankai (entry, opts) {
 
   if (opts.debug) opts.js = xtend(opts.js, { debug: true })
 
+  this.manifest = opts.html.manifest
   this._html = html()
   this._js = js()
 
@@ -142,7 +144,14 @@ Bankai.prototype.js = function (req, res) {
 Bankai.prototype.html = function (req, res) {
   assert.notEqual(this.htmlDisabled, true, 'bankai: html is disabled')
   if (res) res.setHeader('Content-Type', 'text/html')
-  return from([this._html])
+
+  if (this.manifest) {
+    var pts = manifestStream(this.manifest)
+    pts.end(this._html)
+    return pts
+  } else {
+    return from([this._html])
+  }
 }
 
 // (obj, obj) -> readStream

@@ -99,6 +99,10 @@ function main (argv) {
   var logLevel = argv.verbose ? 'debug' : 'info'
   argv.log = pino({ name: 'bankai', level: logLevel }, pretty)
 
+  argv.html = argv.html || {}
+  argv.css = argv.css || {}
+  argv.js = argv.js || {}
+
   if (cmd === 'start') {
     start(entry, argv, handleError)
   } else if (cmd === 'build') {

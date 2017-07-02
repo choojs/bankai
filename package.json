@@ -7,8 +7,8 @@
     "bankai": "bin/index.js"
   },
   "scripts": {
-    "start": "./bin/index.js example.js --open -p 8080 -A 0.0.0.0",
-    "build": "NODE_ENV=production ./bin/index.js build example.js",
+    "start": "./bin/index.js example/index.js",
+    "build": "NODE_ENV=production ./bin/index.js build example/index.js",
     "deps": "dependency-check . && dependency-check . --extra --no-dev",
     "test": "standard && npm run deps",
     "test:cov": "standard && npm run deps"
@@ -51,6 +51,7 @@
     "purify-css": "^1.1.9",
     "resolve": "^1.1.7",
     "run-parallel": "^1.1.6",
+    "run-series": "^1.1.4",
     "send": "^0.15.0",
     "sheetify": "^6.0.1",
     "subarg": "^1.0.0",
