@@ -9,13 +9,14 @@ var concat = require('concat-stream')
 var mapLimit = require('map-limit')
 var purify = require('purify-css')
 var logHttp = require('log-http')
+var devCert = require('devcert').default
 var resolve = require('resolve')
 var mkdirp = require('mkdirp')
 var subarg = require('subarg')
 var tmp = require('temp-path')
+var https = require('https')
 var from = require('from2')
 var disc = require('disc')
-var http = require('http')
 var open = require('open')
 var path = require('path')
 var pino = require('pino')
@@ -146,6 +147,10 @@ function start (entry, argv, done) {
   var address = argv.address
   var port = argv.port
   var sse = Sse(assets)
+  var certOpts = {
+    installCertutil: true
+  }
+  var certName = entry.replace(new RegExp(path.sep, 'g'), '-').slice(-64)
 
   assets.on('js-bundle', function () {
     log.info('bundle:js')
@@ -155,13 +160,20 @@ function start (entry, argv, done) {
     log.info('bundle:css')
   })
 
-  var server = http.createServer(handler)
-  server.listen(port, address, onlisten)
+  devCert(certName, certOpts)
+    .then(function (ssl) {
+      var server = https.createServer(ssl, handler)
+      server.listen(port, address, onlisten)
 
-  var stats = logHttp(server)
-  stats.on('data', function (level, data) {
-    log[level](data)
-  })
+      var stats = logHttp(server)
+      stats.on('data', function (level, data) {
+        log[level](data)
+      })
+    })
+    .catch(function (err) {
+      console.log(err.message)
+      process.exit(1)
+    })
 
   function handler (req, res) {
     var url = req.url
@@ -194,7 +206,7 @@ function start (entry, argv, done) {
 
   function onlisten () {
     var relative = path.relative(process.cwd(), entry)
-    var addr = 'http://' + address + ':' + port
+    var addr = 'https://' + address + ':' + port
     log.info('Started for ' + relative + ' on ' + addr)
     if (argv.open !== false) {
       var app = argv.open.length ? argv.open : ''
