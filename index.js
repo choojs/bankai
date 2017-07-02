@@ -51,6 +51,7 @@ function Bankai (entry, opts) {
   function html () {
     var base = {
       script: '/bundle.js',
+      scriptAsync: true,
       css: self.cssDisabled ? null : '/bundle.css',
       head: '<meta name="viewport" content="width=device-width, initial-scale=1">'
     }
