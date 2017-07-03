@@ -5,9 +5,9 @@ var prefix = css`
   :host > h1 { font-size: 12rem }
 `
 
-if (process.env.NODE_ENV !== 'production') {
-  window.alert('not in production!')
-}
+// if (process.env.NODE_ENV !== 'production') {
+//   window.alert('not in production!')
+// }
 
 var el = html`
   <section class=${prefix}>
@@ -15,4 +15,4 @@ var el = html`
   </section>
 `
 
-document.querySelector('main').appendChild(el)
+document.body.appendChild(el)

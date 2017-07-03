@@ -5,6 +5,7 @@ var sheetify = require('sheetify/transform')
 var unassertify = require('unassertify')
 var cssExtract = require('css-extract')
 var createHtml = require('create-html')
+var stream = require('readable-stream')
 var browserify = require('browserify')
 var concat = require('concat-stream')
 var uglifyify = require('uglifyify')
@@ -12,12 +13,13 @@ var watchify = require('watchify')
 var yoyoify = require('yo-yoify')
 var envify = require('envify')
 var assert = require('assert')
-var stream = require('stream')
 var xtend = require('xtend')
 var from = require('from2')
 var pump = require('pump')
 var send = require('send')
+var fs = require('fs')
 
+var manifestStream = require('./lib/html-manifest-stream')
 var createElectronOpts = require('./lib/electron')
 
 module.exports = Bankai
@@ -45,6 +47,7 @@ function Bankai (entry, opts) {
 
   if (opts.debug) opts.js = xtend(opts.js, { debug: true })
 
+  this.manifest = opts.html.manifest
   this._html = html()
   this._js = js()
 
@@ -142,7 +145,18 @@ Bankai.prototype.js = function (req, res) {
 Bankai.prototype.html = function (req, res) {
   assert.notEqual(this.htmlDisabled, true, 'bankai: html is disabled')
   if (res) res.setHeader('Content-Type', 'text/html')
-  return from([this._html])
+
+  if (this.manifest) {
+    // FIXME: only works synchronously, stream blows up silently if async :(
+    var file = fs.readFileSync(this.manifest)
+    var json
+    try { json = JSON.parse(file) } catch (_) {}
+    var src = manifestStream(json)
+    src.end(this._html)
+    return src
+  } else {
+    return from([this._html])
+  }
 }
 
 // (obj, obj) -> readStream

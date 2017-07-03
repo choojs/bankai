@@ -1,0 +1,9 @@
+{
+  "name": "example app",
+  "short_name": "example",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#fff",
+  "theme_color": "#fff",
+  "description": "A super cute example app."
+}
