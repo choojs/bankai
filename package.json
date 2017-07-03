@@ -62,14 +62,13 @@
     "unassertify": "^2.0.3",
     "watchify": "^3.7.0",
     "watchify-request": "^2.1.0",
-    "wayfarer": "^6.6.1",
     "xtend": "^4.0.1",
     "yo-yoify": "^3.5.0"
   },
   "devDependencies": {
     "bel": "^4.5.0",
     "choo": "^6.0.0-2",
-    "dependency-check": "~2.6.0",
+    "dependency-check": "^2.6.0",
     "is-html": "^1.0.0",
     "istanbul": "^0.4.4",
     "openport": "0.0.4",
