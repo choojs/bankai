@@ -21,6 +21,7 @@ var send = require('send')
 var url = require('url')
 var fs = require('fs')
 
+var htmlMinifyStream = require('./lib/html-minify-stream.js')
 var manifestStream = require('./lib/html-manifest-stream')
 var createElectronOpts = require('./lib/electron')
 var detectRouter = require('./lib/detect-router')
@@ -156,13 +157,16 @@ Bankai.prototype.html = function (req, res) {
       ? req
       : '/'
 
-  var routes = detectRouter(require(this.entry))
-  var html = routes[route]
+  var html = detectRouter(route, require(this.entry))
+  var minify = htmlMinifyStream()
 
-  var source = hyperstream({ body: { _html: html } })
-  source.end(this._html)
-
-  pump(source, htmlMinifyStream())
+  if (html) {
+    var source = hyperstream({ body: { _html: html } })
+    source.end(this._html)
+    pump(source, minify)
+  } else {
+    minify.end(this._html)
+  }
 
   // Read manifest if it exists
   // FIXME: only works synchronously, stream blows up silently if async :(
@@ -173,10 +177,10 @@ Bankai.prototype.html = function (req, res) {
 
   if (json) {
     var src = manifestStream(json)
-    pump(htmlMinifyStream, src)
+    pump(minify, src)
     return src
   } else {
-    return htmlMinifyStream
+    return minify
   }
 }
 
