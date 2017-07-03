@@ -62,6 +62,7 @@
     "unassertify": "^2.0.3",
     "watchify": "^3.7.0",
     "watchify-request": "^2.1.0",
+    "wayfarer": "^6.6.1",
     "xtend": "^4.0.1",
     "yo-yoify": "^3.5.0"
   },
