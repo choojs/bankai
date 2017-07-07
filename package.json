@@ -67,8 +67,8 @@
   },
   "devDependencies": {
     "bel": "^4.5.0",
-    "choo": "^5.0.4",
-    "dependency-check": "~2.6.0",
+    "choo": "^6.0.0-2",
+    "dependency-check": "2.6.0",
     "is-html": "^1.0.0",
     "istanbul": "^0.4.4",
     "openport": "0.0.4",

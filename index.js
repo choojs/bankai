@@ -2,6 +2,7 @@ var collapser = require('bundle-collapser/plugin')
 var EventEmitter = require('events').EventEmitter
 var watchifyRequest = require('watchify-request')
 var sheetify = require('sheetify/transform')
+var hyperstream = require('hyperstream')
 var unassertify = require('unassertify')
 var cssExtract = require('css-extract')
 var createHtml = require('create-html')
@@ -17,10 +18,13 @@ var xtend = require('xtend')
 var from = require('from2')
 var pump = require('pump')
 var send = require('send')
+var url = require('url')
 var fs = require('fs')
 
+var htmlMinifyStream = require('./lib/html-minify-stream.js')
 var manifestStream = require('./lib/html-manifest-stream')
 var createElectronOpts = require('./lib/electron')
+var detectRouter = require('./lib/detect-router')
 
 module.exports = Bankai
 
@@ -40,6 +44,7 @@ function Bankai (entry, opts) {
   this.htmlDisabled = (opts.html === false)
   this.cssDisabled = (opts.css === false)
   this.cssQueue = []
+  this.entry = entry
 
   opts.html = opts.html || {}
   opts.css = opts.css || {}
@@ -146,16 +151,36 @@ Bankai.prototype.html = function (req, res) {
   assert.notEqual(this.htmlDisabled, true, 'bankai: html is disabled')
   if (res) res.setHeader('Content-Type', 'text/html')
 
+  var route = typeof req === 'object'
+    ? url.parse(req.url).pathname
+    : typeof req === 'string'
+      ? req
+      : '/'
+
+  var html = detectRouter(route, require(this.entry))
+  var minify = htmlMinifyStream()
+
+  if (html) {
+    var source = hyperstream({ body: { _html: html } })
+    source.end(this._html)
+    pump(source, minify)
+  } else {
+    minify.end(this._html)
+  }
+
+  // Read manifest if it exists
+  // FIXME: only works synchronously, stream blows up silently if async :(
   if (this.manifest) {
-    // FIXME: only works synchronously, stream blows up silently if async :(
     var file = fs.readFileSync(this.manifest)
-    var json
-    try { json = JSON.parse(file) } catch (_) {}
+    try { var json = JSON.parse(file) } catch (_) {}
+  }
+
+  if (json) {
     var src = manifestStream(json)
-    src.end(this._html)
+    pump(minify, src)
     return src
   } else {
-    return from([this._html])
+    return minify
   }
 }
 
