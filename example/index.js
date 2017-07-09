@@ -7,6 +7,13 @@ var prefix = css`
 `
 
 var app = choo()
+app.use(function (state, emitter) {
+  emitter.on(state.events.DOMCONTENTLOADED, function () {
+    if (navigator.serviceWorker) {
+      navigator.serviceWorker.register('/service.js', {scope: '/'})
+    }
+  })
+})
 app.route('/', function (state, emit) {
   var title = 'Hello planet'
   if (state.title !== title) emit(state.events.DOMTITLECHANGE, title)
