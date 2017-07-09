@@ -26,6 +26,7 @@ var htmlMinifyStream = require('./lib/html-minify-stream.js')
 var manifestStream = require('./lib/html-manifest-stream')
 var createElectronOpts = require('./lib/electron')
 var detectRouter = require('./lib/detect-router')
+var titleStream = require('./lib/title-stream')
 
 module.exports = Bankai
 
@@ -159,7 +160,9 @@ Bankai.prototype.html = function (req, res) {
       ? req
       : '/'
 
-  var html = detectRouter(route, require(this.entry))
+  // TODO: if not in prod mode, clear cache before loading
+  var instance = require(this.entry)
+  var html = detectRouter(route, instance)
   var minify = htmlMinifyStream()
 
   if (html) {
@@ -169,14 +172,18 @@ Bankai.prototype.html = function (req, res) {
       this.once('css-bundle', function () {
         var ssr = hyperstream({ body: { _html: html } })
         var critical = inline(this._css)
+        var state = instance.state
+        var title = titleStream(state.title || '')
         ssr.end(this._html)
-        pump(ssr, critical, minify)
+        pump(ssr, critical, title, minify)
       })
     } else {
       var ssr = hyperstream({ body: { _html: html } })
       var critical = inline(this._css)
+      var state = instance.state
+      var title = titleStream(state.title || '')
       ssr.end(this._html)
-      pump(ssr, critical, minify)
+      pump(ssr, critical, title, minify)
     }
   } else {
     minify.end(this._html)
