@@ -69,6 +69,9 @@
   "devDependencies": {
     "bel": "^4.5.0",
     "choo": "^6.0.0-2",
+    "choo-expose": "^1.2.1",
+    "choo-log": "^7.0.0",
+    "choo-service-worker": "^2.1.2",
     "dependency-check": "2.6.0",
     "is-html": "^1.0.0",
     "istanbul": "^0.4.4",

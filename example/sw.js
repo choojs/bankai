@@ -1,6 +1,6 @@
 /* global self */
 
-var VERSION = '0.0.0'
+var VERSION = String(Date.now())
 var URLS = [
   '/',
   '/bundle.css',

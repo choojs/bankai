@@ -79,9 +79,9 @@ function start (entry, argv, done) {
       sse(req, res)
     } else if (url === '/bundle.js') {
       assets.js(req, res).pipe(zlibMaybe(req, res)).pipe(res)
-    } else if (url === '/service.js') {
+    } else if (url === '/sw.js') {
       res.writeHead(200, { 'content-type': 'application/javascript' })
-      fs.createReadStream(path.join(path.dirname(entry), 'service.js')).pipe(res)
+      fs.createReadStream(path.join(path.dirname(entry), 'sw.js')).pipe(res)
     } else if (url === '/bundle.css') {
       assets.css(req, res).pipe(zlibMaybe(req, res)).pipe(res)
     } else if (url === '/manifest.json') {
