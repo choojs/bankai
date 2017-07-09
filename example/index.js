@@ -9,9 +9,9 @@ var prefix = css`
 var app = choo()
 app.route('/', function (state, emit) {
   return html`
-    <section class=${prefix}>
+    <body class=${prefix}>
       <h1>hello planet</h1>
-    </section>
+    </body>
   `
 })
 
