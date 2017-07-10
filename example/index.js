@@ -8,10 +8,13 @@ var prefix = css`
 
 var app = choo()
 app.route('/', function (state, emit) {
+  var title = 'Hello planet'
+  if (state.title !== title) emit(state.events.DOMTITLECHANGE, title)
+
   return html`
-    <section class=${prefix}>
+    <body class=${prefix}>
       <h1>hello planet</h1>
-    </section>
+    </body>
   `
 })
 

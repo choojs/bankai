@@ -2,6 +2,7 @@ var collapser = require('bundle-collapser/plugin')
 var EventEmitter = require('events').EventEmitter
 var watchifyRequest = require('watchify-request')
 var sheetify = require('sheetify/transform')
+var inline = require('inline-critical-css')
 var hyperstream = require('hyperstream')
 var unassertify = require('unassertify')
 var cssExtract = require('css-extract')
@@ -25,6 +26,7 @@ var htmlMinifyStream = require('./lib/html-minify-stream.js')
 var manifestStream = require('./lib/html-manifest-stream')
 var createElectronOpts = require('./lib/electron')
 var detectRouter = require('./lib/detect-router')
+var titleStream = require('./lib/title-stream')
 
 module.exports = Bankai
 
@@ -61,6 +63,7 @@ function Bankai (entry, opts) {
       script: '/bundle.js',
       scriptAsync: true,
       css: self.cssDisabled ? null : '/bundle.css',
+      cssAsync: true,
       head: '<meta name="viewport" content="width=device-width, initial-scale=1">'
     }
     var html = createHtml(xtend(base, opts.html))
@@ -157,13 +160,31 @@ Bankai.prototype.html = function (req, res) {
       ? req
       : '/'
 
-  var html = detectRouter(route, require(this.entry))
+  // TODO: if not in prod mode, clear cache before loading
+  var instance = require(this.entry)
+  var html = detectRouter(route, instance)
   var minify = htmlMinifyStream()
 
   if (html) {
-    var source = hyperstream({ body: { _html: html } })
-    source.end(this._html)
-    pump(source, minify)
+    // TODO: make this less hacky. Ideally there'd be a "setup" step, emit
+    // "ready", and it's go time.
+    if (!this._css) {
+      this.once('css-bundle', function () {
+        var ssr = hyperstream({ body: { _html: html } })
+        var critical = inline(this._css)
+        var state = instance.state
+        var title = titleStream(state.title || '')
+        ssr.end(this._html)
+        pump(ssr, critical, title, minify)
+      })
+    } else {
+      var ssr = hyperstream({ body: { _html: html } })
+      var critical = inline(this._css)
+      var state = instance.state
+      var title = titleStream(state.title || '')
+      ssr.end(this._html)
+      pump(ssr, critical, title, minify)
+    }
   } else {
     minify.end(this._html)
   }
