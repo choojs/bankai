@@ -79,12 +79,15 @@ function start (entry, argv, done) {
       sse(req, res)
     } else if (url === '/bundle.js') {
       assets.js(req, res).pipe(zlibMaybe(req, res)).pipe(res)
+    } else if (url === '/sw.js') {
+      res.writeHead(200, { 'content-type': 'application/javascript' })
+      fs.createReadStream(path.join(path.dirname(entry), 'sw.js')).pipe(res)
     } else if (url === '/bundle.css') {
       assets.css(req, res).pipe(zlibMaybe(req, res)).pipe(res)
     } else if (url === '/manifest.json') {
       assert.ok(argv.html.manifest, 'bankai.start: no manifest file found')
       fs.createReadStream(argv.html.manifest).pipe(zlibMaybe(req, res)).pipe(res)
-    } else if (req.headers['accept'].indexOf('html') > 0) {
+    } else if (url === '/' || req.headers['accept'].indexOf('html') > 0) {
       if (fs.existsSync(path.join(process.cwd(), 'index.html'))) {
         fs.createReadStream(path.join(process.cwd(), 'index.html')).pipe(res)
       } else {

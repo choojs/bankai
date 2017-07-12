@@ -17,6 +17,7 @@ var envify = require('envify')
 var assert = require('assert')
 var xtend = require('xtend')
 var from = require('from2')
+var path = require('path')
 var pump = require('pump')
 var send = require('send')
 var url = require('url')
@@ -224,5 +225,7 @@ Bankai.prototype.css = function (req, res) {
 
 // (obj, obj) -> readStream
 Bankai.prototype.static = function (req, res) {
-  return send(req, req.url.substr(1))
+  var uri = url.parse(req.url).pathname
+  var root = path.dirname(this.entry)
+  return send(req, uri, { index: false, root: root })
 }
