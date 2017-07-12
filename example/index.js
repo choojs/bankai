@@ -8,7 +8,6 @@ var prefix = css`
 
 var app = choo()
 if (process.env.NODE_ENV !== 'production') {
-  app.use(require('choo-service-worker/clear')())
   app.use(require('choo-expose')())
   app.use(require('choo-log')())
 }
