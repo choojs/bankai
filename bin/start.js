@@ -2,10 +2,12 @@ var explain = require('explain-error')
 var series = require('run-series')
 var logHttp = require('log-http')
 var assert = require('assert')
-var open = require('open')
+var https = require('https')
 var http = require('http')
+var open = require('open')
 var path = require('path')
 var pump = require('pump')
+var pem = require('pem')
 var fs = require('fs')
 
 var findManifest = require('../lib/find-manifest')
@@ -24,13 +26,17 @@ function start (entry, argv, done) {
   var staticAsset = new RegExp('/' + argv.assets)
   var address = argv.address
   var port = argv.port
-  var assets, sse
+  var createServer = http.createServer
+  var assets, sse, sslOpts
 
-  series([
+  var actions = [
     getManifest,   // detect manifest.json files
     startBankai,   // kick off bankai
-    startServer    // serve bankai over http
-  ])
+    maybeHTTPS,    // HTTPS or HTTP
+    startServer    // Start server
+  ]
+
+  series(actions)
 
   function getManifest (next) {
     findManifest(entry, function (_, filename) {
@@ -54,8 +60,24 @@ function start (entry, argv, done) {
     next()
   }
 
+  function maybeHTTPS (next) {
+    var app = argv.open.length ? argv.open : ''
+    if (argv.ssl) {
+      return pem.createCertificate({days: 30, selfSigned: true}, function (err, keys) {
+        if (err) return done(explain(err, `err creating SSL cert for ${app}`))
+        sslOpts = {
+          key: keys.serviceKey,
+          cert: keys.certificate
+        }
+        createServer = https.createServer.bind(null, sslOpts)
+        next()
+      })
+    }
+    next()
+  }
+
   function startServer () {
-    var server = http.createServer(handler)
+    var server = createServer(handler)
     server.listen(port, address, onlisten)
 
     var stats = logHttp(server)
@@ -103,7 +125,8 @@ function start (entry, argv, done) {
 
   function onlisten () {
     var relative = path.relative(process.cwd(), entry)
-    var addr = 'http://' + address + ':' + port
+    var protocol = argv.ssl ? 'https' : 'http'
+    var addr = protocol + '://' + address + ':' + port
     log.info('Started for ' + relative + ' on ' + addr)
     if (argv.open !== false) {
       var app = argv.open.length ? argv.open : ''
