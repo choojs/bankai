@@ -87,7 +87,7 @@ function start (entry, argv, done) {
     } else if (url === '/manifest.json') {
       assert.ok(argv.html.manifest, 'bankai.start: no manifest file found')
       fs.createReadStream(argv.html.manifest).pipe(zlibMaybe(req, res)).pipe(res)
-    } else if (url === '/' || req.headers['accept'].indexOf('html') > 0) {
+    } else if ((url === '/' || req.headers['accept'].indexOf('html') > 0) && req.url.indexOf('favicon') === -1) {
       if (fs.existsSync(path.join(process.cwd(), 'index.html'))) {
         fs.createReadStream(path.join(process.cwd(), 'index.html')).pipe(res)
       } else {
