@@ -14,13 +14,14 @@ pretty.pipe(process.stdout)
 
 var argv = subarg(process.argv.slice(2), {
   string: [ 'open', 'port', 'assets' ],
-  boolean: [ 'watch', 'verbose', 'help', 'version', 'debug', 'electron' ],
+  boolean: [ 'watch', 'verbose', 'help', 'version', 'debug', 'electron', 'ssl' ],
   default: {
     address: 'localhost',
     assets: 'assets',
     debug: false,
     open: false,
-    port: 8080
+    port: 8080,
+    ssl: false
   },
   alias: {
     address: 'A',
@@ -33,6 +34,7 @@ var argv = subarg(process.argv.slice(2), {
     js: 'j',
     open: 'o',
     port: 'p',
+    ssl: 's',
     verbose: 'V',
     version: 'v',
     watch: 'w'
@@ -60,6 +62,7 @@ var usage = `
       -j, --js=<subargs>      Pass subarguments to browserify
       -o, --open=<browser>    Open html in a browser [default: system default]
       -p, --port=<n>          Bind bankai to a port [default: 8080]
+      -s, --ssl               Create a self-signed certificate and serve over HTTPS
       -V, --verbose           Include debug messages
       -w, --watch <bool>      Toggle watch mode
 
