@@ -28,6 +28,7 @@
   ],
   "license": "MIT",
   "dependencies": {
+    "ansi-escape-sequences": "^3.0.0",
     "browserify": "^14.0.0",
     "bundle-collapser": "^1.2.1",
     "concat-stream": "^1.5.2",
