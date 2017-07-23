@@ -48,43 +48,40 @@ sure they can easily create their own tooling from the components we use.
 
 ## Usage
 ```txt
-  Usage:
-    $ bankai <command> [options]
+  $ bankai [options] <command>
 
   Commands:
-    <default>                      Run 'bankai start'
-    start <filename>               Start a bankai server
-    build <filename> <directory>   Compile and export files to a directory
-    inspect <filename>             Visualize the dependency tree
 
-    Options:
-      -a, --assets=<directory>  Serve static assets [default: assets]
-      -A, --address=<ip>      Ip address to listen [default: localhost]
-      -c, --css=<subargs>     Pass subarguments to sheetify
-      -d, --debug             Include sourcemaps [default: false]
-      -e, --electron          Enable electron mode for the bundler
-      -h, --help              Print usage
-      -H, --html=<subargs>    Pass subarguments to create-html
-      -j, --js=<subargs>      Pass subarguments to browserify
-      -o, --open=<browser>    Open html in a browser [default: system default]
-      -p, --port=<n>          Bind bankai to a port [default: 8080]
-      -V, --verbose           Include debug messages
-      -w, --watch <bool>      Toggle watch mode
+    <default>                      run 'bankai start'
+    start <filename>               start a bankai server
+    build <filename> <directory>   compile and export files to a directory
+    inspect <filename>             visualize the dependency tree
 
-  Examples:
-    $ bankai index.js -p 8080            # start bankai on port 8080
-    $ bankai index.js --open             # open html in the browser
-    $ bankai -c [ -u sheetify-cssnext ]  # use cssnext in sheetify
-    $ bankai -j [ -t brfs ]              # use brfs in browserify
-    $ bankai build index.js dist/        # compile and export to dist/
+  Options:
 
-  Notes:
-    When specifying --watch using the long form, you must omit
-    the = when specifying them to be turned off.
+    -a, --assets=<directory>  serve static assets [assets]
+    -A, --address=<ip>        ip address to listen [localhost]
+    -c, --css=<subargs>       pass subarguments to sheetify
+    -d, --debug               include sourcemaps [false]
+    -e, --electron            enable electron mode for the bundler [false]
+    -h, --help                print usage
+    -H, --html=<subargs>      pass subarguments to create-html
+    -j, --js=<subargs>        pass subarguments to browserify
+    -o, --open=<browser>      open html in a browser [system default]
+    -p, --port=<n>            bind bankai to a port [8080]
+    -V, --verbose             include debug messages [false]
+    -w, --watch <bool>        toggle watch mode [true]
 
   Examples:
-    bankai example.js --open=firefox-aurora -p 3000
-    bankai example.js --watch false
+
+    Start bankai on port 8080
+    $ bankai index.js -p 8080
+    Open html in the browser
+    $ bankai start index.js --open
+    Use brfs as a browserify transform
+    $ bankai start -j [ -t brfs ] index.js
+    Compile and export to dist/
+    $ bankai build index.js dist/
 ```
 
 ## API

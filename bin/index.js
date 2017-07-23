@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+var ansi = require('ansi-escape-sequences')
 var pinoColada = require('pino-colada')
 var resolve = require('resolve')
 var subarg = require('subarg')
@@ -40,40 +41,41 @@ var argv = subarg(process.argv.slice(2), {
 })
 
 var usage = `
-  Usage:
-    $ bankai <command> [options]
+  $ ${clr('bankai', 'bold')} [options] <command>
 
   Commands:
-    <default>                      Run 'bankai start'
-    start <filename>               Start a bankai server
-    build <filename> <directory>   Compile and export files to a directory
-    inspect <filename>             Visualize the dependency tree
 
-    Options:
-      -a, --assets=<directory>  Serve static assets [default: assets]
-      -A, --address=<ip>      Ip address to listen [default: localhost]
-      -c, --css=<subargs>     Pass subarguments to sheetify
-      -d, --debug             Include sourcemaps [default: false]
-      -e, --electron          Enable electron mode for the bundler
-      -h, --help              Print usage
-      -H, --html=<subargs>    Pass subarguments to create-html
-      -j, --js=<subargs>      Pass subarguments to browserify
-      -o, --open=<browser>    Open html in a browser [default: system default]
-      -p, --port=<n>          Bind bankai to a port [default: 8080]
-      -V, --verbose           Include debug messages
-      -w, --watch <bool>      Toggle watch mode
+    <default>                      run 'bankai start'
+    start <filename>               start a bankai server
+    build <filename> <directory>   compile and export files to a directory
+    inspect <filename>             visualize the dependency tree
 
-  Examples:
-    $ bankai index.js -p 8080            # start bankai on port 8080
-    $ bankai index.js --open             # open html in the browser
-    $ bankai -c [ -u sheetify-cssnext ]  # use cssnext in sheetify
-    $ bankai -j [ -t brfs ]              # use brfs in browserify
-    $ bankai build index.js dist/        # compile and export to dist/
+  Options:
+
+    -a, --assets=<directory>  serve static assets [assets]
+    -A, --address=<ip>        ip address to listen [localhost]
+    -c, --css=<subargs>       pass subarguments to sheetify
+    -d, --debug               include sourcemaps [false]
+    -e, --electron            enable electron mode for the bundler [false]
+    -h, --help                print usage
+    -H, --html=<subargs>      pass subarguments to create-html
+    -j, --js=<subargs>        pass subarguments to browserify
+    -o, --open=<browser>      open html in a browser [system default]
+    -p, --port=<n>            bind bankai to a port [8080]
+    -V, --verbose             include debug messages [false]
+    -w, --watch <bool>        toggle watch mode [true]
 
   Examples:
-    bankai example.js --open=firefox-aurora -p 3000
-    bankai example.js --debug -w false
-`
+
+    Start bankai on port 8080
+    ${clr('$ bankai index.js -p 8080', 'cyan')}
+    Open html in the browser
+    ${clr('$ bankai start index.js --open', 'cyan')}
+    Use brfs as a browserify transform
+    ${clr('$ bankai start -j [ -t brfs ] index.js', 'cyan')}
+    Compile and export to dist/
+    ${clr('$ bankai build index.js dist/', 'cyan')}
+`.replace(/\n$/, '').replace(/^\n/, '')
 
 main(argv)
 
@@ -120,4 +122,8 @@ function main (argv) {
       else argv.log.error(err)
     }
   }
+}
+
+function clr (text, color) {
+  return process.stdout.isTTY ? ansi.format(text, color) : text
 }
