@@ -41,7 +41,7 @@ var argv = subarg(process.argv.slice(2), {
 })
 
 var usage = `
-  $ ${ansi.format('bankai', 'bold')} [options] <command>
+  $ ${clr('bankai', 'bold')} [options] <command>
 
   Commands:
 
@@ -68,14 +68,14 @@ var usage = `
   Examples:
 
     Start bankai on port 8080
-    ${ansi.format('$ bankai index.js -p 8080', 'cyan')}
+    ${clr('$ bankai index.js -p 8080', 'cyan')}
     Open html in the browser
-    ${ansi.format('$ bankai start index.js --open', 'cyan')}
+    ${clr('$ bankai start index.js --open', 'cyan')}
     Use brfs as a browserify transform
-    ${ansi.format('$ bankai start -j [ -t brfs ] index.js', 'cyan')}
+    ${clr('$ bankai start -j [ -t brfs ] index.js', 'cyan')}
     Compile and export to dist/
-    ${ansi.format('$ bankai build index.js dist/', 'cyan')}
-`
+    ${clr('$ bankai build index.js dist/', 'cyan')}
+`.replace(/\n$/, '').replace(/^\n/, '')
 
 main(argv)
 
@@ -122,4 +122,8 @@ function main (argv) {
       else argv.log.error(err)
     }
   }
+}
+
+function clr (text, color) {
+  return process.stdout.isTTY ? ansi.format(text, color) : text
 }

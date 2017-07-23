@@ -57,9 +57,12 @@ function build (entry, outputDir, argv, done) {
     })
   }
 
-  mapLimit(files, Infinity, iterator, function (err) {
-    if (err) return done(explain(err, 'error iterating over files'))
-    parallel([ buildHtml, buildJs, buildCss ], done)
+  mkdirp(outputDir, function (err) {
+    if (err) return done(explain(err, 'error creating directory'))
+    mapLimit(files, Infinity, iterator, function (err) {
+      if (err) return done(explain(err, 'error iterating over files'))
+      parallel([ buildHtml, buildJs, buildCss ], done)
+    })
   })
 
   function iterator (filename, done) {
