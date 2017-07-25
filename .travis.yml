@@ -1,0 +1,7 @@
+node_js:
+- "4"
+- "6"
+sudo: false
+language: node_js
+script: "npm run test:cov"
+after_script: "npm i -g codecov.io && cat ./coverage/lcov.info | codecov"
