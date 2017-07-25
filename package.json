@@ -1,0 +1,25 @@
+{
+  "name": "bankai",
+  "version": "1.0.0",
+  "description": "",
+  "license": "MIT",
+  "repository": "choojs/bankai",
+  "main": "index.js",
+  "bin": {
+    "bankai": "index.js"
+  },
+  "scripts": {
+    "test": "standard"
+  },
+  "keywords": [],
+  "dependencies": {
+    "ansi-escape-sequences": "^3.0.0",
+    "browserify": "^14.4.0",
+    "minimist": "^1.2.0",
+    "sheetify": "^6.1.0",
+    "watchify": "^3.9.0"
+  },
+  "devDependencies": {
+    "standard": "^10.0.2"
+  }
+}
