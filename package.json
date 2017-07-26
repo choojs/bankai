@@ -16,10 +16,13 @@
     "ansi-escape-sequences": "^3.0.0",
     "browserify": "^14.4.0",
     "minimist": "^1.2.0",
+    "pump": "^1.0.2",
     "sheetify": "^6.1.0",
     "watchify": "^3.9.0"
   },
   "devDependencies": {
-    "standard": "^10.0.2"
+    "dedent": "^0.7.0",
+    "standard": "^10.0.2",
+    "tape": "^4.7.0"
   }
 }
