@@ -41,19 +41,20 @@ Streaming `{js,css,html}` compiler.
 
 ## API
 ### `compiler = bankai(entry, [opts])`
-Create a new bankai instance.
+Create a new bankai instance. Takes either an entry file location, or an array
+of files.
 
-### `stream = compiler.script(filename, [opts])`
+### `compiler.script(filename, [opts], cb)`
 Pass in a filename and output a JS bundle.
 
-### `stream = compiler.style([opts])`
+### `compiler.style([opts], cb)`
 Output a CSS bundle.
 
-### `stream = compiler.html(routename, [opts])`
+### `compiler.document(routename, [opts], cb)`
 Output an HTML bundle for a route. Routes are determined based on the project's
 router. Pass `'/'` to get the default route.
 
-### `stream = compiler.asset(assetName, [opts])`
+### `compiler.asset(assetName, [opts], cb)`
 Output any other file besides JS, CSS or HTML.
 
 ## License
