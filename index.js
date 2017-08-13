@@ -102,5 +102,8 @@ Queue.prototype.add = function (cb) {
 
 Queue.prototype.ready = function () {
   this._ready = true
-  while (this._arr.length) this._arr.shift()()
+  this._arr.forEach(function (fn) {
+    fn()
+  })
+  this._arr.length = 0 // clean up internal array
 }
