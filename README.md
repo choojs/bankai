@@ -57,5 +57,11 @@ router. Pass `'/'` to get the default route.
 ### `compiler.asset(assetName, cb)`
 Output any other file besides JS, CSS or HTML.
 
+### `compiler.manifest(cb)`
+Output a `manifest.json`.
+
+### `compiler.serviceWorker(cb)`
+Output a service worker.
+
 ## License
 MIT
