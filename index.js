@@ -5,8 +5,12 @@ var path = require('path')
 
 var localization = require('./localization')
 
+var assetsNode = require('./lib/node-assets')
+var documentNode = require('./lib/node-document')
 var manifestNode = require('./lib/node-manifest')
 var scriptNode = require('./lib/node-script')
+var serviceWorkerNode = require('./lib/node-service-worker')
+var styleNode = require('./lib/node-style')
 
 module.exports = Bankai
 
@@ -46,8 +50,12 @@ function Bankai (entry, opts) {
     self.emit('error', err)
   })
 
+  this.graph.node('assets', assetsNode)
+  this.graph.node('document', [ 'manifest:color', 'style:bundle', 'assets:favicons', 'script:bundle' ], documentNode)
   this.graph.node('manifest', manifestNode)
   this.graph.node('script', scriptNode)
+  this.graph.node('service-worker', [ 'assets:list' ], serviceWorkerNode)
+  this.graph.node('style', [ 'script:style', 'script:bundle' ], styleNode)
 
   this.graph.start({
     dirname: path.dirname(entry),
