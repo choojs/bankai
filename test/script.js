@@ -24,7 +24,7 @@ tape('run a JS pipeline', function (assert) {
   })
 })
 
-tape('run a JS pipeline', function (assert) {
+tape('return an error if an incorrect script is selected', function (assert) {
   assert.plan(1)
   var file = dedent`
     console.log('meow')

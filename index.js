@@ -88,7 +88,15 @@ Bankai.prototype.style = function (filename, opts) {
 Bankai.prototype.html = function (filename, opts) {
 }
 
-Bankai.prototype.manifest = function (filename, opts) {
+Bankai.prototype.manifest = function (cb) {
+  assert.equal(typeof cb, 'function')
+
+  var self = this
+  this.queue.manifest.add(function () {
+    var data = self.graph.data.manifest.bundle
+    if (!data) return cb(new Error('bankai.manifest: could not find manifest'))
+    cb(null, data)
+  })
 }
 
 Bankai.prototype.serviceWorker = function (filename, opts) {
