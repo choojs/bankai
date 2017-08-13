@@ -17,9 +17,26 @@ tape('run a JS pipeline', function (assert) {
   fs.writeFileSync(tmpfile, file)
 
   var compiler = bankai(tmpfile)
-  compiler.script('index.js', function (err, res) {
+  compiler.script('bundle.js', function (err, res) {
     assert.error(err, 'no error writing script')
     assert.ok(res, 'output exists')
+    fs.unlinkSync(tmpfile)
+  })
+})
+
+tape('run a JS pipeline', function (assert) {
+  assert.plan(1)
+  var file = dedent`
+    console.log('meow')
+  `
+
+  var filename = 'js-pipeline-' + (Math.random() * 1e4).toFixed() + '.js'
+  var tmpfile = path.join(os.tmpdir(), filename)
+  fs.writeFileSync(tmpfile, file)
+
+  var compiler = bankai(tmpfile)
+  compiler.script('bad-bad-not-good.js', function (err, res) {
+    assert.ok(err, 'error writing script')
     fs.unlinkSync(tmpfile)
   })
 })

@@ -63,9 +63,13 @@ Bankai.prototype = Object.create(Emitter.prototype)
 Bankai.prototype.script = function (filename, cb) {
   assert.equal(typeof filename, 'string')
   assert.equal(typeof cb, 'function')
+
+  var bundle = filename.split('.')[0]
+
   var self = this
   this.queue.script.add(function () {
-    var data = self.graph.data.script.bundle
+    var data = self.graph.data.script[bundle]
+    if (!data) return cb(new Error('bankai.script: could not find a bundle for ' + filename))
     cb(null, data)
   })
 }
