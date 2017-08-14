@@ -67,6 +67,17 @@ function start (entry, argv, done) {
   function handler (req, res) {
     var url = req.url
     log.debug('received request on url: ' + url)
+
+    res.setHeader('access-control-allow-origin', '*')
+    res.setHeader('access-control-allow-method', '*')
+    res.setHeader('access-control-allow-header', '*')
+    res.setHeader('access-control-allow-credentials', 'true')
+
+    if (req.method === 'OPTIONS') {
+      res.statusCode = 204
+      return res.end()
+    }
+
     if (url === '/') {
       if (fs.existsSync(path.join(process.cwd(), 'index.html'))) {
         fs.createReadStream(path.join(process.cwd(), 'index.html')).pipe(res)
