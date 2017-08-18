@@ -72,37 +72,87 @@ Bankai.prototype.script = function (filename, cb) {
   assert.equal(typeof filename, 'string')
   assert.equal(typeof cb, 'function')
 
-  var bundle = filename.split('.')[0]
+  var stepName = 'style'
+  var edgeName = filename.split('.')[0]
 
   var self = this
-  this.queue.script.add(function () {
-    var data = self.graph.data.script[bundle]
+  this.queue[stepName].add(function () {
+    var data = self.graph.data[stepName][edgeName]
     if (!data) return cb(new Error('bankai.script: could not find a bundle for ' + filename))
     cb(null, data)
   })
 }
 
-Bankai.prototype.style = function (filename, opts) {
+Bankai.prototype.style = function (cb) {
+  assert.equal(typeof cb, 'function')
+
+  var stepName = 'style'
+  var edgeName = 'bundle'
+
+  var self = this
+  this.queue[stepName].add(function () {
+    var data = self.graph.data[stepName][edgeName]
+    if (!data) return cb(new Error('bankai.style: could not find bundle'))
+    cb(null, data)
+  })
 }
 
-Bankai.prototype.html = function (filename, opts) {
+Bankai.prototype.document = function (filename, cb) {
+  assert.equal(typeof filename, 'string')
+  assert.equal(typeof cb, 'function')
+
+  var stepName = 'document'
+  var edgeName = filename.split('.')[0]
+
+  var self = this
+  this.queue[stepName].add(function () {
+    var data = self.graph.data[stepName][edgeName]
+    if (!data) return cb(new Error('bankai.document: could not find a document for ' + filename))
+    cb(null, data)
+  })
 }
 
 Bankai.prototype.manifest = function (cb) {
   assert.equal(typeof cb, 'function')
 
+  var stepName = 'manifest'
+  var edgeName = 'bundle'
+
   var self = this
-  this.queue.manifest.add(function () {
-    var data = self.graph.data.manifest.bundle
-    if (!data) return cb(new Error('bankai.manifest: could not find manifest'))
+  this.queue[stepName].add(function () {
+    var data = self.graph.data[stepName][edgeName]
+    if (!data) return cb(new Error('bankai.manifest: could not find bundle'))
     cb(null, data)
   })
 }
 
-Bankai.prototype.serviceWorker = function (filename, opts) {
+Bankai.prototype.serviceWorker = function (filename, cb) {
+  assert.equal(typeof cb, 'function')
+
+  var stepName = 'service-worker'
+  var edgeName = 'bundle'
+
+  var self = this
+  this.queue[stepName].add(function () {
+    var data = self.graph.data[stepName][edgeName]
+    if (!data) return cb(new Error('bankai.serviceWorker: could not find bundle'))
+    cb(null, data)
+  })
 }
 
-Bankai.prototype.assets = function (filename, opts) {
+Bankai.prototype.asset = function (filename, cb) {
+  assert.equal(typeof filename, 'string')
+  assert.equal(typeof cb, 'function')
+
+  var stepName = 'document'
+  var edgeName = filename.split('.')[0]
+
+  var self = this
+  this.queue[stepName].add(function () {
+    var data = self.graph.data[stepName][edgeName]
+    if (!data) return cb(new Error('bankai.asset: could not find a file for ' + filename))
+    cb(null, data)
+  })
 }
 
 function Queue () {
