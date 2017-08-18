@@ -1,4 +1,5 @@
 # bankai
+
 Streaming `{js,css,html}` compiler.
 
 ## Usage
@@ -37,7 +38,35 @@ Streaming `{js,css,html}` compiler.
 ```
 
 ## Configuration
-- use package.json fields
+The Bankai CLI doesn't take any flags, other than to manipulate how we log to
+the console. Configuring Bankai is done by modifying `package.json`.
+
+Bankai is built on three technologies: [`browserify`][browserify],
+[`sheetify`][sheetify], and [`documentify`][documentify]. Because these can be
+configured inside `package.json` it means that Bankai itself can be configured
+from there too. Also if people ever decide to switch from the Bankai CLI, to
+calling it from JavaScript, no extra configuration is needed.
+
+```json
+{
+  "name": "my-app",
+  "browserify": {
+     "transforms": [
+       "some-browserify-transform"
+     ]
+   },
+   "sheetify": {
+     "transforms": [
+       "some-sheetify-transform"
+     ]
+   },
+   "documentify": {
+     "transforms": [
+       "some-documentify-transform"
+     ]
+   }
+}
+```
 
 ## API
 ### `compiler = bankai(entry, [opts])`
@@ -65,3 +94,7 @@ Output a service worker.
 
 ## License
 MIT
+
+[sheetify]: https://github.com/stackcss/sheetify
+[documentify]: https://github.com/stackhtml/documentify
+[browserify]: https://github.com/substack/node-browserify

@@ -1,1 +1,2 @@
+require('./manifest')
 require('./script')
