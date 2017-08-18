@@ -4,6 +4,7 @@ var assert = require('assert')
 var path = require('path')
 
 var localization = require('./localization')
+var queue = require('./lib/queue')
 
 var assetsNode = require('./lib/node-assets')
 var documentNode = require('./lib/node-document')
@@ -23,7 +24,6 @@ function Bankai (entry, opts) {
   assert.equal(typeof opts, 'object', 'bankai: opts should be type object')
 
   var self = this
-
   var methods = [
     'manifest',
     'assets',
@@ -33,12 +33,11 @@ function Bankai (entry, opts) {
     'document'
   ]
 
-  this.queue = methods.reduce(function (obj, method) {
-    obj[method] = Queue()
-    return obj
-  }, {})
+  // Initialize data structures.
+  this.queue = queue(methods)    // The queue caches requests until ready
+  this.graph = graph()           // The graph manages relations between deps
 
-  this.graph = graph()
+  // Detect when we're ready to allow requests to go through.
   this.graph.on('change', function (nodeName, edgeName, state) {
     self.emit('change', nodeName, edgeName, state)
     var eventName = nodeName + ':' + edgeName
@@ -46,10 +45,12 @@ function Bankai (entry, opts) {
     if (eventName === 'manifest:bundle') self.queue.manifest.ready()
   })
 
+  // Handle errors so they can be logged.
   this.graph.on('error', function (err) {
     self.emit('error', err)
   })
 
+  // Insert nodes into the graph.
   this.graph.node('assets', assetsNode)
   this.graph.node('document', [ 'manifest:color', 'style:bundle', 'assets:favicons', 'script:bundle' ], documentNode)
   this.graph.node('manifest', manifestNode)
@@ -57,6 +58,7 @@ function Bankai (entry, opts) {
   this.graph.node('service-worker', [ 'assets:list' ], serviceWorkerNode)
   this.graph.node('style', [ 'script:style', 'script:bundle' ], styleNode)
 
+  // Kick off the graph.
   this.graph.start({
     dirname: path.dirname(entry),
     assert: opts.assert !== false,
@@ -71,10 +73,8 @@ Bankai.prototype = Object.create(Emitter.prototype)
 Bankai.prototype.script = function (filename, cb) {
   assert.equal(typeof filename, 'string')
   assert.equal(typeof cb, 'function')
-
   var stepName = 'style'
   var edgeName = filename.split('.')[0]
-
   var self = this
   this.queue[stepName].add(function () {
     var data = self.graph.data[stepName][edgeName]
@@ -85,10 +85,8 @@ Bankai.prototype.script = function (filename, cb) {
 
 Bankai.prototype.style = function (cb) {
   assert.equal(typeof cb, 'function')
-
   var stepName = 'style'
   var edgeName = 'bundle'
-
   var self = this
   this.queue[stepName].add(function () {
     var data = self.graph.data[stepName][edgeName]
@@ -100,10 +98,8 @@ Bankai.prototype.style = function (cb) {
 Bankai.prototype.document = function (filename, cb) {
   assert.equal(typeof filename, 'string')
   assert.equal(typeof cb, 'function')
-
   var stepName = 'document'
   var edgeName = filename.split('.')[0]
-
   var self = this
   this.queue[stepName].add(function () {
     var data = self.graph.data[stepName][edgeName]
@@ -114,10 +110,8 @@ Bankai.prototype.document = function (filename, cb) {
 
 Bankai.prototype.manifest = function (cb) {
   assert.equal(typeof cb, 'function')
-
   var stepName = 'manifest'
   var edgeName = 'bundle'
-
   var self = this
   this.queue[stepName].add(function () {
     var data = self.graph.data[stepName][edgeName]
@@ -128,10 +122,8 @@ Bankai.prototype.manifest = function (cb) {
 
 Bankai.prototype.serviceWorker = function (filename, cb) {
   assert.equal(typeof cb, 'function')
-
   var stepName = 'service-worker'
   var edgeName = 'bundle'
-
   var self = this
   this.queue[stepName].add(function () {
     var data = self.graph.data[stepName][edgeName]
@@ -143,33 +135,12 @@ Bankai.prototype.serviceWorker = function (filename, cb) {
 Bankai.prototype.asset = function (filename, cb) {
   assert.equal(typeof filename, 'string')
   assert.equal(typeof cb, 'function')
-
   var stepName = 'document'
   var edgeName = filename.split('.')[0]
-
   var self = this
   this.queue[stepName].add(function () {
     var data = self.graph.data[stepName][edgeName]
     if (!data) return cb(new Error('bankai.asset: could not find a file for ' + filename))
     cb(null, data)
   })
-}
-
-function Queue () {
-  if (!(this instanceof Queue)) return new Queue()
-  this._ready = false
-  this._arr = []
-}
-
-Queue.prototype.add = function (cb) {
-  if (!this._ready) this._arr.push(cb)
-  else cb()
-}
-
-Queue.prototype.ready = function () {
-  this._ready = true
-  this._arr.forEach(function (fn) {
-    fn()
-  })
-  this._arr.length = 0 // clean up internal array
 }
