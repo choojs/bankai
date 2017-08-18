@@ -34,8 +34,8 @@ function Bankai (entry, opts) {
   ]
 
   // Initialize data structures.
-  this.queue = queue(methods)    // The queue caches requests until ready
-  this.graph = graph()           // The graph manages relations between deps
+  this.queue = queue(methods)    // The queue caches requests until ready.
+  this.graph = graph()           // The graph manages relations between deps.
 
   // Detect when we're ready to allow requests to go through.
   this.graph.on('change', function (nodeName, edgeName, state) {
@@ -135,7 +135,7 @@ Bankai.prototype.serviceWorker = function (filename, cb) {
 Bankai.prototype.asset = function (filename, cb) {
   assert.equal(typeof filename, 'string')
   assert.equal(typeof cb, 'function')
-  var stepName = 'document'
+  var stepName = 'asset'
   var edgeName = filename.split('.')[0]
   var self = this
   this.queue[stepName].add(function () {
