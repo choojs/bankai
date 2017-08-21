@@ -7,7 +7,7 @@ var os = require('os')
 var bankai = require('../')
 
 tape('run a JS pipeline', function (assert) {
-  assert.plan(2)
+  assert.plan(4)
   var file = dedent`
     console.log('meow')
   `
@@ -20,6 +20,8 @@ tape('run a JS pipeline', function (assert) {
   compiler.script('bundle.js', function (err, res) {
     assert.error(err, 'no error writing script')
     assert.ok(res, 'output exists')
+    assert.ok(res.buffer, 'output buffer exists')
+    assert.ok(res.hash, 'output hash exists')
     fs.unlinkSync(tmpFilename)
   })
 })

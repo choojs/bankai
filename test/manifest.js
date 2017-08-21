@@ -8,7 +8,7 @@ var os = require('os')
 var bankai = require('../')
 
 tape('read a manifest', function (assert) {
-  assert.plan(3)
+  assert.plan(5)
   var script = dedent`
     console.log('meow')
   `
@@ -43,6 +43,8 @@ tape('read a manifest', function (assert) {
   compiler.manifest(function (err, res) {
     assert.error(err, 'no error writing manifest')
     assert.ok(res, 'output exists')
+    assert.ok(res.buffer, 'output buffer exists')
+    assert.ok(res.hash, 'output hash exists')
   })
 
   compiler.script('bundle.js', function (err, res) {
