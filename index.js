@@ -41,8 +41,11 @@ function Bankai (entry, opts) {
   this.graph.on('change', function (nodeName, edgeName, state) {
     self.emit('change', nodeName, edgeName, state)
     var eventName = nodeName + ':' + edgeName
-    if (eventName === 'script:bundle') self.queue.script.ready()
+    if (eventName === 'assets:list') self.queue.assets.ready()
+    else if (eventName === 'document:list') self.queue.document.ready()
     else if (eventName === 'manifest:bundle') self.queue.manifest.ready()
+    else if (eventName === 'script:bundle') self.queue.script.ready()
+    else if (eventName === 'service-worker:bundle') self.queue.serviceWorker.ready()
     else if (eventName === 'style:bundle') self.queue.style.ready()
   })
 
@@ -133,15 +136,14 @@ Bankai.prototype.serviceWorker = function (filename, cb) {
   })
 }
 
-Bankai.prototype.asset = function (filename, cb) {
-  assert.equal(typeof filename, 'string')
+Bankai.prototype.asset = function (edgeName, cb) {
+  assert.equal(typeof edgeName, 'string')
   assert.equal(typeof cb, 'function')
-  var stepName = 'asset'
-  var edgeName = filename.split('.')[0]
+  var stepName = 'assets'
   var self = this
   this.queue[stepName].add(function () {
     var data = self.graph.data[stepName][edgeName]
-    if (!data) return cb(new Error('bankai.asset: could not find a file for ' + filename))
+    if (!data) return cb(new Error('bankai.asset: could not find a file for ' + edgeName))
     cb(null, data)
   })
 }
