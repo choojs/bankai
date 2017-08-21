@@ -31,6 +31,7 @@
     "neat-log": "^1.1.0",
     "prettier-bytes": "^1.0.4",
     "pump": "^1.0.2",
+    "purify-css": "^1.2.5",
     "sheetify": "^6.1.0",
     "uglify-js": "^3.0.26",
     "uglifyify": "^4.0.3",

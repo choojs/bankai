@@ -42,7 +42,8 @@ function Bankai (entry, opts) {
     self.emit('change', nodeName, edgeName, state)
     var eventName = nodeName + ':' + edgeName
     if (eventName === 'script:bundle') self.queue.script.ready()
-    if (eventName === 'manifest:bundle') self.queue.manifest.ready()
+    else if (eventName === 'manifest:bundle') self.queue.manifest.ready()
+    else if (eventName === 'style:bundle') self.queue.style.ready()
   })
 
   // Handle errors so they can be logged.
