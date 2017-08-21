@@ -103,7 +103,7 @@ Bankai.prototype.document = function (filename, cb) {
   assert.equal(typeof filename, 'string')
   assert.equal(typeof cb, 'function')
   var stepName = 'document'
-  var edgeName = filename.split('.')[0]
+  var edgeName = filename.split('.')[0] + '.html'
   var self = this
   this.queue[stepName].add(function () {
     var data = self.graph.data[stepName][edgeName]
