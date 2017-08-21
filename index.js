@@ -73,7 +73,7 @@ Bankai.prototype = Object.create(Emitter.prototype)
 Bankai.prototype.script = function (filename, cb) {
   assert.equal(typeof filename, 'string')
   assert.equal(typeof cb, 'function')
-  var stepName = 'style'
+  var stepName = 'script'
   var edgeName = filename.split('.')[0]
   var self = this
   this.queue[stepName].add(function () {
