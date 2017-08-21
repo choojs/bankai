@@ -16,7 +16,7 @@ tape('run a JS pipeline', function (assert) {
   var tmpFilename = path.join(os.tmpdir(), filename)
   fs.writeFileSync(tmpFilename, file)
 
-  var compiler = bankai(tmpFilename)
+  var compiler = bankai(tmpFilename, { watch: false })
   compiler.script('bundle.js', function (err, res) {
     assert.error(err, 'no error writing script')
     assert.ok(res, 'output exists')
@@ -36,7 +36,7 @@ tape('return an error if an incorrect script is selected', function (assert) {
   var tmpFilename = path.join(os.tmpdir(), filename)
   fs.writeFileSync(tmpFilename, file)
 
-  var compiler = bankai(tmpFilename)
+  var compiler = bankai(tmpFilename, { watch: false })
   compiler.script('bad-bad-not-good.js', function (err, res) {
     assert.ok(err, 'error writing script')
     fs.unlinkSync(tmpFilename)

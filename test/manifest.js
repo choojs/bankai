@@ -39,7 +39,7 @@ tape('read a manifest', function (assert) {
   fs.writeFileSync(tmpScriptname, script)
   fs.writeFileSync(tmpManifestname, manifest)
 
-  var compiler = bankai(tmpScriptname)
+  var compiler = bankai(tmpScriptname, { watch: false })
   compiler.manifest(function (err, res) {
     assert.error(err, 'no error writing manifest')
     assert.ok(res, 'output exists')
@@ -66,7 +66,7 @@ tape('should provide a default manifest', function (assert) {
   fs.mkdirSync(tmpDirname)
   fs.writeFileSync(tmpScriptname, script)
 
-  var compiler = bankai(tmpScriptname)
+  var compiler = bankai(tmpScriptname, { watch: false })
   compiler.manifest(function (err, res) {
     assert.error(err, 'no error writing manifest')
     assert.ok(res, 'output exists')

@@ -29,7 +29,7 @@ tape('run an asset pipeline', function (assert) {
   fs.writeFileSync(tmpScriptname, script)
   fs.writeFileSync(tmpManifestname, file)
 
-  var compiler = bankai(tmpScriptname)
+  var compiler = bankai(tmpScriptname, { watch: false })
   compiler.script('bundle.js', function (err, res) {
     assert.error(err, 'no error writing script')
     rimraf.sync(tmpDirname)

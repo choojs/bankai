@@ -26,7 +26,7 @@ tape('extract style from script', function (assert) {
   fs.mkdirSync(tmpDirname)
   fs.writeFileSync(tmpScriptname, script)
 
-  var compiler = bankai(tmpScriptname)
+  var compiler = bankai(tmpScriptname, { watch: false })
   compiler.style(function (err, res) {
     assert.error(err, 'no error writing style')
     assert.equal(res.buffer.toString(), expected, 'res was equal')
@@ -58,7 +58,7 @@ tape('remove unused styles', function (assert) {
   fs.mkdirSync(tmpDirname)
   fs.writeFileSync(tmpScriptname, script)
 
-  var compiler = bankai(tmpScriptname)
+  var compiler = bankai(tmpScriptname, { watch: false })
   compiler.style(function (err, res) {
     assert.error(err, 'no error writing style')
     assert.equal(res.buffer.toString(), expected, 'res was equal')
