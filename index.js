@@ -56,7 +56,8 @@ function Bankai (entry, opts) {
 
   // Insert nodes into the graph.
   this.graph.node('assets', assetsNode)
-  this.graph.node('document', [ 'manifest:color', 'style:bundle', 'assets:favicons', 'script:bundle' ], documentNode)
+  // this.graph.node('document', [ 'manifest:color', 'style:bundle', 'assets:favicons', 'script:bundle' ], documentNode)
+  this.graph.node('document', [ 'manifest:color', 'style:bundle', 'script:bundle' ], documentNode)
   this.graph.node('manifest', manifestNode)
   this.graph.node('script', scriptNode)
   this.graph.node('service-worker', [ 'assets:list' ], serviceWorkerNode)

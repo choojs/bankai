@@ -1,4 +1,5 @@
 require('./assets')
+require('./document')
 require('./manifest')
 require('./script')
 require('./style')
