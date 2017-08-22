@@ -10,7 +10,7 @@ var bankai = require('../')
 tape('read a manifest', function (assert) {
   assert.plan(5)
   var script = dedent`
-    console.log('meow')
+    1 + 1
   `
 
   var manifest = dedent`
@@ -56,7 +56,7 @@ tape('read a manifest', function (assert) {
 tape('should provide a default manifest', function (assert) {
   assert.plan(3)
   var script = dedent`
-    console.log('meow')
+    1 + 1
   `
 
   var dirname = 'manifest-pipeline-' + (Math.random() * 1e4).toFixed()

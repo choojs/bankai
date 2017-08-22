@@ -10,7 +10,7 @@ var bankai = require('../')
 tape('run an asset pipeline', function (assert) {
   assert.plan(3)
   var script = dedent`
-    console.log('meow')
+    1 + 1
   `
 
   var file = dedent`

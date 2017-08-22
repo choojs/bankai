@@ -9,7 +9,7 @@ var bankai = require('../')
 tape('run a JS pipeline', function (assert) {
   assert.plan(4)
   var file = dedent`
-    console.log('meow')
+    1 + 1
   `
 
   var filename = 'js-pipeline-' + (Math.random() * 1e4).toFixed() + '.js'
@@ -29,7 +29,7 @@ tape('run a JS pipeline', function (assert) {
 tape('return an error if an incorrect script is selected', function (assert) {
   assert.plan(1)
   var file = dedent`
-    console.log('meow')
+    1 + 1
   `
 
   var filename = 'js-pipeline-' + (Math.random() * 1e4).toFixed() + '.js'
