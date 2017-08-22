@@ -44,6 +44,7 @@
     "uglifyify": "^4.0.3",
     "unassertify": "^2.0.4",
     "watchify": "^3.9.0",
+    "wayfarer": "^6.6.2",
     "xtend": "^4.0.1",
     "yo-yoify": "^3.7.3"
   },
