@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+process.title = 'bankai'
+
 var ansi = require('ansi-escape-sequences')
 var minimist = require('minimist')
 var path = require('path')
