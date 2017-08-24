@@ -38,6 +38,7 @@
     "pump": "^1.0.2",
     "purify-css": "^1.2.5",
     "recursive-readdir": "^2.2.1",
+    "server-router": "^6.0.0",
     "sheetify": "^6.1.0",
     "through2": "^2.0.3",
     "uglify-js": "^3.0.26",

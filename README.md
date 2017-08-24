@@ -68,6 +68,13 @@ calling it from JavaScript, no extra configuration is needed.
 }
 ```
 
+## Events
+### `compiler.on('error', callback(error))`
+Whenever an internal error occurs.
+
+### `compiler.on('change', callback(nodeName, edgeName, state))`
+Whenever a change in the internal graph occurs.
+
 ## API
 ### `compiler = bankai(entry, [opts])`
 Create a new bankai instance. Takes either an entry file location, or an array
