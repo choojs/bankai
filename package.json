@@ -10,7 +10,7 @@
   },
   "scripts": {
     "test": "standard",
-    "start": "./bin.js start example.js"
+    "start": "./bin.js start example"
   },
   "keywords": [],
   "dependencies": {
@@ -23,14 +23,16 @@
     "bundle-collapser": "^1.2.1",
     "css-extract": "^1.2.0",
     "decache": "^4.1.0",
-    "documentify": "^1.0.3",
+    "documentify": "^2.0.0",
     "envify": "^4.1.0",
     "explain-error": "^1.0.4",
     "factor-bundle": "^2.5.0",
     "fast-json-parse": "^1.0.2",
     "findup": "^0.1.5",
     "getport": "^0.1.0",
+    "gzip-size": "^3.0.0",
     "html-minifier": "^3.5.3",
+    "http-gzip-maybe": "^1.0.0",
     "inline-critical-css": "^1.0.6",
     "minimist": "^1.2.0",
     "nanoraf": "^3.0.1",
@@ -55,6 +57,7 @@
     "mkdirp": "^0.5.1",
     "rimraf": "^2.6.1",
     "standard": "^10.0.2",
+    "tachyons": "^4.7.4",
     "tape": "^4.7.0"
   }
 }

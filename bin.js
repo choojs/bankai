@@ -72,7 +72,7 @@ var argv = minimist(process.argv.slice(2), {
   var entry = argv._[1]
 
   if (entry) {
-    if (!/^\/*./.test(entry)) path.join(process.cwd(), entry)
+    if (!/^\//.test(entry)) entry = path.join(process.cwd(), entry)
   } else {
     entry = process.cwd()
   }

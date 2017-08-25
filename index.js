@@ -20,7 +20,8 @@ function Bankai (entry, opts) {
   opts = opts || {}
   this.local = localization(opts.language || 'en-US')
 
-  assert.equal(typeof entry, 'string', 'bankai: entries should be type string')
+  assert.equal(typeof entry, 'string', 'bankai: entry should be type string')
+  assert.ok(/^\//.test(entry), 'bankai: entry should be an absolute path. Received: ' + entry)
   assert.equal(typeof opts, 'object', 'bankai: opts should be type object')
 
   var self = this
