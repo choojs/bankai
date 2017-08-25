@@ -51,17 +51,17 @@ calling it from JavaScript, no extra configuration is needed.
 {
   "name": "my-app",
   "browserify": {
-     "transforms": [
+     "transform": [
        "some-browserify-transform"
      ]
    },
    "sheetify": {
-     "transforms": [
+     "transform": [
        "some-sheetify-transform"
      ]
    },
    "documentify": {
-     "transforms": [
+     "transform": [
        "some-documentify-transform"
      ]
    }
