@@ -151,7 +151,7 @@ Bankai.prototype.js = function (req, res) {
 }
 
 // (obj, obj) -> readStream
-Bankai.prototype.html = function (req, res) {
+Bankai.prototype.html = function (req, res, state) {
   assert.notEqual(this.htmlDisabled, true, 'bankai: html is disabled')
   if (res) res.setHeader('Content-Type', 'text/html')
 
@@ -163,7 +163,7 @@ Bankai.prototype.html = function (req, res) {
 
   // TODO: if not in prod mode, clear cache before loading
   var instance = require(this.entry)
-  var html = detectRouter(route, instance)
+  var html = detectRouter(route, instance, state)
   var minify = htmlMinifyStream()
 
   if (html) {
