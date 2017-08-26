@@ -8,7 +8,6 @@ var app = choo()
 app.route('/', function (state, emit) {
   return html`
     <body class="sans-serif">
-
       Hello planet
     </body>
   `
