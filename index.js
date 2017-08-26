@@ -70,8 +70,7 @@ function Bankai (entry, opts) {
     assert: opts.assert !== false,
     watch: opts.watch !== false,
     entry: entry,
-    opts: opts,
-    cache: {}
+    opts: opts
   })
 }
 Bankai.prototype = Object.create(Emitter.prototype)
