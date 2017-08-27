@@ -97,6 +97,11 @@ tape('should watch the manifest for changes', function (assert) {
   var tmpScriptname = path.join(tmpDirname, 'index.js')
   var tmpManifestname = path.join(tmpDirname, 'manifest.json')
 
+  var done = clean(3, function () {
+    rimraf.sync(tmpDirname)
+    compiler.close()
+  })
+
   fs.mkdirSync(tmpDirname)
   fs.writeFileSync(tmpScriptname, script)
   fs.writeFileSync(tmpManifestname, manifest1)
@@ -117,17 +122,26 @@ tape('should watch the manifest for changes', function (assert) {
         assert.ok(res.buffer, 'output buffer exists')
         assert.ok(res.hash, 'output hash exists')
         assert.ok(/bar/.exec(String(res.buffer)), 'contains bar')
+        done()
       })
     })
 
     fs.writeFile(tmpManifestname, manifest2, function (err) {
       assert.error(err, 'no error writing manifest 2')
+      done()
     })
   })
 
   compiler.script('bundle.js', function (err, res) {
     assert.error(err, 'no error writing script')
-    rimraf.sync(tmpDirname)
-    compiler.close()
+    done()
   })
+
+  function clean (count, cb) {
+    var i = 0
+    return function done () {
+      i += 1
+      if (i === count) cb()
+    }
+  }
 })
