@@ -99,6 +99,9 @@ Output a `manifest.json`.
 ### `compiler.serviceWorker(cb)`
 Output a service worker.
 
+### `compiler.close()`
+Close all file watchers.
+
 ## License
 MIT
 
