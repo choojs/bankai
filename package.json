@@ -22,6 +22,7 @@
     "buffer-graph": "^1.0.0",
     "bundle-collapser": "^1.2.1",
     "css-extract": "^1.2.0",
+    "debug": "^3.0.1",
     "decache": "^4.1.0",
     "documentify": "^2.0.0",
     "envify": "^4.1.0",

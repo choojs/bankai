@@ -77,3 +77,57 @@ tape('should provide a default manifest', function (assert) {
     rimraf.sync(tmpDirname)
   })
 })
+
+tape('should watch the manifest for changes', function (assert) {
+  assert.plan(12)
+  var script = dedent`
+    1 + 1
+  `
+
+  var manifest1 = dedent`
+    { "name": "foo" }
+  `
+
+  var manifest2 = dedent`
+    { "name": "bar" }
+  `
+
+  var dirname = 'manifest-pipeline-' + (Math.random() * 1e4).toFixed()
+  var tmpDirname = path.join(os.tmpdir(), dirname)
+  var tmpScriptname = path.join(tmpDirname, 'index.js')
+  var tmpManifestname = path.join(tmpDirname, 'manifest.json')
+
+  fs.mkdirSync(tmpDirname)
+  fs.writeFileSync(tmpScriptname, script)
+  fs.writeFileSync(tmpManifestname, manifest1)
+
+  var compiler = bankai(tmpScriptname)
+  compiler.manifest(function (err, res) {
+    assert.error(err, 'no error writing manifest')
+    assert.ok(res, 'output exists')
+    assert.ok(res.buffer, 'output buffer exists')
+    assert.ok(res.hash, 'output hash exists')
+    assert.ok(/foo/.exec(String(res.buffer)), 'contains foo')
+
+    compiler.on('change', function (nodeName) {
+      if (nodeName !== 'manifest') return
+      compiler.manifest(function (err, res) {
+        assert.error(err, 'no error writing manifest')
+        assert.ok(res, 'output exists')
+        assert.ok(res.buffer, 'output buffer exists')
+        assert.ok(res.hash, 'output hash exists')
+        assert.ok(/bar/.exec(String(res.buffer)), 'contains bar')
+      })
+    })
+
+    fs.writeFile(tmpManifestname, manifest2, function (err) {
+      assert.error(err, 'no error writing manifest 2')
+    })
+  })
+
+  compiler.script('bundle.js', function (err, res) {
+    assert.error(err, 'no error writing script')
+    rimraf.sync(tmpDirname)
+    compiler.close()
+  })
+})

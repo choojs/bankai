@@ -1,4 +1,5 @@
 var Emitter = require('events').EventEmitter
+var debug = require('debug')('bankai')
 var graph = require('buffer-graph')
 var assert = require('assert')
 var path = require('path')
@@ -69,6 +70,7 @@ function Bankai (entry, opts) {
     dirname: path.dirname(entry),
     assert: opts.assert !== false,
     watch: opts.watch !== false,
+    watchers: {},
     entry: entry,
     opts: opts
   })
@@ -147,4 +149,10 @@ Bankai.prototype.asset = function (edgeName, cb) {
     if (!data) return cb(new Error('bankai.asset: could not find a file for ' + edgeName))
     cb(null, data)
   })
+}
+
+Bankai.prototype.close = function () {
+  debug('closing all file watchers')
+  this.graph.emit('close')
+  this.emit('close')
 }
