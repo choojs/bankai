@@ -6,9 +6,9 @@ var ansi = require('ansi-escape-sequences')
 var minimist = require('minimist')
 var path = require('path')
 
-var build = require('./lib/build')
-var inspect = require('./lib/inspect')
-var start = require('./lib/start')
+var build = require('./lib/cmd-build')
+var inspect = require('./lib/cmd-inspect')
+var start = require('./lib/cmd-start')
 
 var USAGE = `
   $ ${clr('bankai', 'bold')} ${clr('<command> [entry]', 'green')} [options]

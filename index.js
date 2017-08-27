@@ -7,12 +7,12 @@ var path = require('path')
 var localization = require('./localization')
 var queue = require('./lib/queue')
 
-var assetsNode = require('./lib/node-assets')
-var documentNode = require('./lib/node-document')
-var manifestNode = require('./lib/node-manifest')
-var scriptNode = require('./lib/node-script')
-var serviceWorkerNode = require('./lib/node-service-worker')
-var styleNode = require('./lib/node-style')
+var assetsNode = require('./lib/graph-assets')
+var documentNode = require('./lib/graph-document')
+var manifestNode = require('./lib/graph-manifest')
+var scriptNode = require('./lib/graph-script')
+var serviceWorkerNode = require('./lib/graph-service-worker')
+var styleNode = require('./lib/graph-style')
 
 module.exports = Bankai
 
