@@ -29,7 +29,7 @@ function Bankai (entry, opts) {
   var methods = [
     'manifest',
     'assets',
-    'serviceWorker',
+    'service-worker',
     'script',
     'style',
     'document'
@@ -47,7 +47,7 @@ function Bankai (entry, opts) {
     else if (eventName === 'document:list') self.queue.document.ready()
     else if (eventName === 'manifest:bundle') self.queue.manifest.ready()
     else if (eventName === 'script:bundle') self.queue.script.ready()
-    else if (eventName === 'service-worker:bundle') self.queue.serviceWorker.ready()
+    else if (eventName === 'service-worker:bundle') self.queue['service-worker'].ready()
     else if (eventName === 'style:bundle') self.queue.style.ready()
   })
 
@@ -127,7 +127,7 @@ Bankai.prototype.manifest = function (cb) {
   })
 }
 
-Bankai.prototype.serviceWorker = function (filename, cb) {
+Bankai.prototype.serviceWorker = function (cb) {
   assert.equal(typeof cb, 'function')
   var stepName = 'service-worker'
   var edgeName = 'bundle'

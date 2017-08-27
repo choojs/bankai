@@ -5,6 +5,7 @@ var choo = require('choo')
 css('tachyons')
 
 var app = choo()
+app.use(require('choo-service-worker')())
 app.route('/', function (state, emit) {
   return html`
     <body class="sans-serif">
