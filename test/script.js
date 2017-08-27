@@ -1,4 +1,5 @@
 var dedent = require('dedent')
+var rimraf = require('rimraf')
 var path = require('path')
 var tape = require('tape')
 var fs = require('fs')
@@ -22,7 +23,7 @@ tape('run a JS pipeline', function (assert) {
     assert.ok(res, 'output exists')
     assert.ok(res.buffer, 'output buffer exists')
     assert.ok(res.hash, 'output hash exists')
-    fs.unlinkSync(tmpFilename)
+    rimraf.sync(tmpFilename)
   })
 })
 
@@ -39,6 +40,6 @@ tape('return an error if an incorrect script is selected', function (assert) {
   var compiler = bankai(tmpFilename, { watch: false })
   compiler.script('bad-bad-not-good.js', function (err, res) {
     assert.ok(err, 'error writing script')
-    fs.unlinkSync(tmpFilename)
+    rimraf.sync(tmpFilename)
   })
 })
