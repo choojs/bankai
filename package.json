@@ -9,7 +9,7 @@
     "bankai": "index.js"
   },
   "scripts": {
-    "test": "standard",
+    "test": "standard && node test",
     "start": "./bin.js start example"
   },
   "keywords": [],
