@@ -3,5 +3,11 @@
   "short_name": "example",
   "start_url": "/",
   "display": "minimal-ui",
-  "theme_color": "#fff"
+  "theme_color": "#fff",
+  "background_color": "#fff",
+  "icons": [{
+    "src": "/assets/icon.png",
+    "type": "image/png",
+    "sizes": "512x512"
+  }]
 }

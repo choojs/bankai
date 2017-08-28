@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#! /usr/bin/env node --expose-http2
 
 process.title = 'bankai'
 

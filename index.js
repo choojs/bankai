@@ -62,7 +62,7 @@ function Bankai (entry, opts) {
   this.graph.node('document', [ 'manifest:color', 'style:bundle', 'script:bundle' ], documentNode)
   this.graph.node('manifest', manifestNode)
   this.graph.node('script', scriptNode)
-  this.graph.node('service-worker', [ 'assets:list' ], serviceWorkerNode)
+  this.graph.node('service-worker', [ 'assets:list', 'style:bundle', 'script:bundle', 'document:list' ], serviceWorkerNode)
   this.graph.node('style', [ 'script:style', 'script:bundle' ], styleNode)
 
   // Kick off the graph.
@@ -105,6 +105,7 @@ Bankai.prototype.style = function (cb) {
 Bankai.prototype.document = function (filename, cb) {
   assert.equal(typeof filename, 'string')
   assert.equal(typeof cb, 'function')
+  if (filename === '/') filename = 'index'
   var stepName = 'document'
   var edgeName = filename.split('.')[0] + '.html'
   var self = this

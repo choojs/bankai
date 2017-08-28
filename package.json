@@ -6,11 +6,12 @@
   "repository": "choojs/bankai",
   "main": "index.js",
   "bin": {
-    "bankai": "index.js"
+    "bankai": "bin.js"
   },
   "scripts": {
     "test": "standard && node test",
-    "start": "./bin.js start example"
+    "start": "./bin.js start example",
+    "debug": "DEBUG='*' ./bin.js start -q example"
   },
   "keywords": [],
   "dependencies": {
@@ -37,6 +38,7 @@
     "inline-critical-css": "^1.0.6",
     "minimist": "^1.2.0",
     "nanoraf": "^3.0.1",
+    "pem": "^1.9.7",
     "prettier-bytes": "^1.0.4",
     "pump": "^1.0.2",
     "purify-css": "^1.2.5",
