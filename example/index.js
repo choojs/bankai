@@ -7,6 +7,7 @@ css('tachyons')
 var app = choo()
 app.use(require('choo-service-worker')())
 app.route('/', function (state, emit) {
+  emit('DOMTitleChange', 'hello planet')
   return html`
     <body class="sans-serif">
       Hello planet

@@ -1,3 +1,7 @@
 {
-  "name": "example"
+  "name": "example",
+  "short_name": "example",
+  "start_url": "/",
+  "display": "minimal-ui",
+  "theme_color": "#fff"
 }
