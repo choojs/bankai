@@ -9,15 +9,19 @@ var fs = require('fs')
 var bankai = require('../')
 
 tape('renders some HTML', function (assert) {
-  assert.plan(14)
-
   var expected = `
     <!DOCTYPE html>
-    <html>
+    <html lang="en-US" dir="ltr">
       <head>
-        <style></style>
-        <link rel="stylesheet" href="/styles/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855/bundle.css" media="none" onload="if(media!=='all')media='all'">
         <script src="/scripts/27930b57cfcfa9afbc9328fea74cea94389f4319c8f4f7ca1def3750ae954b8b/bundle.js" defer></script>
+        <link rel="stylesheet" href="/styles/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855/bundle.css" media="none" onload="if(media!=='all')media='all'">
+        <link rel="manifest" href="/manifest.json">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content=>
+        <meta name="theme-color" content=#fff>
+        <title></title>
+        <style></style>
       </head>
       <body></body>
     </html>
@@ -39,6 +43,7 @@ tape('renders some HTML', function (assert) {
     assert.error(err, 'no error writing document')
     assertHtml(assert, String(res.buffer), expected)
     rimraf.sync(tmpDirname)
+    assert.end()
   })
 
   compiler.script('bundle.js', function (err, res) {
@@ -47,15 +52,19 @@ tape('renders some HTML', function (assert) {
 })
 
 tape('server render choo apps', function (assert) {
-  assert.plan(15)
-
   var expected = `
     <!DOCTYPE html>
-    <html>
+    <html lang="en-US" dir="ltr">
       <head>
-        <style></style>
-        <link rel="stylesheet" href="/styles/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855/bundle.css" media="none" onload="if(media!=='all')media='all'">
         <script src="/scripts/c7dc8debf10b6f5e9aca1cb67215b3f107e38edbae5981744a6287775ef547a9/bundle.js" defer></script>
+        <link rel="stylesheet" href="/styles/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855/bundle.css" media="none" onload="if(media!=='all')media='all'">
+        <link rel="manifest" href="/manifest.json">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content=>
+        <meta name="theme-color" content=#fff>
+        <title></title>
+        <style></style>
       </head>
       <body>
         meow
@@ -87,6 +96,7 @@ tape('server render choo apps', function (assert) {
     assert.error(err, 'no error writing document')
     assertHtml(assert, String(res.buffer), expected)
     rimraf.sync(tmpDirname)
+    assert.end()
   })
 
   compiler.script('bundle.js', function (err, res) {
