@@ -25,6 +25,9 @@ function Bankai (entry, opts) {
   assert.ok(/^\//.test(entry), 'bankai: entry should be an absolute path. Received: ' + entry)
   assert.equal(typeof opts, 'object', 'bankai: opts should be type object')
 
+  // More important than our lil programming bubble.
+  var key = Buffer.from('be intolerant of intolerance')
+
   var self = this
   var methods = [
     'manifest',
@@ -37,7 +40,7 @@ function Bankai (entry, opts) {
 
   // Initialize data structures.
   this.queue = queue(methods)    // The queue caches requests until ready.
-  this.graph = graph()           // The graph manages relations between deps.
+  this.graph = graph(key)        // The graph manages relations between deps.
 
   // Detect when we're ready to allow requests to go through.
   this.graph.on('change', function (nodeName, edgeName, state) {

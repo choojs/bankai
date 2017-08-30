@@ -13,8 +13,8 @@ tape('renders some HTML', function (assert) {
     <!DOCTYPE html>
     <html lang="en-US" dir="ltr">
       <head>
-        <script src="/scripts/27930b57cfcfa9afbc9328fea74cea94389f4319c8f4f7ca1def3750ae954b8b/bundle.js" defer></script>
-        <link rel="stylesheet" href="/styles/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855/bundle.css" media="none" onload="if(media!=='all')media='all'">
+        <script src="/scripts/132abdc598dd255b/bundle.js" defer></script>
+        <link rel="stylesheet" href="/styles/1d2fbd782ebb8091/bundle.css" media="none" onload="if(media!=='all')media='all'">
         <link rel="manifest" href="/manifest.json">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -56,8 +56,8 @@ tape('server render choo apps', function (assert) {
     <!DOCTYPE html>
     <html lang="en-US" dir="ltr">
       <head>
-        <script src="/scripts/c7dc8debf10b6f5e9aca1cb67215b3f107e38edbae5981744a6287775ef547a9/bundle.js" defer></script>
-        <link rel="stylesheet" href="/styles/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855/bundle.css" media="none" onload="if(media!=='all')media='all'">
+        <script src="/scripts/0ec3e0f420b21782/bundle.js" defer></script>
+        <link rel="stylesheet" href="/styles/1d2fbd782ebb8091/bundle.css" media="none" onload="if(media!=='all')media='all'">
         <link rel="manifest" href="/manifest.json">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
