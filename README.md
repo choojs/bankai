@@ -18,13 +18,13 @@
       alt="NPM version" />
   </a>
   <!-- Build Status -->
-  <a href="https://travis-ci.org/yoshuawuyts/bankai">
-    <img src="https://img.shields.io/travis/yoshuawuyts/bankai/master.svg?style=flat-square"
+  <a href="https://travis-ci.org/choojs/bankai">
+    <img src="https://img.shields.io/travis/choojs/bankai/master.svg?style=flat-square"
       alt="Build Status" />
   </a>
   <!-- Test Coverage -->
-  <a href="https://codecov.io/github/yoshuawuyts/bankai">
-    <img src="https://img.shields.io/codecov/c/github/yoshuawuyts/bankai/master.svg?style=flat-square"
+  <a href="https://codecov.io/github/choojs/bankai">
+    <img src="https://img.shields.io/codecov/c/github/choojs/bankai/master.svg?style=flat-square"
       alt="Test Coverage" />
   </a>
   <!-- Downloads -->
@@ -33,7 +33,7 @@
       alt="Downloads" />
   </a>
   <!-- Standard -->
-  <a href="https://codecov.io/github/yoshuawuyts/bankai">
+  <a href="https://codecov.io/github/choojs/bankai">
     <img src="https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square"
       alt="Standard" />
   </a>
@@ -139,8 +139,8 @@ $ npm install bankai
 [1]: https://nodejs.org/api/documentation.html#documentation_stability_index
 [2]: https://img.shields.io/npm/v/bankai.svg?style=flat-square
 [3]: https://npmjs.org/package/bankai
-[4]: https://img.shields.io/travis/yoshuawuyts/bankai/master.svg?style=flat-square
-[5]: https://travis-ci.org/yoshuawuyts/bankai
+[4]: https://img.shields.io/travis/choojs/bankai/master.svg?style=flat-square
+[6]: https://travis-ci.org/choojs/bankai
 [8]: http://img.shields.io/npm/dm/bankai.svg?style=flat-square
 [9]: https://npmjs.org/package/bankai
 [10]: https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square
