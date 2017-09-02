@@ -73,6 +73,7 @@ function Bankai (entry, opts) {
     dirname: path.dirname(entry),
     assert: opts.assert !== false,
     watch: opts.watch !== false,
+    fullPaths: opts.fullPaths,
     watchers: {},
     entry: entry,
     opts: opts
