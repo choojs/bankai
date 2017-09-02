@@ -99,15 +99,16 @@ function clr (text, color) {
   return process.stdout.isTTY ? ansi.format(text, color) : text
 }
 
+// Switch to an alternate terminal buffer,
+// switch back to the main terminal buffer on exit.
 function alternateBuffer () {
-  // Switch to an alternate terminal buffer; clearing the screen.
-  process.stdout.write('\x1b[?1049h\x1b[H')
+  process.stdout.write('\x1b[?1049h') // Enter alternate buffer.
+  process.stdout.write('\x1b[H')      // Reset screen to top.
 
-  // Switch back to the main terminal buffer, restoring the screen.
   process.on('SIGINT', onExit)
   process.on('exit', onExit)
   function onExit (statusCode) {
-    process.stdout.write('\x1b[?1049l')
+    process.stdout.write('\x1b[?1049l')  // Enter to main buffer.
     process.exit(statusCode)
   }
 }
