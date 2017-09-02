@@ -1,6 +1,8 @@
 # bankai
+[![npm version][2]][3] [![build status][4]][5]
+[![downloads][8]][9] [![js-standard-style][10]][11]
 
-Streaming `{js,css,html}` compiler.
+The easiest way to compile JavaScript, HTML and CSS.
 
 ## Usage
 ```txt
@@ -108,3 +110,16 @@ MIT
 [sheetify]: https://github.com/stackcss/sheetify
 [documentify]: https://github.com/stackhtml/documentify
 [browserify]: https://github.com/substack/node-browserify
+
+[0]: https://img.shields.io/badge/stability-experimental-orange.svg?style=flat-square
+[1]: https://nodejs.org/api/documentation.html#documentation_stability_index
+[2]: https://img.shields.io/npm/v/bankai.svg?style=flat-square
+[3]: https://npmjs.org/package/bankai
+[4]: https://img.shields.io/travis/choojs/bankai/master.svg?style=flat-square
+[5]: https://travis-ci.org/choojs/bankai
+[6]: https://img.shields.io/codecov/c/github/choojs/bankai/master.svg?style=flat-square
+[7]: https://codecov.io/github/choojs/bankai
+[8]: http://img.shields.io/npm/dm/bankai.svg?style=flat-square
+[9]: https://npmjs.org/package/bankai
+[10]: https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square
+[11]: https://github.com/feross/standard
