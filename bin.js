@@ -6,9 +6,9 @@ var ansi = require('ansi-escape-sequences')
 var minimist = require('minimist')
 var path = require('path')
 
-var build = require('../lib/cmd-build')
-var inspect = require('../lib/cmd-inspect')
-var start = require('../lib/cmd-start')
+var build = require('./lib/cmd-build')
+var inspect = require('./lib/cmd-inspect')
+var start = require('./lib/cmd-start')
 
 var USAGE = `
   $ ${clr('bankai', 'bold')} ${clr('<command> [entry]', 'green')} [options]
@@ -82,10 +82,12 @@ var argv = minimist(process.argv.slice(2), {
   } else if (argv.version) {
     console.log(require('./package.json').version)
   } else if (cmd === 'build') {
+    alternateBuffer()
     build(path.join(entry), argv)
   } else if (cmd === 'inspect') {
     inspect(path.join(entry), argv)
   } else if (cmd === 'start') {
+    alternateBuffer()
     start(path.join(entry), argv)
   } else {
     console.log(NOCOMMAND)
@@ -95,4 +97,17 @@ var argv = minimist(process.argv.slice(2), {
 
 function clr (text, color) {
   return process.stdout.isTTY ? ansi.format(text, color) : text
+}
+
+function alternateBuffer () {
+  // Switch to an alternate terminal buffer; clearing the screen.
+  process.stdout.write('\x1b[?1049h\x1b[H')
+
+  // Switch back to the main terminal buffer, restoring the screen.
+  process.on('SIGINT', onExit)
+  process.on('exit', onExit)
+  function onExit (statusCode) {
+    process.stdout.write('\x1b[?1049l')
+    process.exit(statusCode)
+  }
 }

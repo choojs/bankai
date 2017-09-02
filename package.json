@@ -10,8 +10,8 @@
   },
   "scripts": {
     "test": "standard && node test",
-    "start": "./bin/index.js start example",
-    "debug": "DEBUG='*' ./bin/index.js start -q example"
+    "start": "NODE_NO_WARNINGS=1 ./bin.js start example",
+    "debug": "DEBUG='*' ./bin.js start -q example"
   },
   "keywords": [],
   "dependencies": {
