@@ -4,6 +4,16 @@
 
 The easiest way to compile JavaScript, HTML and CSS.
 
+We want people to have fun building things for the web. There should be no
+hurdles between a great idea, and your first prototype. And once you're ready,
+it should be easy to package it up and share it online. That's Bankai: a tool
+that helps you build for the web. No configuration, no hassle. Get out there
+and make things!
+
+If this is your first time building something for the web, take a look at
+[choojs/create-choo-app](https://github.com/choojs/create-choo-app) to help get
+a project setup from scratch :sparkles:.
+
 ## Usage
 ```txt
   $ bankai <command> [entry] [options]
@@ -46,8 +56,8 @@ the console. Configuring Bankai is done by modifying `package.json`.
 Bankai is built on three technologies: [`browserify`][browserify],
 [`sheetify`][sheetify], and [`documentify`][documentify]. Because these can be
 configured inside `package.json` it means that Bankai itself can be configured
-from there too. Also if people ever decide to switch from the Bankai CLI, to
-calling it from JavaScript, no extra configuration is needed.
+from there too. Also if people ever decide to switch from the command line to
+JavaScript, no extra configuration is needed.
 
 ```json
 {
