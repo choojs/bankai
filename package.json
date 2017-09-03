@@ -6,7 +6,7 @@
   "repository": "choojs/bankai",
   "main": "index.js",
   "bin": {
-    "bankai": "bin/index.js"
+    "bankai": "bin.js"
   },
   "scripts": {
     "test": "standard && node test",
