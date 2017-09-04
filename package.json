@@ -40,6 +40,7 @@
     "http-gzip-maybe": "^1.0.0",
     "hyperstream": "^1.2.2",
     "inline-critical-css": "^1.0.6",
+    "json-stream-to-object": "^1.1.0",
     "minimist": "^1.2.0",
     "nanoraf": "^3.0.1",
     "open": "0.0.5",
