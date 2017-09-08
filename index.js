@@ -3,6 +3,7 @@ var debug = require('debug')('bankai')
 var graph = require('buffer-graph')
 var assert = require('assert')
 var path = require('path')
+var pino = require('pino')
 
 var localization = require('./localization')
 var queue = require('./lib/queue')
@@ -20,13 +21,11 @@ function Bankai (entry, opts) {
   if (!(this instanceof Bankai)) return new Bankai(entry, opts)
   opts = opts || {}
   this.local = localization(opts.language || 'en-US')
+  this.log = pino(opts.logStream || process.stdout)
 
   assert.equal(typeof entry, 'string', 'bankai: entry should be type string')
   assert.ok(/^\//.test(entry), 'bankai: entry should be an absolute path. Received: ' + entry)
   assert.equal(typeof opts, 'object', 'bankai: opts should be type object')
-
-  // More important than our lil programming bubble.
-  var key = Buffer.from('be intolerant of intolerance')
 
   var self = this
   var methods = [
@@ -39,6 +38,7 @@ function Bankai (entry, opts) {
   ]
 
   // Initialize data structures.
+  var key = Buffer.from('be intolerant of intolerance')
   this.queue = queue(methods)    // The queue caches requests until ready.
   this.graph = graph(key)        // The graph manages relations between deps.
 
@@ -74,6 +74,7 @@ function Bankai (entry, opts) {
     assert: opts.assert !== false,
     watch: opts.watch !== false,
     fullPaths: opts.fullPaths,
+    log: this.log,
     watchers: {},
     entry: entry,
     opts: opts
