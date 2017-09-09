@@ -82,7 +82,7 @@ function Bankai (entry, opts) {
 }
 Bankai.prototype = Object.create(Emitter.prototype)
 
-Bankai.prototype.script = function (filename, cb) {
+Bankai.prototype.scripts = function (filename, cb) {
   assert.equal(typeof filename, 'string')
   assert.equal(typeof cb, 'function')
   var stepName = 'script'
@@ -107,7 +107,7 @@ Bankai.prototype.style = function (cb) {
   })
 }
 
-Bankai.prototype.document = function (filename, cb) {
+Bankai.prototype.documents = function (filename, cb) {
   assert.equal(typeof filename, 'string')
   assert.equal(typeof cb, 'function')
   if (filename === '/') filename = 'index'

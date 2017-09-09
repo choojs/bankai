@@ -47,7 +47,7 @@ tape('read a manifest', function (assert) {
     assert.ok(res.hash, 'output hash exists')
   })
 
-  compiler.script('bundle.js', function (err, res) {
+  compiler.scripts('bundle.js', function (err, res) {
     assert.error(err, 'no error writing script')
     rimraf.sync(tmpDirname)
   })
@@ -72,7 +72,7 @@ tape('should provide a default manifest', function (assert) {
     assert.ok(res, 'output exists')
   })
 
-  compiler.script('bundle.js', function (err, res) {
+  compiler.scripts('bundle.js', function (err, res) {
     assert.error(err, 'no error writing script')
     rimraf.sync(tmpDirname)
   })
@@ -132,7 +132,7 @@ tape('should watch the manifest for changes', function (assert) {
     })
   })
 
-  compiler.script('bundle.js', function (err, res) {
+  compiler.scripts('bundle.js', function (err, res) {
     assert.error(err, 'no error writing script')
     done()
   })

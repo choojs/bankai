@@ -30,12 +30,12 @@ tape('run an asset pipeline', function (assert) {
   fs.writeFileSync(tmpManifestname, file)
 
   var compiler = bankai(tmpScriptname, { watch: false })
-  compiler.script('bundle.js', function (err, res) {
+  compiler.scripts('bundle.js', function (err, res) {
     assert.error(err, 'no error writing script')
     rimraf.sync(tmpDirname)
   })
 
-  compiler.asset('assets/file.txt', function (err, buf) {
+  compiler.assets('assets/file.txt', function (err, buf) {
     assert.error(err, 'no error reading file')
     assert.ok(buf, 'buffer is fine fine fine')
   })

@@ -92,21 +92,21 @@ Whenever a change in the internal graph occurs.
 Create a new bankai instance. Takes either an entry file location, or an array
 of files.
 
-### `compiler.script(filename, cb)`
-Pass in a filename and output a JS bundle.
-
-### `compiler.style(cb)`
-Output a CSS bundle.
-
-### `compiler.document(routename, opts, cb)`
+### `compiler.documents(routename, [opts], cb)`
 Output an HTML bundle for a route. Routes are determined based on the project's
 router. Pass `'/'` to get the default route.
 
 - __opts.state:__ Will be passed the render function for the route, and inlined
   in the `<head>` of the body as `window.initialState`.
 
-### `compiler.asset(assetName, cb)`
+### `compiler.scripts(filename, cb)`
+Pass in a filename and output a JS bundle.
+
+### `compiler.assets(assetName, cb)`
 Output any other file besides JS, CSS or HTML.
+
+### `compiler.style(cb)`
+Output a CSS bundle.
 
 ### `compiler.manifest(cb)`
 Output a `manifest.json`.

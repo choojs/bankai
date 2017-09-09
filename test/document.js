@@ -40,14 +40,14 @@ tape('renders some HTML', function (assert) {
   fs.writeFileSync(tmpScriptname, script)
 
   var compiler = bankai(tmpScriptname, { watch: false })
-  compiler.document('/', function (err, res) {
+  compiler.documents('/', function (err, res) {
     assert.error(err, 'no error writing document')
     assertHtml(assert, String(res.buffer), expected)
     rimraf.sync(tmpDirname)
     assert.end()
   })
 
-  compiler.script('bundle.js', function (err, res) {
+  compiler.scripts('bundle.js', function (err, res) {
     assert.error(err, 'no error writing script')
   })
 })
@@ -94,14 +94,14 @@ tape('server render choo apps', function (assert) {
   fs.writeFileSync(tmpScriptname, script)
 
   var compiler = bankai(tmpScriptname, { watch: false })
-  compiler.document('/', function (err, res) {
+  compiler.documents('/', function (err, res) {
     assert.error(err, 'no error writing document')
     assertHtml(assert, String(res.buffer), expected)
     rimraf.sync(tmpDirname)
     assert.end()
   })
 
-  compiler.script('bundle.js', function (err, res) {
+  compiler.scripts('bundle.js', function (err, res) {
     assert.error(err, 'no error writing script')
   })
 })

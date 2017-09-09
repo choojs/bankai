@@ -33,7 +33,7 @@ tape('extract style from script', function (assert) {
     rimraf.sync(tmpDirname)
   })
 
-  compiler.script('bundle.js', function (err, res) {
+  compiler.scripts('bundle.js', function (err, res) {
     assert.error(err, 'no error writing script')
   })
 })
@@ -65,7 +65,7 @@ tape('remove unused styles', function (assert) {
     rimraf.sync(tmpDirname)
   })
 
-  compiler.script('bundle.js', function (err, res) {
+  compiler.scripts('bundle.js', function (err, res) {
     assert.error(err, 'no error writing script')
   })
 })
