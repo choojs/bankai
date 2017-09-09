@@ -98,9 +98,12 @@ Pass in a filename and output a JS bundle.
 ### `compiler.style(cb)`
 Output a CSS bundle.
 
-### `compiler.document(routename, cb)`
+### `compiler.document(routename, opts, cb)`
 Output an HTML bundle for a route. Routes are determined based on the project's
 router. Pass `'/'` to get the default route.
+
+- __opts.state:__ Will be passed the render function for the route, and inlined
+  in the `<head>` of the body as `window.initialState`.
 
 ### `compiler.asset(assetName, cb)`
 Output any other file besides JS, CSS or HTML.

@@ -145,7 +145,7 @@ Bankai.prototype.serviceWorker = function (cb) {
   })
 }
 
-Bankai.prototype.asset = function (edgeName, cb) {
+Bankai.prototype.assets = function (edgeName, cb) {
   assert.equal(typeof edgeName, 'string')
   assert.equal(typeof cb, 'function')
   var stepName = 'assets'
