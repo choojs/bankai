@@ -32,9 +32,9 @@ function Bankai (entry, opts) {
     'manifest',
     'assets',
     'service-worker',
-    'script',
+    'scripts',
     'style',
-    'document'
+    'documents'
   ]
 
   // Initialize data structures.
@@ -47,9 +47,9 @@ function Bankai (entry, opts) {
     self.emit('change', nodeName, edgeName, state)
     var eventName = nodeName + ':' + edgeName
     if (eventName === 'assets:list') self.queue.assets.ready()
-    else if (eventName === 'document:list') self.queue.document.ready()
+    else if (eventName === 'documents:list') self.queue.documents.ready()
     else if (eventName === 'manifest:bundle') self.queue.manifest.ready()
-    else if (eventName === 'script:bundle') self.queue.script.ready()
+    else if (eventName === 'scripts:bundle') self.queue.scripts.ready()
     else if (eventName === 'service-worker:bundle') self.queue['service-worker'].ready()
     else if (eventName === 'style:bundle') self.queue.style.ready()
   })
@@ -62,11 +62,11 @@ function Bankai (entry, opts) {
   // Insert nodes into the graph.
   this.graph.node('assets', assetsNode)
   // this.graph.node('document', [ 'manifest:color', 'style:bundle', 'assets:favicons', 'script:bundle' ], documentNode)
-  this.graph.node('document', [ 'manifest:color', 'style:bundle', 'script:bundle' ], documentNode)
+  this.graph.node('documents', [ 'manifest:color', 'style:bundle', 'scripts:bundle' ], documentNode)
   this.graph.node('manifest', manifestNode)
-  this.graph.node('script', scriptNode)
-  this.graph.node('service-worker', [ 'assets:list', 'style:bundle', 'script:bundle', 'document:list' ], serviceWorkerNode)
-  this.graph.node('style', [ 'script:style', 'script:bundle' ], styleNode)
+  this.graph.node('scripts', scriptNode)
+  this.graph.node('service-worker', [ 'assets:list', 'style:bundle', 'scripts:bundle', 'documents:list' ], serviceWorkerNode)
+  this.graph.node('style', [ 'scripts:style', 'scripts:bundle' ], styleNode)
 
   // Kick off the graph.
   this.graph.start({
@@ -85,12 +85,12 @@ Bankai.prototype = Object.create(Emitter.prototype)
 Bankai.prototype.scripts = function (filename, cb) {
   assert.equal(typeof filename, 'string')
   assert.equal(typeof cb, 'function')
-  var stepName = 'script'
+  var stepName = 'scripts'
   var edgeName = filename.split('.')[0]
   var self = this
   this.queue[stepName].add(function () {
     var data = self.graph.data[stepName][edgeName]
-    if (!data) return cb(new Error('bankai.script: could not find a bundle for ' + filename))
+    if (!data) return cb(new Error('bankai.scripts: could not find a bundle for ' + filename))
     cb(null, data)
   })
 }
@@ -111,7 +111,7 @@ Bankai.prototype.documents = function (filename, cb) {
   assert.equal(typeof filename, 'string')
   assert.equal(typeof cb, 'function')
   if (filename === '/') filename = 'index'
-  var stepName = 'document'
+  var stepName = 'documents'
   var edgeName = filename.split('.')[0] + '.html'
   var self = this
   this.queue[stepName].add(function () {
