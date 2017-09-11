@@ -22,5 +22,14 @@ app.route('/', function (state, emit) {
   `
 })
 
+app.route('/other', function (state, emit) {
+  emit('DOMTitleChange', 'hello planet')
+  return html`
+    <body class="sans-serif">
+      Hello other
+    </body>
+  `
+})
+
 if (module.parent) module.exports = app
 else app.mount('body')
