@@ -118,7 +118,7 @@ Output a service worker.
 Close all file watchers.
 
 ## License
-MIT
+Apache License 2.0
 
 [sheetify]: https://github.com/stackcss/sheetify
 [documentify]: https://github.com/stackhtml/documentify

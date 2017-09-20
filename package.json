@@ -1,8 +1,8 @@
 {
   "name": "bankai",
   "version": "1.0.0",
-  "description": "",
-  "license": "MIT",
+  "description": "The easiest way to compile JavaScript, HTML and CSS",
+  "license": "Apache-2.0",
   "repository": "choojs/bankai",
   "main": "index.js",
   "bin": {
