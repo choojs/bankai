@@ -6,10 +6,6 @@ var ansi = require('ansi-escape-sequences')
 var minimist = require('minimist')
 var path = require('path')
 
-var build = require('./lib/cmd-build')
-var inspect = require('./lib/cmd-inspect')
-var start = require('./lib/cmd-start')
-
 var USAGE = `
   $ ${clr('bankai', 'bold')} ${clr('<command> [entry]', 'green')} [options]
 
@@ -82,12 +78,12 @@ var argv = minimist(process.argv.slice(2), {
   } else if (argv.version) {
     console.log(require('./package.json').version)
   } else if (cmd === 'build') {
-    build(path.join(entry), argv)
+    require('./lib/cmd-build')(path.join(entry), argv)
   } else if (cmd === 'inspect') {
-    inspect(path.join(entry), argv)
+    require('./lib/cmd-inspect')(path.join(entry), argv)
   } else if (cmd === 'start') {
     if (!argv.q) alternateBuffer()
-    start(path.join(entry), argv)
+    require('./lib/cmd-start')(path.join(entry), argv)
   } else {
     console.log(NOCOMMAND)
     process.exit(1)
