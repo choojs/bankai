@@ -58,7 +58,7 @@ tape('server render choo apps', function (assert) {
     <html lang="en-US" dir="ltr">
       <head>
         <script src="https://cdn.polyfill.io/v2/polyfill.min.js" defer></script>
-        <script src="/scripts/effcb13542920628/bundle.js" defer></script>
+        <script src="/scripts/c4bc18653915ae8c/bundle.js" defer></script>
         <link rel="preload" as="style" href="/styles/1d2fbd782ebb8091/bundle.css" onload="this.rel='stylesheet'">
         <link rel="manifest" href="/manifest.json">
         <meta charset="utf-8">
