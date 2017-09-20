@@ -36,6 +36,10 @@ tape('run an asset pipeline', function (assert) {
     assert.error(err, 'no error writing script')
   })
 
+  compiler.on('error', function (one, two, err) {
+    assert.error(err)
+  })
+
   compiler.on('change', function (first, second) {
     var name = `${first}:${second}`
     if (name === 'documents:list') {

@@ -105,6 +105,9 @@ function alternateBuffer () {
   process.stdout.write('\x1b[H')      // Reset screen to top.
   process.stdout.write('\x1b[?25l')   // Hide cursor
 
+  process.on('unhandledRejection', onexit)
+  process.on('uncaughtException', onexit)
+  process.on('SIGTERM', onexit)
   process.on('SIGINT', onexit)
   process.on('exit', onexit)
 

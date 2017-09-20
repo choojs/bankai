@@ -21,7 +21,7 @@
     "async-collection": "^1.0.1",
     "brfs": "^1.4.3",
     "browserify": "^14.4.0",
-    "buffer-graph": "^2.0.0",
+    "buffer-graph": "^2.0.1",
     "bundle-collapser": "^1.2.1",
     "choo-log": "^7.2.1",
     "choo-reload": "^1.1.1",
