@@ -1,11 +1,10 @@
 {
-  "name": "example app",
+  "name": "example",
   "short_name": "example",
-  "description": "A super cute example app.",
   "start_url": "/",
-  "display": "standalone",
-  "background_color": "#fff",
+  "display": "minimal-ui",
   "theme_color": "#fff",
+  "background_color": "#fff",
   "icons": [{
     "src": "/assets/icon.png",
     "type": "image/png",
