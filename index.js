@@ -47,12 +47,28 @@ function Bankai (entry, opts) {
   this.graph.on('change', function (nodeName, edgeName, state) {
     self.emit('change', nodeName, edgeName, state)
     var eventName = nodeName + ':' + edgeName
-    if (eventName === 'assets:list') self.queue.assets.ready()
-    else if (eventName === 'documents:list') self.queue.documents.ready()
-    else if (eventName === 'manifest:bundle') self.queue.manifest.ready()
-    else if (eventName === 'scripts:bundle') self.queue.scripts.ready()
-    else if (eventName === 'service-worker:bundle') self.queue['service-worker'].ready()
-    else if (eventName === 'style:bundle') self.queue.style.ready()
+    var count = self.metadata.count
+    var queue = self.queue
+
+    if (eventName === 'assets:list') {
+      count['assets'] = String(self.graph.data.assets.list.buffer).split(',').length
+      queue['assets'].ready()
+    } else if (eventName === 'documents:list') {
+      count['documents'] = String(self.graph.data.documents.list.buffer).split(',').length
+      queue['documents'].ready()
+    } else if (eventName === 'manifest:bundle') {
+      count['manifest'] = 1
+      queue['manifest'].ready()
+    } else if (eventName === 'scripts:bundle') {
+      count['scripts'] = 1
+      queue['scripts'].ready()
+    } else if (eventName === 'service-worker:bundle') {
+      count['service-worker'] = 1
+      queue['service-worker'].ready()
+    } else if (eventName === 'style:bundle') {
+      count['style'] = 1
+      queue['style'].ready()
+    }
   })
 
   // Handle errors so they can be logged.
@@ -84,8 +100,18 @@ function Bankai (entry, opts) {
     log: this.log,
     watchers: {},
     entry: entry,
-    opts: opts
+    opts: opts,
+    count: {
+      assets: 0,
+      documents: 0,
+      manifest: 0,
+      scripts: 0,
+      'service-worker': 0,
+      style: 0
+    }
   })
+
+  this.metadata = this.graph.data.arguments
 }
 Bankai.prototype = Object.create(Emitter.prototype)
 
