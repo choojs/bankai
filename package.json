@@ -26,6 +26,7 @@
     "choo-log": "^7.2.1",
     "choo-reload": "^1.1.1",
     "clean-css": "^4.1.8",
+    "common-shakeify": "^0.3.2",
     "concat-stream": "^1.6.0",
     "css-extract": "^1.2.0",
     "debug": "^3.0.1",
