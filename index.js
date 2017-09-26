@@ -190,6 +190,17 @@ Bankai.prototype.assets = function (edgeName, cb) {
   })
 }
 
+Bankai.prototype.sourceMaps = function (stepName, edgeName, cb) {
+  assert.equal(typeof stepName, 'string')
+  assert.equal(typeof edgeName, 'string')
+  assert.equal(typeof cb, 'function')
+  edgeName = /\.map$/.test(edgeName) ? edgeName : edgeName + '.map'
+  var self = this
+  var data = self.graph.data[stepName][edgeName]
+  if (!data) return cb(new Error('bankai.sourceMaps: could not find a file for ' + stepName + ':' + edgeName))
+  cb(null, data)
+}
+
 Bankai.prototype.close = function () {
   debug('closing all file watchers')
   this.graph.emit('close')
