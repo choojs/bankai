@@ -7,8 +7,8 @@ The easiest way to compile JavaScript, HTML and CSS.
 We want people to have fun building things for the web. There should be no
 hurdles between a great idea, and your first prototype. And once you're ready,
 it should be easy to package it up and share it online. That's Bankai: a tool
-that helps you build for the web. No configuration, no hassle. Get out there
-and make things!
+that helps you build for the web. No configuration, and no hassle - that's our
+promise.
 
 If this is your first time building something for the web, take a look at
 [choojs/create-choo-app](https://github.com/choojs/create-choo-app) to help get
@@ -48,6 +48,28 @@ a project setup from scratch :sparkles:.
   Do you enjoy using this software? Become a backer:
   https://opencollective.com/choo
 ```
+
+## Optimizations
+Bankai applies lots of optimizations to projects. Generally you won't need to
+care how we do this: it's lots of glue code, and not necessarily pretty. But it
+can be useful to know which optimizations we apply. This is a list:
+
+### JavaScript
+- __bundle-collapser:__ Remove all pathnames from inside the bundle, and
+  replace them with IDs. This not only makes bundles smaller, it prevents
+  details from your local dev setup leaking.
+- __common-shakeify:__ Remove unused JavaScript code from the bundle. Best
+  known as _dead code elimination_ or _tree shaking_.
+- __unassertify:__ Remove all `require('assert')` statements from the code.
+  Only applied for production builds.
+- __uglifyify:__ Minify the bundle.
+- __yo-yoify:__ Optimize `choo` HTML code so it run significantly faster in the
+  browser.
+- __glslify:__ Adds a module system to GLSL shaders.
+- __envify:__ Allow environment variables to be used in the bundle. Especially
+  useful in combination with minification, which removes unused code paths.
+- __brfs:__ Statically inline calls to `fs.readFile()`. Useful to ship assets
+  in the browser.
 
 ## Configuration
 The Bankai CLI doesn't take any flags, other than to manipulate how we log to
