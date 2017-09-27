@@ -6,8 +6,14 @@ var fs = require('fs')
 var os = require('os')
 
 var bankai = require('../')
+var tmpDirname
+
+function cleanup () {
+  rimraf.sync(tmpDirname)
+}
 
 tape('read a manifest', function (assert) {
+  assert.on('end', cleanup)
   assert.plan(5)
   var script = dedent`
     1 + 1
@@ -31,7 +37,7 @@ tape('read a manifest', function (assert) {
   `
 
   var dirname = 'manifest-pipeline-' + (Math.random() * 1e4).toFixed()
-  var tmpDirname = path.join(os.tmpdir(), dirname)
+  tmpDirname = path.join(os.tmpdir(), dirname)
   var tmpScriptname = path.join(tmpDirname, 'index.js')
   var tmpManifestname = path.join(tmpDirname, 'manifest.json')
 
@@ -49,18 +55,19 @@ tape('read a manifest', function (assert) {
 
   compiler.scripts('bundle.js', function (err, res) {
     assert.error(err, 'no error writing script')
-    rimraf.sync(tmpDirname)
   })
 })
 
 tape('should provide a default manifest', function (assert) {
-  assert.plan(3)
+  assert.on('end', cleanup)
+  assert.plan(4)
+
   var script = dedent`
     1 + 1
   `
 
   var dirname = 'manifest-pipeline-' + (Math.random() * 1e4).toFixed()
-  var tmpDirname = path.join(os.tmpdir(), dirname)
+  tmpDirname = path.join(os.tmpdir(), dirname)
   var tmpScriptname = path.join(tmpDirname, 'index.js')
 
   fs.mkdirSync(tmpDirname)
@@ -74,12 +81,20 @@ tape('should provide a default manifest', function (assert) {
 
   compiler.scripts('bundle.js', function (err, res) {
     assert.error(err, 'no error writing script')
-    rimraf.sync(tmpDirname)
+  })
+
+  compiler.documents('/', function (err, res) {
+    assert.error(err)
   })
 })
 
 tape('should watch the manifest for changes', function (assert) {
-  assert.plan(12)
+  assert.on('end', function () {
+    compiler.close()
+    cleanup()
+  })
+  assert.plan(13)
+
   var script = dedent`
     1 + 1
   `
@@ -93,14 +108,9 @@ tape('should watch the manifest for changes', function (assert) {
   `
 
   var dirname = 'manifest-pipeline-' + (Math.random() * 1e4).toFixed()
-  var tmpDirname = path.join(os.tmpdir(), dirname)
+  tmpDirname = path.join(os.tmpdir(), dirname)
   var tmpScriptname = path.join(tmpDirname, 'index.js')
   var tmpManifestname = path.join(tmpDirname, 'manifest.json')
-
-  var done = clean(3, function () {
-    rimraf.sync(tmpDirname)
-    compiler.close()
-  })
 
   fs.mkdirSync(tmpDirname)
   fs.writeFileSync(tmpScriptname, script)
@@ -122,26 +132,19 @@ tape('should watch the manifest for changes', function (assert) {
         assert.ok(res.buffer, 'output buffer exists')
         assert.ok(res.hash, 'output hash exists')
         assert.ok(/bar/.exec(String(res.buffer)), 'contains bar')
-        done()
       })
     })
 
     fs.writeFile(tmpManifestname, manifest2, function (err) {
       assert.error(err, 'no error writing manifest 2')
-      done()
     })
   })
 
   compiler.scripts('bundle.js', function (err, res) {
     assert.error(err, 'no error writing script')
-    done()
   })
 
-  function clean (count, cb) {
-    var i = 0
-    return function done () {
-      i += 1
-      if (i === count) cb()
-    }
-  }
+  compiler.documents('/', function (err, res) {
+    assert.error(err)
+  })
 })
