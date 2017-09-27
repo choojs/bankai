@@ -60,7 +60,7 @@ tape('read a manifest', function (assert) {
 
 tape('should provide a default manifest', function (assert) {
   assert.on('end', cleanup)
-  assert.plan(4)
+  assert.plan(3)
 
   var script = dedent`
     1 + 1
@@ -82,10 +82,6 @@ tape('should provide a default manifest', function (assert) {
   compiler.scripts('bundle.js', function (err, res) {
     assert.error(err, 'no error writing script')
   })
-
-  compiler.documents('/', function (err, res) {
-    assert.error(err)
-  })
 })
 
 tape('should watch the manifest for changes', function (assert) {
@@ -93,7 +89,7 @@ tape('should watch the manifest for changes', function (assert) {
     compiler.close()
     cleanup()
   })
-  assert.plan(13)
+  assert.plan(12)
 
   var script = dedent`
     1 + 1
@@ -142,9 +138,5 @@ tape('should watch the manifest for changes', function (assert) {
 
   compiler.scripts('bundle.js', function (err, res) {
     assert.error(err, 'no error writing script')
-  })
-
-  compiler.documents('/', function (err, res) {
-    assert.error(err)
   })
 })
