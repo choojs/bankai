@@ -14,8 +14,8 @@ tape('renders some HTML', function (assert) {
     <html lang="en-US" dir="ltr">
       <head>
         <script src="https://cdn.polyfill.io/v2/polyfill.min.js" defer></script>
-        <script src="/132abdc598dd255b/bundle.js" defer></script>
-        <link rel="preload" as="style" href="/1d2fbd782ebb8091/bundle.css" onload="this.rel='stylesheet'">
+        <script src="/8675b35975a61e2e/bundle.js" defer></script>
+        <link rel="preload" as="style" href="/ebfdda3dbc9e925b/bundle.css" onload="this.rel='stylesheet'">
         <link rel="manifest" href="/manifest.json">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -58,8 +58,8 @@ tape('server render choo apps', function (assert) {
     <html lang="en-US" dir="ltr">
       <head>
         <script src="https://cdn.polyfill.io/v2/polyfill.min.js" defer></script>
-        <script src="/c4bc18653915ae8c/bundle.js" defer></script>
-        <link rel="preload" as="style" href="/1d2fbd782ebb8091/bundle.css" onload="this.rel='stylesheet'">
+        <script src="/2435e158c2ea202c/bundle.js" defer></script>
+        <link rel="preload" as="style" href="/ebfdda3dbc9e925b/bundle.css" onload="this.rel='stylesheet'">
         <link rel="manifest" href="/manifest.json">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
