@@ -111,7 +111,7 @@ function Bankai (entry, opts) {
     }
   })
 
-  this.metadata = this.graph.data.arguments
+  this.metadata = this.graph.metadata
 }
 Bankai.prototype = Object.create(Emitter.prototype)
 
