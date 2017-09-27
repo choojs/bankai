@@ -1,6 +1,7 @@
 var EventEmitter = require('events').EventEmitter
 var gzipMaybe = require('http-gzip-maybe')
 var gzipSize = require('gzip-size')
+var assert = require('assert')
 var path = require('path')
 var pump = require('pump')
 
@@ -20,6 +21,11 @@ var files = [
 module.exports = start
 
 function start (entry, opts) {
+  opts = opts || {}
+
+  assert.equal(typeof entry, 'string', 'bankai/http: entry should be type string')
+  assert.equal(typeof opts, 'object', 'bankai/http: opts should be type object')
+
   var quiet = !!opts.quiet
   var compiler = bankai(entry, { reload: true })
   var router = new Router()

@@ -133,6 +133,27 @@ JavaScript, no extra configuration is needed.
 }
 ```
 
+## HTTP
+Bankai can be hooked up directly to an HTTP server, which is useful when
+working on full stack code.
+```js
+var bankai = require('bankai/http')
+var http = require('http')
+var path = require('path')
+
+var compiler = bankai(path.join(__dirname, 'example'))
+var server = http.createServer(function (req, res) {
+  compiler(req, res, function () {
+    res.statusCode = 404
+    res.end('not found')
+  })
+})
+
+server.listen(8080, function () {
+  console.log('listening on port 8080')
+})
+```
+
 ## Events
 ### `compiler.on('error', callback(error))`
 Whenever an internal error occurs.
