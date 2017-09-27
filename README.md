@@ -71,6 +71,37 @@ can be useful to know which optimizations we apply. This is a list:
 - __brfs:__ Statically inline calls to `fs.readFile()`. Useful to ship assets
   in the browser.
 
+### CSS
+- __sheetify:__ extract all inline CSS from JavaScript, and include it in
+  `bundle.js`.
+- __purifyCSS:__ removes unused CSS from the project.
+- __cleanCSS:__ minify the bundle.
+
+### HTML
+- __polyfill:__ preloads [polyfill.io](http://polyfill.io/), the zero overhead
+  polyfilling service.
+- __inline-critical-css:__ extract all crititical CSS for a page into the
+  `<head>` of the document. This means that every page will be able to render
+  after the first roundtrip, which makes for super snappy pages.
+- __async load scripts:__ loads scripts in the background using the
+  [`defer`](https://devdocs.io/html/attributes#defer-attribute) attribute.
+- __async load styles:__ loads styles in the background using the
+  [`preload`](https://devdocs.io/html/attributes#preload-attribute) attribute.
+- __async load styles:__ preloads fonts in the background using the
+  [`preload`](https://devdocs.io/html/attributes#preload-attribute) attribute.
+- __server render:__ server renders Choo applications. We're welcome to
+  supporting other frameworks too. PRs welcome!
+- __manifest:__ includes a link to `manifest.json` so the application can be
+  installed on mobile.
+- __viewport:__ defines the right viewport dimensions to make applications
+  accessible for everyone.
+- __theme color:__ sets the theme color defined in `manifest.json` so the
+  navigator bar on mobile is styled on brand.
+- __title:__ sets the right title on a page. Either extracts it from the
+  application (choo only, for now) or uses whatever the title is in
+  `manifest.json`.
+- __live reload:__ during development, we inject a live reload script.
+
 ## Configuration
 The Bankai CLI doesn't take any flags, other than to manipulate how we log to
 the console. Configuring Bankai is done by modifying `package.json`.
