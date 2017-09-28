@@ -80,6 +80,10 @@ function Bankai (entry, opts) {
     self.emit.apply(self, args)
   })
 
+  this.graph.on('progress', function (chunk, value) {
+    self.emit('progress', chunk, value)
+  })
+
   // Insert nodes into the graph.
   this.graph.node('assets', assetsNode)
   // this.graph.node('document', [ 'manifest:color', 'style:bundle', 'assets:favicons', 'script:bundle' ], documentNode)
