@@ -1,231 +1,212 @@
-var collapser = require('bundle-collapser/plugin')
-var EventEmitter = require('events').EventEmitter
-var watchifyRequest = require('watchify-request')
-var sheetify = require('sheetify/transform')
-var inline = require('inline-critical-css')
-var hyperstream = require('hyperstream')
-var unassertify = require('unassertify')
-var cssExtract = require('css-extract')
-var createHtml = require('create-html')
-var stream = require('readable-stream')
-var browserify = require('browserify')
-var concat = require('concat-stream')
-var uglifyify = require('uglifyify')
-var watchify = require('watchify')
-var yoyoify = require('yo-yoify')
-var envify = require('envify')
+var Emitter = require('events').EventEmitter
+var debug = require('debug')('bankai')
+var graph = require('buffer-graph')
 var assert = require('assert')
-var xtend = require('xtend')
-var from = require('from2')
 var path = require('path')
-var pump = require('pump')
-var send = require('send')
-var url = require('url')
-var fs = require('fs')
+var pino = require('pino')
 
-var htmlMinifyStream = require('./lib/html-minify-stream.js')
-var manifestStream = require('./lib/html-manifest-stream')
-var createElectronOpts = require('./lib/electron')
-var detectRouter = require('./lib/detect-router')
-var titleStream = require('./lib/title-stream')
+var localization = require('./localization')
+var queue = require('./lib/queue')
+
+var assetsNode = require('./lib/graph-assets')
+var documentNode = require('./lib/graph-document')
+var manifestNode = require('./lib/graph-manifest')
+var reloadNode = require('./lib/graph-reload')
+var scriptNode = require('./lib/graph-script')
+var serviceWorkerNode = require('./lib/graph-service-worker')
+var styleNode = require('./lib/graph-style')
 
 module.exports = Bankai
 
-// (str, obj) -> obj
 function Bankai (entry, opts) {
   if (!(this instanceof Bankai)) return new Bankai(entry, opts)
-  EventEmitter.call(this)
-
   opts = opts || {}
+  this.local = localization(opts.language || 'en-US')
+  this.log = pino(opts.logStream || process.stdout)
 
-  assert.equal(typeof entry, 'string', 'bankai: entry should be a string')
-  assert.equal(typeof opts, 'object', 'bankai: opts should be an object')
+  assert.equal(typeof entry, 'string', 'bankai: entry should be type string')
+  assert.ok(/^\//.test(entry), 'bankai: entry should be an absolute path. Received: ' + entry)
+  assert.equal(typeof opts, 'object', 'bankai: opts should be type object')
 
   var self = this
+  var methods = [
+    'manifest',
+    'assets',
+    'service-worker',
+    'scripts',
+    'style',
+    'documents'
+  ]
 
-  this.watch = opts.watch === undefined ? true : opts.watch
-  this.htmlDisabled = (opts.html === false)
-  this.cssDisabled = (opts.css === false)
-  this.cssQueue = []
-  this.entry = entry
+  // Initialize data structures.
+  var key = Buffer.from('be intolerant of intolerance')
+  this.queue = queue(methods)    // The queue caches requests until ready.
+  this.graph = graph(key)        // The graph manages relations between deps.
 
-  opts.html = opts.html || {}
-  opts.css = opts.css || {}
-  opts.js = opts.js || {}
+  // Detect when we're ready to allow requests to go through.
+  this.graph.on('change', function (nodeName, edgeName, state) {
+    self.emit('change', nodeName, edgeName, state)
+    var eventName = nodeName + ':' + edgeName
+    var count = self.metadata.count
+    var queue = self.queue
 
-  if (opts.debug) opts.js = xtend(opts.js, { debug: true })
-
-  this.manifest = opts.html.manifest
-  this._html = html()
-  this._js = js()
-
-  function html () {
-    var base = {
-      script: '/bundle.js',
-      scriptAsync: true,
-      css: self.cssDisabled ? null : '/bundle.css',
-      cssAsync: true,
-      head: '<meta name="viewport" content="width=device-width, initial-scale=1">'
+    if (eventName === 'assets:list') {
+      count['assets'] = String(self.graph.data.assets.list.buffer).split(',').length
+      queue['assets'].ready()
+    } else if (eventName === 'documents:list') {
+      count['documents'] = String(self.graph.data.documents.list.buffer).split(',').length
+      queue['documents'].ready()
+    } else if (eventName === 'manifest:bundle') {
+      count['manifest'] = 1
+      queue['manifest'].ready()
+    } else if (eventName === 'scripts:bundle') {
+      count['scripts'] = 1
+      queue['scripts'].ready()
+    } else if (eventName === 'service-worker:bundle') {
+      count['service-worker'] = 1
+      queue['service-worker'].ready()
+    } else if (eventName === 'style:bundle') {
+      count['style'] = 1
+      queue['style'].ready()
     }
-    var html = createHtml(xtend(base, opts.html))
-    return Buffer.from(html)
-  }
-
-  function js () {
-    var base = {
-      entries: [ entry ],
-      packageCache: {},
-      cache: {}
-    }
-
-    base = (opts.electron)
-      ? xtend(base, createElectronOpts())
-      : xtend(base)
-
-    var jsOpts = xtend(base, opts.js)
-
-    var b = self.watch
-      ? watchify(browserify(jsOpts))
-      : browserify(jsOpts)
-
-    if (!self.cssDisabled) {
-      b.plugin(cssExtract, { out: createCssStream })
-      b.ignore('sheetify/insert')
-      b.transform(sheetify, opts.css)
-    }
-
-    if (opts.assert === false || opts.assert === 'false') {
-      b.transform(unassertify, { global: true })
-    }
-
-    b.transform(yoyoify, { global: true })
-    b.transform(envify, { global: true })
-    var uglifyOpts = {
-      global: true,
-      // mangle: {
-      //   properties: true
-      // },
-      compress: {
-        properties: true,
-        dead_code: true,
-        comparisons: true,
-        evaluate: true,
-        hoist_funs: true,
-        join_vars: true,
-        pure_getters: true,
-        reduce_vars: true,
-        collapse_vars: true
-      }
-    }
-    if (opts.debug) uglifyOpts.sourceMap = { filename: entry }
-    b.transform(uglifyify, uglifyOpts)
-
-    b.plugin(collapser)
-
-    b.on('bundle', function (bundle) {
-      self.emit('js-bundle', bundle)
-    })
-
-    return watchifyRequest(b)
-
-    function createCssStream () {
-      return concat({ encoding: 'buffer' }, function (css) {
-        self._css = css
-        self.emit('css-bundle', css)
-        while (self.cssQueue.length) self.cssQueue.shift()()
-      })
-    }
-  }
-}
-Bankai.prototype = Object.create(EventEmitter.prototype)
-
-// (obj, obj) -> readStream
-Bankai.prototype.js = function (req, res) {
-  var throughStream = new stream.PassThrough()
-  this._js(req, res, function (err, buffer) {
-    if (err) return throughStream.emit('error', err)
-    var sourceStream = from([buffer])
-    pump(sourceStream, throughStream)
   })
-  return throughStream
-}
 
-// (obj, obj) -> readStream
-Bankai.prototype.html = function (req, res) {
-  assert.notEqual(this.htmlDisabled, true, 'bankai: html is disabled')
-  if (res) res.setHeader('Content-Type', 'text/html')
-
-  var route = typeof req === 'object'
-    ? url.parse(req.url).pathname
-    : typeof req === 'string'
-      ? req
-      : '/'
-
-  // TODO: if not in prod mode, clear cache before loading
-  var instance = require(this.entry)
-  var html = detectRouter(route, instance)
-  var minify = htmlMinifyStream()
-
-  if (html) {
-    // TODO: make this less hacky. Ideally there'd be a "setup" step, emit
-    // "ready", and it's go time.
-    if (!this._css) {
-      this.once('css-bundle', function () {
-        var ssr = hyperstream({ body: { _html: html } })
-        var critical = inline(this._css)
-        var state = instance.state
-        var title = titleStream(state.title || '')
-        ssr.end(this._html)
-        pump(ssr, critical, title, minify)
-      })
-    } else {
-      var ssr = hyperstream({ body: { _html: html } })
-      var critical = inline(this._css)
-      var state = instance.state
-      var title = titleStream(state.title || '')
-      ssr.end(this._html)
-      pump(ssr, critical, title, minify)
+  // Handle errors so they can be logged.
+  this.graph.on('error', function () {
+    var args = ['error']
+    for (var len = arguments.length, i = 0; i < len; i++) {
+      args.push(arguments[i])
     }
-  } else {
-    minify.end(this._html)
-  }
+    self.emit.apply(self, args)
+  })
 
-  // Read manifest if it exists
-  // FIXME: only works synchronously, stream blows up silently if async :(
-  if (this.manifest) {
-    var file = fs.readFileSync(this.manifest)
-    try { var json = JSON.parse(file) } catch (_) {}
-  }
+  this.graph.on('progress', function (chunk, value) {
+    self.emit('progress', chunk, value)
+  })
 
-  if (json) {
-    var src = manifestStream(json)
-    pump(minify, src)
-    return src
-  } else {
-    return minify
-  }
+  // Insert nodes into the graph.
+  this.graph.node('assets', assetsNode)
+  // this.graph.node('document', [ 'manifest:color', 'style:bundle', 'assets:favicons', 'script:bundle' ], documentNode)
+  this.graph.node('documents', [ 'manifest:color', 'style:bundle', 'scripts:bundle', 'reload:bundle' ], documentNode)
+  this.graph.node('manifest', manifestNode)
+  this.graph.node('scripts', scriptNode)
+  this.graph.node('reload', reloadNode)
+  this.graph.node('service-worker', [ 'assets:list', 'style:bundle', 'scripts:bundle', 'documents:list' ], serviceWorkerNode)
+  this.graph.node('style', [ 'scripts:style', 'scripts:bundle' ], styleNode)
+
+  // Kick off the graph.
+  this.graph.start({
+    dirname: path.dirname(entry),
+    assert: opts.assert !== false,
+    watch: opts.watch !== false,
+    fullPaths: opts.fullPaths,
+    reload: Boolean(opts.reload),
+    log: this.log,
+    watchers: {},
+    entry: entry,
+    opts: opts,
+    count: {
+      assets: 0,
+      documents: 0,
+      manifest: 0,
+      scripts: 0,
+      'service-worker': 0,
+      style: 0
+    }
+  })
+
+  this.metadata = this.graph.metadata
+}
+Bankai.prototype = Object.create(Emitter.prototype)
+
+Bankai.prototype.scripts = function (filename, cb) {
+  assert.equal(typeof filename, 'string')
+  assert.equal(typeof cb, 'function')
+  var stepName = 'scripts'
+  var edgeName = filename.split('.')[0]
+  var self = this
+  this.queue[stepName].add(function () {
+    var data = self.graph.data[stepName][edgeName]
+    if (!data) return cb(new Error('bankai.scripts: could not find a bundle for ' + filename))
+    cb(null, data)
+  })
 }
 
-// (obj, obj) -> readStream
-Bankai.prototype.css = function (req, res) {
-  assert.notEqual(this.cssDisabled, true, 'bankai: css is disabled')
-  if (res) res.setHeader('Content-Type', 'text/css')
-  if (!this._css) {
-    var self = this
-    var through = new stream.PassThrough()
-    this.cssQueue.push(function () {
-      var source = from([self._css])
-      pump(source, through)
-    })
-    return through
-  } else {
-    return from([this._css])
-  }
+Bankai.prototype.style = function (cb) {
+  assert.equal(typeof cb, 'function')
+  var stepName = 'style'
+  var edgeName = 'bundle'
+  var self = this
+  this.queue[stepName].add(function () {
+    var data = self.graph.data[stepName][edgeName]
+    if (!data) return cb(new Error('bankai.style: could not find bundle'))
+    cb(null, data)
+  })
 }
 
-// (obj, obj) -> readStream
-Bankai.prototype.static = function (req, res) {
-  var uri = url.parse(req.url).pathname
-  var root = path.dirname(this.entry)
-  return send(req, uri, { index: false, root: root })
+Bankai.prototype.documents = function (filename, cb) {
+  assert.equal(typeof filename, 'string')
+  assert.equal(typeof cb, 'function')
+  if (filename === '/') filename = 'index'
+  var stepName = 'documents'
+  var edgeName = filename.split('.')[0] + '.html'
+  var self = this
+  this.queue[stepName].add(function () {
+    var data = self.graph.data[stepName][edgeName]
+    if (!data) return cb(new Error('bankai.document: could not find a document for ' + filename))
+    cb(null, data)
+  })
+}
+
+Bankai.prototype.manifest = function (cb) {
+  assert.equal(typeof cb, 'function')
+  var stepName = 'manifest'
+  var edgeName = 'bundle'
+  var self = this
+  this.queue[stepName].add(function () {
+    var data = self.graph.data[stepName][edgeName]
+    if (!data) return cb(new Error('bankai.manifest: could not find bundle'))
+    cb(null, data)
+  })
+}
+
+Bankai.prototype.serviceWorker = function (cb) {
+  assert.equal(typeof cb, 'function')
+  var stepName = 'service-worker'
+  var edgeName = 'bundle'
+  var self = this
+  this.queue[stepName].add(function () {
+    var data = self.graph.data[stepName][edgeName]
+    if (!data) return cb(new Error('bankai.serviceWorker: could not find bundle'))
+    cb(null, data)
+  })
+}
+
+Bankai.prototype.assets = function (edgeName, cb) {
+  assert.equal(typeof edgeName, 'string')
+  assert.equal(typeof cb, 'function')
+  var stepName = 'assets'
+  var self = this
+  this.queue[stepName].add(function () {
+    var data = self.graph.data[stepName][edgeName]
+    if (!data) return cb(new Error('bankai.asset: could not find a file for ' + edgeName))
+    cb(null, data)
+  })
+}
+
+Bankai.prototype.sourceMaps = function (stepName, edgeName, cb) {
+  assert.equal(typeof stepName, 'string')
+  assert.equal(typeof edgeName, 'string')
+  assert.equal(typeof cb, 'function')
+  edgeName = /\.map$/.test(edgeName) ? edgeName : edgeName + '.map'
+  var self = this
+  var data = self.graph.data[stepName][edgeName]
+  if (!data) return cb(new Error('bankai.sourceMaps: could not find a file for ' + stepName + ':' + edgeName))
+  cb(null, data)
+}
+
+Bankai.prototype.close = function () {
+  debug('closing all file watchers')
+  this.graph.emit('close')
+  this.emit('close')
 }

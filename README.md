@@ -1,153 +1,212 @@
-<h1 align="center">bankai</h1>
+# bankai
+[![npm version][2]][3] [![build status][4]][5]
+[![downloads][8]][9] [![js-standard-style][10]][11]
 
-<div align="center">
-  <strong>Streaming {js,html,css} compiler</strong>
-</div>
+The easiest way to compile JavaScript, HTML and CSS.
 
----
+We want people to have fun building things for the web. There should be no
+hurdles between a great idea, and your first prototype. And once you're ready,
+it should be easy to package it up and share it online. That's Bankai: a tool
+that helps you build for the web. No configuration, and no hassle - that's our
+promise.
 
-<div align="center">
-  <!-- Stability -->
-  <a href="https://nodejs.org/api/documentation.html#documentation_stability_index">
-    <img src="https://img.shields.io/badge/stability-experimental-orange.svg?style=flat-square"
-      alt="API stability" />
-  </a>
-  <!-- NPM version -->
-  <a href="https://npmjs.org/package/bankai">
-    <img src="https://img.shields.io/npm/v/bankai.svg?style=flat-square"
-      alt="NPM version" />
-  </a>
-  <!-- Build Status -->
-  <a href="https://travis-ci.org/choojs/bankai">
-    <img src="https://img.shields.io/travis/choojs/bankai/master.svg?style=flat-square"
-      alt="Build Status" />
-  </a>
-  <!-- Test Coverage -->
-  <a href="https://codecov.io/github/choojs/bankai">
-    <img src="https://img.shields.io/codecov/c/github/choojs/bankai/master.svg?style=flat-square"
-      alt="Test Coverage" />
-  </a>
-  <!-- Downloads -->
-  <a href="https://npmjs.org/package/bankai">
-    <img src="https://img.shields.io/npm/dm/bankai.svg?style=flat-square"
-      alt="Downloads" />
-  </a>
-  <!-- Standard -->
-  <a href="https://codecov.io/github/choojs/bankai">
-    <img src="https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square"
-      alt="Standard" />
-  </a>
-</div>
-
-## Philosophy
-Building things takes time. Configuring tooling takes time. We believe that by
-taking modular tools, and wrapping them in a zero-configuration package we
-can help people iterate faster and produce better results. And once people are
-deep enough into a project that they might need something different, we make
-sure they can easily create their own tooling from the components we use.
+If this is your first time building something for the web, take a look at
+[choojs/create-choo-app](https://github.com/choojs/create-choo-app) to help get
+a project setup from scratch :sparkles:.
 
 ## Usage
 ```txt
-  $ bankai [options] <command>
+  $ bankai <command> [entry] [options]
 
   Commands:
 
-    <default>                      run 'bankai start'
-    start <filename>               start a bankai server
-    build <filename> <directory>   compile and export files to a directory
-    inspect <filename>             visualize the dependency tree
+    build       compile all files to dist/
+    inspect     inspect the bundle dependencies
+    start       start a development server
 
   Options:
 
-    -a, --assets=<directory>  serve static assets [assets]
-    -A, --address=<ip>        ip address to listen [localhost]
-    -c, --css=<subargs>       pass subarguments to sheetify
-    -d, --debug               include sourcemaps [false]
-    -e, --electron            enable electron mode for the bundler [false]
-    -h, --help                print usage
-    -H, --html=<subargs>      pass subarguments to create-html
-    -j, --js=<subargs>        pass subarguments to browserify
-    -o, --open=<browser>      open html in a browser [system default]
-    -p, --port=<n>            bind bankai to a port [8080]
-    -V, --verbose             include debug messages [false]
-    -w, --watch <bool>        toggle watch mode [true]
+    -d, --debug       output lots of logs
+    -h, --help        print usage
+    -q, --quiet       don't output any logs
+    -v, --version     print version
 
   Examples:
 
-    Start bankai on port 8080
-    $ bankai index.js -p 8080
-    Open html in the browser
-    $ bankai start index.js --open
-    Use brfs as a browserify transform
-    $ bankai start -j [ -t brfs ] index.js
-    Compile and export to dist/
-    $ bankai build index.js dist/
+    Start a development server
+    $ bankai start index.js
+
+    Visualize all dependencies in your project
+    $ bankai inspect index.js
+
+    Compile all files in the project to disk
+    $ bankai build index.js
+
+  Running into trouble? Feel free to file an issue:
+  https://github.com/choojs/bankai/issues/new
+
+  Do you enjoy using this software? Become a backer:
+  https://opencollective.com/choo
 ```
+
+## Optimizations
+Bankai applies lots of optimizations to projects. Generally you won't need to
+care how we do this: it's lots of glue code, and not necessarily pretty. But it
+can be useful to know which optimizations we apply. This is a list:
+
+### JavaScript
+- __bundle-collapser:__ Remove all pathnames from inside the bundle, and
+  replace them with IDs. This not only makes bundles smaller, it prevents
+  details from your local dev setup leaking.
+- __common-shakeify:__ Remove unused JavaScript code from the bundle. Best
+  known as _dead code elimination_ or _tree shaking_.
+- __unassertify:__ Remove all `require('assert')` statements from the code.
+  Only applied for production builds.
+- __uglifyify:__ Minify the bundle.
+- __yo-yoify:__ Optimize `choo` HTML code so it run significantly faster in the
+  browser.
+- __glslify:__ Adds a module system to GLSL shaders.
+- __envify:__ Allow environment variables to be used in the bundle. Especially
+  useful in combination with minification, which removes unused code paths.
+- __brfs:__ Statically inline calls to `fs.readFile()`. Useful to ship assets
+  in the browser.
+
+### CSS
+- __sheetify:__ extract all inline CSS from JavaScript, and include it in
+  `bundle.js`.
+- __purifyCSS:__ removes unused CSS from the project.
+- __cleanCSS:__ minify the bundle.
+
+### HTML
+- __polyfill:__ preloads [polyfill.io](http://polyfill.io/), the zero overhead
+  polyfilling service.
+- __inline-critical-css:__ extract all crititical CSS for a page into the
+  `<head>` of the document. This means that every page will be able to render
+  after the first roundtrip, which makes for super snappy pages.
+- __async load scripts:__ loads scripts in the background using the
+  [`defer`](https://devdocs.io/html/attributes#defer-attribute) attribute.
+- __async load styles:__ loads styles in the background using the
+  [`preload`](https://devdocs.io/html/attributes#preload-attribute) attribute.
+- __async load styles:__ preloads fonts in the background using the
+  [`preload`](https://devdocs.io/html/attributes#preload-attribute) attribute.
+- __server render:__ server renders Choo applications. We're welcome to
+  supporting other frameworks too. PRs welcome!
+- __manifest:__ includes a link to `manifest.json` so the application can be
+  installed on mobile.
+- __viewport:__ defines the right viewport dimensions to make applications
+  accessible for everyone.
+- __theme color:__ sets the theme color defined in `manifest.json` so the
+  navigator bar on mobile is styled on brand.
+- __title:__ sets the right title on a page. Either extracts it from the
+  application (choo only, for now) or uses whatever the title is in
+  `manifest.json`.
+- __live reload:__ during development, we inject a live reload script.
+
+## Configuration
+The Bankai CLI doesn't take any flags, other than to manipulate how we log to
+the console. Configuring Bankai is done by modifying `package.json`.
+
+Bankai is built on three technologies: [`browserify`][browserify],
+[`sheetify`][sheetify], and [`documentify`][documentify]. Because these can be
+configured inside `package.json` it means that Bankai itself can be configured
+from there too. Also if people ever decide to switch from the command line to
+JavaScript, no extra configuration is needed.
+
+```json
+{
+  "name": "my-app",
+  "browserify": {
+     "transform": [
+       "some-browserify-transform"
+     ]
+   },
+   "sheetify": {
+     "transform": [
+       "some-sheetify-transform"
+     ]
+   },
+   "documentify": {
+     "transform": [
+       "some-documentify-transform"
+     ]
+   }
+}
+```
+
+## HTTP
+Bankai can be hooked up directly to an HTTP server, which is useful when
+working on full stack code.
+```js
+var bankai = require('bankai/http')
+var http = require('http')
+var path = require('path')
+
+var compiler = bankai(path.join(__dirname, 'example'))
+var server = http.createServer(function (req, res) {
+  compiler(req, res, function () {
+    res.statusCode = 404
+    res.end('not found')
+  })
+})
+
+server.listen(8080, function () {
+  console.log('listening on port 8080')
+})
+```
+
+## Events
+### `compiler.on('error', callback(error))`
+Whenever an internal error occurs.
+
+### `compiler.on('change', callback(nodeName, edgeName, state))`
+Whenever a change in the internal graph occurs.
 
 ## API
-### assets = bankai(entryFile, [opts])
-Create a new instance of `bankai`. The first argument is a route to the entry
-file that is compiled by `browserify`. The second argument is optional and can
-take the following options:
-- __opts.js:__ (default: `{}`). Pass options to `browserify`. Cannot be
-  disabled
-- __opts.css:__ (default: `{}`). Pass options to `sheetify`. Set to `false` to
-  disable
-- __opts.html:__ (default: `{}`). Pass options to `create-html`. Set to `false`
-  to disable
-- __opts.watch:__ Disable livereload scripts
-- __opts.electron:__ (default `false`). Enable [electron][electron] mode for
-  the bundler.  Relies on `index.html` being served as a static file using
-  `file://` to ensure `require()` paths are resolved correctly
-- __opts.assert:__ (default: `true`) disable all calls to `require('assert')`
+### `compiler = bankai(entry, [opts])`
+Create a new bankai instance. Takes either an entry file location, or an array
+of files.
 
-### readableStream = assets.js([req], [res])
-Return a `js` stream. Sets correct header values if `req` and `res` are passed.
-Uses [browserify][browserify] and [watchify][watchify] under the hood.
+### `compiler.documents(routename, [opts], done(err, buffer))`
+Output an HTML bundle for a route. Routes are determined based on the project's
+router. Pass `'/'` to get the default route.
 
-### readableStream = assets.html([req], [res])
-Return a `html` stream. Sets correct header values if `req` and `res` are
-passed. Uses [create-html][chtml] under the hood.
+- __opts.state:__ Will be passed the render function for the route, and inlined
+  in the `<head>` of the body as `window.initialState`.
 
-### readableStream = assets.css([req], [res])
-Return a `css` stream. Sets correct header values if `req` and `res` are
-passed. Uses [sheetify][sheetify] under the hood.
+### `compiler.scripts(filename, done(err, buffer))`
+Pass in a filename and output a JS bundle.
 
-### readableStream = assets.static([req], [res])
-Return a `static` stream. Don't set any header. Useful to serve static assets
-like images, icons, fonts, etc. Uses [send][send] under the hood.
+### `compiler.assets(assetName, done(err, buffer))`
+Output any other file besides JS, CSS or HTML.
 
-## Installation
-```sh
-$ npm install bankai
-```
+### `compiler.style(done(err, buffer))`
+Output a CSS bundle.
 
-## See Also
-- [stackcss/sheetify][sheetify]
-- [substack/browserify][browserify]
-- [sethvincent/create-html][chtml]
+### `compiler.manifest(done(err, buffer))`
+Output a `manifest.json`.
 
-## Similar Packages
-- [mattdesl/budo](https://www.npmjs.com/package/budo)
-- [maxogden/wzrd](https://www.npmjs.com/package/wzrd)
-- [chrisdickinson/beefy](https://www.npmjs.com/package/beefy)
+### `compiler.serviceWorker(done(err, buffer))`
+Output a service worker.
+
+### `compiler.close()`
+Close all file watchers.
 
 ## License
-[MIT](https://tldrlegal.com/license/mit-license)
+Apache License 2.0
+
+[sheetify]: https://github.com/stackcss/sheetify
+[documentify]: https://github.com/stackhtml/documentify
+[browserify]: https://github.com/substack/node-browserify
 
 [0]: https://img.shields.io/badge/stability-experimental-orange.svg?style=flat-square
 [1]: https://nodejs.org/api/documentation.html#documentation_stability_index
 [2]: https://img.shields.io/npm/v/bankai.svg?style=flat-square
 [3]: https://npmjs.org/package/bankai
 [4]: https://img.shields.io/travis/choojs/bankai/master.svg?style=flat-square
-[6]: https://travis-ci.org/choojs/bankai
+[5]: https://travis-ci.org/choojs/bankai
+[6]: https://img.shields.io/codecov/c/github/choojs/bankai/master.svg?style=flat-square
+[7]: https://codecov.io/github/choojs/bankai
 [8]: http://img.shields.io/npm/dm/bankai.svg?style=flat-square
 [9]: https://npmjs.org/package/bankai
 [10]: https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square
 [11]: https://github.com/feross/standard
-[electron]: https://github.com/electron/electron
-[sheetify]: https://github.com/stackcss/sheetify
-[watchify]: https://github.com/substack/watchify
-[browserify]: https://github.com/substack/node-browserify
-[chtml]: https://github.com/sethvincent/create-html
-[send]: https://github.com/pillarjs/send
