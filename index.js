@@ -73,7 +73,7 @@ function Bankai (entry, opts) {
 
   // Handle errors so they can be logged.
   this.graph.on('error', function () {
-    var args = []
+    var args = ['error']
     for (var len = arguments.length, i = 0; i < len; i++) {
       args.push(arguments[i])
     }
