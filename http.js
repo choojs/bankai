@@ -49,9 +49,14 @@ function start (entry, opts) {
     }
   })
 
-  if (!quiet) var render = ui(state)
-  compiler.on('error', function (error) {
-    state.error = error.message + error.stack
+  if (!quiet) var _render = ui(state)
+  compiler.on('error', function (topic, sub, err) {
+    if (err.pretty) state.error = err.pretty
+    else state.error = `${topic}:${sub} ${err.message}\n${err.stack}`
+    if (!quiet) _render()
+  })
+
+  compiler.on('progress', function () {
     if (!quiet) render()
   })
 
@@ -237,6 +242,11 @@ function start (entry, opts) {
   // Return a handler to listen.
   function handler (req, res, next) {
     router.match(req, res, next)
+  }
+
+  function render () {
+    state.error = null
+    _render()
   }
 }
 
