@@ -25,7 +25,7 @@ function Bankai (entry, opts) {
   this.log = pino(opts.logStream || process.stdout)
 
   assert.equal(typeof entry, 'string', 'bankai: entry should be type string')
-  assert.ok(/^\//.test(entry), 'bankai: entry should be an absolute path. Received: ' + entry)
+  assert.ok(path.isAbsolute(entry), 'bankai: entry should be an absolute path. Received: ' + entry)
   assert.equal(typeof opts, 'object', 'bankai: opts should be type object')
 
   var self = this
