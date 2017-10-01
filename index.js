@@ -6,6 +6,7 @@ var path = require('path')
 var pino = require('pino')
 
 var localization = require('./localization')
+var progress = require('./lib/progress')
 var queue = require('./lib/queue')
 
 var assetsNode = require('./lib/graph-assets')
@@ -21,6 +22,7 @@ module.exports = Bankai
 function Bankai (entry, opts) {
   if (!(this instanceof Bankai)) return new Bankai(entry, opts)
   opts = opts || {}
+
   this.local = localization(opts.language || 'en-US')
   this.log = pino(opts.logStream || process.stdout)
 
@@ -40,82 +42,108 @@ function Bankai (entry, opts) {
 
   // Initialize data structures.
   var key = Buffer.from('be intolerant of intolerance')
-  this.queue = queue(methods)    // The queue caches requests until ready.
-  this.graph = graph(key)        // The graph manages relations between deps.
+  this.queue = queue(methods)       // The queue caches requests until ready.
+  this.graph = graph(key)           // The graph manages relations between deps.
+  this.errors = []                  // Keep track of any errors that occur.
 
-  // Detect when we're ready to allow requests to go through.
-  this.graph.on('change', function (nodeName, edgeName, state) {
-    self.emit('change', nodeName, edgeName, state)
+  this.graph.on('progress', onprogress)
+  this.graph.on('change', onchange)
+  this.graph.on('error', onerror)
+
+  // Insert nodes into the graph.
+  this.graph.node('assets', assetsNode)
+  this.graph.node('documents', [
+    'manifest:color',
+    'style:bundle',
+    'scripts:bundle',
+    'reload:bundle'
+  ], documentNode)
+  this.graph.node('manifest', manifestNode)
+  this.graph.node('scripts', scriptNode)
+  this.graph.node('reload', reloadNode)
+  this.graph.node('service-worker', [
+    'assets:list',
+    'style:bundle',
+    'scripts:bundle',
+    'documents:list'
+  ], serviceWorkerNode)
+  this.graph.node('style', [
+    'scripts:style',
+    'scripts:bundle'
+  ], styleNode)
+
+  // Kick off the graph.
+  this.graph.start(createOpts)()
+  this.state = {
+    nodes: progress(methods, this.graph, this.queue),
+    errors: []
+  }
+  this.metadata = this.graph.metadata
+
+  function createOpts () {
+    return {
+      dirname: path.dirname(entry),
+      assert: opts.assert !== false,
+      watch: opts.watch !== false,
+      fullPaths: opts.fullPaths,
+      reload: Boolean(opts.reload),
+      log: this.log,
+      watchers: {},
+      entry: entry,
+      opts: opts
+    }
+  }
+
+  // TODO: this should be a general update event.
+  // An event that responds to any form of change; where
+  // the emitted chunk is just the latest state of the node.
+  //
+  // Also make heavy use of `debug` calls so it can be debugged more easily.
+  //
+  //  ## Internal events
+  //    .on('progress') // Detect if progress === 100, update timestamp.
+  //    .on('count')    // Whenever files are done, provides a count.
+  //    .on('error')    // Detect error types, prettify if needed.
+  //
+  //  ## External events
+  //    .on('change')   // Count + progress, only ever exposes `state`.
+  //    .on('error')    // Every time a new error is emitted.
+  //
+  // Also expose this.errors = [], which is an aggregate of all errors
+  // on each of the nodes.
+  //
+  function onprogress (chunk, value) {
+    self.emit('progress', chunk, value)
+  }
+
+  function onchange (nodeName, edgeName, state) {
     var eventName = nodeName + ':' + edgeName
-    var count = self.metadata.count
     var queue = self.queue
 
     if (eventName === 'assets:list') {
-      count['assets'] = String(self.graph.data.assets.list.buffer).split(',').length
       queue['assets'].ready()
     } else if (eventName === 'documents:list') {
-      count['documents'] = String(self.graph.data.documents.list.buffer).split(',').length
       queue['documents'].ready()
     } else if (eventName === 'manifest:bundle') {
-      count['manifest'] = 1
       queue['manifest'].ready()
     } else if (eventName === 'scripts:bundle') {
-      count['scripts'] = 1
       queue['scripts'].ready()
     } else if (eventName === 'service-worker:bundle') {
-      count['service-worker'] = 1
       queue['service-worker'].ready()
     } else if (eventName === 'style:bundle') {
-      count['style'] = 1
       queue['style'].ready()
     }
-  })
 
-  // Handle errors so they can be logged.
-  this.graph.on('error', function () {
+    self.emit('change', nodeName, edgeName, state)
+  }
+
+  function onerror () {
     var args = ['error']
     for (var len = arguments.length, i = 0; i < len; i++) {
       args.push(arguments[i])
     }
     self.emit.apply(self, args)
-  })
-
-  this.graph.on('progress', function (chunk, value) {
-    self.emit('progress', chunk, value)
-  })
-
-  // Insert nodes into the graph.
-  this.graph.node('assets', assetsNode)
-  // this.graph.node('document', [ 'manifest:color', 'style:bundle', 'assets:favicons', 'script:bundle' ], documentNode)
-  this.graph.node('documents', [ 'manifest:color', 'style:bundle', 'scripts:bundle', 'reload:bundle' ], documentNode)
-  this.graph.node('manifest', manifestNode)
-  this.graph.node('scripts', scriptNode)
-  this.graph.node('reload', reloadNode)
-  this.graph.node('service-worker', [ 'assets:list', 'style:bundle', 'scripts:bundle', 'documents:list' ], serviceWorkerNode)
-  this.graph.node('style', [ 'scripts:style', 'scripts:bundle' ], styleNode)
-
-  // Kick off the graph.
-  this.graph.start({
-    dirname: path.dirname(entry),
-    assert: opts.assert !== false,
-    watch: opts.watch !== false,
-    fullPaths: opts.fullPaths,
-    reload: Boolean(opts.reload),
-    log: this.log,
-    watchers: {},
-    entry: entry,
-    opts: opts,
-    count: {
-      assets: 0,
-      documents: 0,
-      manifest: 0,
-      scripts: 0,
-      'service-worker': 0,
-      style: 0
-    }
-  })
-
-  this.metadata = this.graph.metadata
+  }
 }
 Bankai.prototype = Object.create(Emitter.prototype)
 
