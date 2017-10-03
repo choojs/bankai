@@ -7,6 +7,7 @@ var pino = require('pino')
 
 var localization = require('./localization')
 var queue = require('./lib/queue')
+var utils = require('./lib/utils')
 
 var assetsNode = require('./lib/graph-assets')
 var documentNode = require('./lib/graph-document')
@@ -40,8 +41,9 @@ function Bankai (entry, opts) {
 
   // Initialize data structures.
   var key = Buffer.from('be intolerant of intolerance')
-  this.queue = queue(methods)    // The queue caches requests until ready.
-  this.graph = graph(key)        // The graph manages relations between deps.
+  this.dirname = utils.dirname(entry) // The base directory.
+  this.queue = queue(methods)         // The queue caches requests until ready.
+  this.graph = graph(key)             // The graph manages relations between deps.
 
   // Detect when we're ready to allow requests to go through.
   this.graph.on('change', function (nodeName, edgeName, state) {
@@ -99,7 +101,7 @@ function Bankai (entry, opts) {
 
   // Kick off the graph.
   this.graph.start({
-    dirname: path.dirname(entry),
+    dirname: this.dirname,
     assert: opts.assert !== false,
     watch: opts.watch !== false,
     fullPaths: opts.fullPaths,
@@ -195,7 +197,8 @@ Bankai.prototype.assets = function (filename, cb) {
   var stepName = 'assets'
   var self = this
   this.queue[stepName].add(function () {
-    var data = self.graph.metadata.assets[filename]
+    filename = path.join(self.dirname, filename)
+    var data = self.metadata.assets[filename]
     if (!data) return cb(new Error('bankai.asset: could not find a file for ' + filename))
     cb(null, data)
   })

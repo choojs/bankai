@@ -21,23 +21,21 @@ tape('run an asset pipeline', function (assert) {
   var assetDirname = path.join(os.tmpdir(), dirname, 'assets')
 
   var tmpScriptname = path.join(tmpDirname, 'index.js')
-  var tmpManifestname = path.join(assetDirname, 'file.txt')
+  var tmpFilename = path.join(assetDirname, 'file.txt')
 
   fs.mkdirSync(tmpDirname)
   fs.mkdirSync(assetDirname)
   fs.writeFileSync(tmpScriptname, script)
-  fs.writeFileSync(tmpManifestname, file)
+  fs.writeFileSync(tmpFilename, file)
 
   var compiler = bankai(tmpScriptname, { watch: false })
+
   compiler.on('error', function (name, sub, err) {
-    assert.notOk(`${name}:${sub}`, 'no error')
-  })
-  compiler.scripts('bundle.js', function (err, res) {
-    assert.error(err, 'no error writing script')
+    assert.notOk(err, 'no error')
   })
 
-  compiler.on('error', function (one, two, err) {
-    assert.error(err)
+  compiler.scripts('bundle.js', function (err, res) {
+    assert.error(err, 'no error writing script')
   })
 
   compiler.on('change', function (first, second) {
