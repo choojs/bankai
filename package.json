@@ -63,6 +63,7 @@
     "recursive-readdir": "^2.2.1",
     "recursive-watch": "^1.1.2",
     "selfsigned": "^1.10.1",
+    "send": "^0.16.0",
     "server-router": "^6.0.0",
     "sheetify": "^6.1.0",
     "split2": "^2.1.1",

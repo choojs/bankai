@@ -189,14 +189,14 @@ Bankai.prototype.serviceWorker = function (cb) {
   })
 }
 
-Bankai.prototype.assets = function (edgeName, cb) {
-  assert.equal(typeof edgeName, 'string')
+Bankai.prototype.assets = function (filename, cb) {
+  assert.equal(typeof filename, 'string')
   assert.equal(typeof cb, 'function')
   var stepName = 'assets'
   var self = this
   this.queue[stepName].add(function () {
-    var data = self.graph.data[stepName][edgeName]
-    if (!data) return cb(new Error('bankai.asset: could not find a file for ' + edgeName))
+    var data = self.graph.metadata.assets[filename]
+    if (!data) return cb(new Error('bankai.asset: could not find a file for ' + filename))
     cb(null, data)
   })
 }
