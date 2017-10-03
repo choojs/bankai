@@ -23,7 +23,6 @@ tape('renders some HTML', function (assert) {
         <meta name="description" content=>
         <meta name="theme-color" content=#fff>
         <title></title>
-        <style></style>
       </head>
       <body></body>
     </html>
@@ -68,7 +67,6 @@ tape('server render choo apps', function (assert) {
         <meta name="description" content=>
         <meta name="theme-color" content=#fff>
         <title></title>
-        <style></style>
       </head>
       <body>
         meow

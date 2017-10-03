@@ -46,7 +46,7 @@
     "http-gzip-maybe": "^1.0.0",
     "hyperstream": "^1.2.2",
     "iltorb": "^1.3.6",
-    "inline-critical-css": "^1.0.6",
+    "inline-critical-css": "^1.1.0",
     "json-stream-to-object": "^1.1.0",
     "keypress": "^0.2.1",
     "minimist": "^1.2.0",
