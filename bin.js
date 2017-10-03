@@ -97,6 +97,9 @@ function clr (text, color) {
 // Switch to an alternate terminal buffer,
 // switch back to the main terminal buffer on exit.
 function alternateBuffer () {
+  var q = Buffer.from('q')
+  var esc = Buffer.from([0x1B])
+
   process.stdout.write('\x1b[?1049h') // Enter alternate buffer.
   process.stdout.write('\x1b[H')      // Reset screen to top.
   process.stdout.write('\x1b[?25l')   // Hide cursor
@@ -106,6 +109,13 @@ function alternateBuffer () {
   process.on('SIGTERM', onexit)
   process.on('SIGINT', onexit)
   process.on('exit', onexit)
+  process.stdin.on('data', handleKey)
+
+  function handleKey (buf) {
+    if (buf.compare(q) === 0 || buf.compare(esc) === 0) {
+      onexit()
+    }
+  }
 
   function onexit (statusCode) {
     process.stdout.write('\x1b[?1049l')  // Enter to main buffer.
