@@ -10,7 +10,15 @@ var __PRELOAD_INTEGRITY__ = 'ADDfrBcy5Z/jCgJsnxz75acy+CtquYdLuj+nu8nCaVZtvf9HI2T
 
 var bankai = require('../')
 
+var tmpDirname
+
+function cleanup () {
+  rimraf.sync(tmpDirname)
+}
+
 tape('renders some HTML', function (assert) {
+  assert.on('end', cleanup)
+
   var expected = `
     <!DOCTYPE html>
     <html lang="en-US" dir="ltr">
@@ -34,7 +42,7 @@ tape('renders some HTML', function (assert) {
   `
 
   var dirname = 'document-pipeline-' + (Math.random() * 1e4).toFixed()
-  var tmpDirname = path.join(__dirname, '../tmp', dirname)
+  tmpDirname = path.join(__dirname, '../tmp', dirname)
   var tmpScriptname = path.join(tmpDirname, 'index.js')
 
   mkdirp.sync(tmpDirname)
@@ -44,8 +52,15 @@ tape('renders some HTML', function (assert) {
   compiler.documents('/', function (err, res) {
     assert.error(err, 'no error writing document')
     assertHtml(assert, String(res.buffer), expected)
-    rimraf.sync(tmpDirname)
+  })
+
+  compiler.on('change', function (nodeName, second) {
+    if (nodeName !== 'documents' || second !== 'list') return
     assert.end()
+  })
+
+  compiler.on('error', function () {
+    // assert.error(err, 'no error')
   })
 
   compiler.scripts('bundle.js', function (err, res) {
@@ -96,7 +111,7 @@ tape('server render choo apps', function (assert) {
   `
 
   var dirname = 'document-pipeline-' + (Math.random() * 1e4).toFixed()
-  var tmpDirname = path.join(__dirname, '../tmp', dirname)
+  tmpDirname = path.join(__dirname, '../tmp', dirname)
   var tmpScriptname = path.join(tmpDirname, 'index.js')
 
   mkdirp.sync(tmpDirname)
@@ -106,8 +121,15 @@ tape('server render choo apps', function (assert) {
   compiler.documents('/', function (err, res) {
     assert.error(err, 'no error writing document')
     assertHtml(assert, String(res.buffer), expected)
-    rimraf.sync(tmpDirname)
+  })
+
+  compiler.on('change', function (nodeName, second) {
+    if (nodeName !== 'documents' || second !== 'list') return
     assert.end()
+  })
+
+  compiler.on('error', function () {
+    // assert.error(err, 'no error')
   })
 
   compiler.scripts('bundle.js', function (err, res) {
