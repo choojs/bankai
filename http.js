@@ -27,7 +27,8 @@ function start (entry, opts) {
   assert.equal(typeof opts, 'object', 'bankai/http: opts should be type object')
 
   var quiet = !!opts.quiet
-  var compiler = bankai(entry, { reload: true })
+  opts = Object.assign({ reload: true }, opts)
+  var compiler = bankai(entry, opts)
   var router = new Router()
   var emitter = new EventEmitter()
   var id = 0
