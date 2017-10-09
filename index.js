@@ -5,6 +5,7 @@ var assert = require('assert')
 var path = require('path')
 var pino = require('pino')
 
+var moduleDeps = require('./lib/module-deps')
 var localization = require('./localization')
 var queue = require('./lib/queue')
 
@@ -115,6 +116,7 @@ function Bankai (entry, opts) {
     }
   })
 
+  this.entry = entry
   this.metadata = this.graph.metadata
 }
 Bankai.prototype = Object.create(Emitter.prototype)
@@ -203,6 +205,10 @@ Bankai.prototype.sourceMaps = function (stepName, edgeName, cb) {
   var data = self.graph.data[stepName][edgeName]
   if (!data) return cb(new Error('bankai.sourceMaps: could not find a file for ' + stepName + ':' + edgeName))
   cb(null, data)
+}
+
+Bankai.prototype.moduleDeps = function (cb) {
+  moduleDeps(this.entry, cb)
 }
 
 Bankai.prototype.close = function () {
