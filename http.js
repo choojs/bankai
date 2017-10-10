@@ -62,6 +62,10 @@ function start (entry, opts) {
     if (!quiet) render()
   })
 
+  compiler.on('ssr', function (result) {
+    state.ssr = result
+  })
+
   compiler.on('change', function (nodeName, edgeName, nodeState) {
     var node = nodeState[nodeName][edgeName]
     var name = nodeName + ':' + edgeName
