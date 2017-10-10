@@ -1,6 +1,6 @@
 {
   "name": "bankai",
-  "version": "9.0.0-rc3",
+  "version": "9.0.0-rc4",
   "description": "The easiest way to compile JavaScript, HTML and CSS",
   "license": "Apache-2.0",
   "repository": "choojs/bankai",
