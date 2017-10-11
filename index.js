@@ -148,9 +148,12 @@ Bankai.prototype.style = function (cb) {
   })
 }
 
-Bankai.prototype.documents = function (filename, cb) {
-  assert.equal(typeof filename, 'string')
+Bankai.prototype.documents = function (url, cb) {
+  assert.equal(typeof url, 'string')
   assert.equal(typeof cb, 'function')
+
+  var filename = url.split('?')[0]
+
   if (filename === '/') filename = 'index'
   var stepName = 'documents'
   var edgeName = filename.split('.')[0] + '.html'
