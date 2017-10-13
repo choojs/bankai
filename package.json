@@ -16,7 +16,7 @@
   },
   "keywords": [],
   "dependencies": {
-    "ansi-diff-stream": "^1.2.0",
+    "ansi-diff": "0.0.0",
     "ansi-escape-sequences": "^4.0.0",
     "async-collection": "^1.0.1",
     "brfs": "^1.4.3",
