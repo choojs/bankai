@@ -16,7 +16,7 @@ app.route('/', function (state, emit) {
   emit('DOMTitleChange', 'hello planet')
   return html`
     <body class="sans-serif">
-      Hello monet
+      Hello planet
     </body>
   `
 })
