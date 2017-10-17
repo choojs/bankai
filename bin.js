@@ -119,7 +119,7 @@ function alternateBuffer () {
 
   function onexit (statusCode) {
     if (statusCode instanceof Error) {
-      console.error("A critical error occured, here is the raw error:")
+      console.error('A critical error occured, here is the raw error:')
       console.error(statusCode.stack)
       statusCode = 1
     }
