@@ -51,13 +51,13 @@ tape('renders some HTML', function (assert) {
 
   compiler.scripts('bundle.js', function (err, res) {
     assert.ifError(err, 'no err bundling scripts')
-    expected = expected.replace('__SCRIPTS_HASH__', res.hash.hexSlice().slice(0, 16))
-    expected = expected.replace('__SCRIPTS_INTEGRITY__', res.hash.base64Slice())
+    expected = expected.replace('__SCRIPTS_HASH__', res.hash.toString('hex').slice(0, 16))
+    expected = expected.replace('__SCRIPTS_INTEGRITY__', res.hash.toString('base64'))
 
     compiler.style(function (err, res) {
       assert.ifError(err, 'no err bundling style')
-      expected = expected.replace('__STYLE_HASH__', res.hash.hexSlice().slice(0, 16))
-      expected = expected.replace('__STYLE_INTEGRITY__', res.hash.base64Slice())
+      expected = expected.replace('__STYLE_HASH__', res.hash.toString('hex').slice(0, 16))
+      expected = expected.replace('__STYLE_INTEGRITY__', res.hash.toString('base64'))
       expected = expected.replace('__PRELOAD_INTEGRITY__', __PRELOAD_INTEGRITY__)
     })
   })
@@ -114,13 +114,13 @@ tape('server render choo apps', function (assert) {
 
   compiler.scripts('bundle.js', function (err, res) {
     assert.ifError(err, 'no err bundling scripts')
-    expected = expected.replace('__SCRIPTS_HASH__', res.hash.hexSlice().slice(0, 16))
-    expected = expected.replace('__SCRIPTS_INTEGRITY__', res.hash.base64Slice())
+    expected = expected.replace('__SCRIPTS_HASH__', res.hash.toString('hex').slice(0, 16))
+    expected = expected.replace('__SCRIPTS_INTEGRITY__', res.hash.toString('base64'))
     compiler.style(function (err, res) {
       assert.ifError(err, 'no err bundling style')
       assert.ifError(err)
-      expected = expected.replace('__STYLE_HASH__', res.hash.hexSlice().slice(0, 16))
-      expected = expected.replace('__STYLE_INTEGRITY__', res.hash.base64Slice())
+      expected = expected.replace('__STYLE_HASH__', res.hash.toString('hex').slice(0, 16))
+      expected = expected.replace('__STYLE_INTEGRITY__', res.hash.toString('base64'))
       expected = expected.replace('__PRELOAD_INTEGRITY__', __PRELOAD_INTEGRITY__)
     })
   })
