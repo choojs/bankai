@@ -78,6 +78,7 @@
   "devDependencies": {
     "assert-html": "^1.1.4",
     "choo": "^6.0.0",
+    "choo-devtools": "^2.0.0",
     "choo-service-worker": "^2.1.6",
     "dedent": "^0.7.0",
     "rimraf": "^2.6.1",
