@@ -4,6 +4,7 @@ process.title = 'bankai'
 
 var ansi = require('ansi-escape-sequences')
 var minimist = require('minimist')
+var dedent = require('dedent')
 var path = require('path')
 
 var USAGE = `
@@ -118,14 +119,25 @@ function alternateBuffer () {
   }
 
   function onexit (statusCode) {
+    process.stdout.write('\x1b[?1049l')  // Enter to main buffer.
+    process.stdout.write('\x1b[?25h')    // Restore cursor
+
     if (statusCode instanceof Error) {
-      console.error('A critical error occured, here is the raw error:')
-      console.error(statusCode.stack)
+      console.error('A critical error occured, forcing Bankai to abort:\n')
+      console.error(clr(statusCode.stack, 'red') + '\n')
+      console.error(dedent`
+        If you think this might be a bug in Bankai, please consider helping
+        improve Bankai's stability by submitting an error to:
+
+        ${'  ' + clr('https://github.com/choojs/bankai/issues/new', 'underline')}
+
+        Please include the steps to reproduce this error, the stack trace
+        printed above, your version of Node, and your version of npm. Thanks!
+        ${clr('— Team Choo', 'italic')}
+      ` + '\n')
       statusCode = 1
     }
 
-    process.stdout.write('\x1b[?1049l')  // Enter to main buffer.
-    process.stdout.write('\x1b[?25h')    // Restore cursor
     process.exit(statusCode)
   }
 }
