@@ -174,6 +174,17 @@ function start (entry, opts) {
     })
   })
 
+  router.route(/\/module-deps\.json/, function (req, res) {
+    compiler.moduleDeps(function (err, json) {
+      if (err) {
+        res.statusCode = 404
+        return res.end(err.message)
+      }
+      res.setHeader('content-type', 'application/json')
+      gzip(json, req, res)
+    })
+  })
+
   router.route(/\/reload/, function sse (req, res) {
     var connected = true
     emitter.on('scripts:bundle', reloadScript)
