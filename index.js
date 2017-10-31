@@ -34,7 +34,7 @@ function Bankai (entry, opts) {
     'assets',
     'service-worker',
     'scripts',
-    'style',
+    'styles',
     'documents'
   ]
 
@@ -65,9 +65,9 @@ function Bankai (entry, opts) {
     } else if (eventName === 'service-worker:bundle') {
       count['service-worker'] = 1
       queue['service-worker'].ready()
-    } else if (eventName === 'style:bundle') {
-      count['style'] = 1
-      queue['style'].ready()
+    } else if (eventName === 'styles:bundle') {
+      count['styles'] = 1
+      queue['styles'].ready()
     }
   })
 
@@ -90,13 +90,12 @@ function Bankai (entry, opts) {
 
   // Insert nodes into the graph.
   this.graph.node('assets', assetsNode)
-  // this.graph.node('document', [ 'manifest:color', 'style:bundle', 'assets:favicons', 'script:bundle' ], documentNode)
-  this.graph.node('documents', [ 'assets:list', 'manifest:color', 'manifest:description', 'style:bundle', 'scripts:bundle', 'reload:bundle' ], documentNode)
+  this.graph.node('documents', [ 'assets:list', 'manifest:color', 'manifest:description', 'styles:bundle', 'scripts:bundle', 'reload:bundle' ], documentNode)
   this.graph.node('manifest', manifestNode)
   this.graph.node('scripts', scriptNode)
   this.graph.node('reload', reloadNode)
-  this.graph.node('service-worker', [ 'assets:list', 'style:bundle', 'scripts:bundle', 'documents:list' ], serviceWorkerNode)
-  this.graph.node('style', [ 'scripts:style', 'scripts:bundle' ], styleNode)
+  this.graph.node('service-worker', [ 'assets:list', 'styles:bundle', 'scripts:bundle', 'documents:list' ], serviceWorkerNode)
+  this.graph.node('styles', [ 'scripts:style', 'scripts:bundle' ], styleNode)
 
   // Kick off the graph.
   this.graph.start({
@@ -136,14 +135,15 @@ Bankai.prototype.scripts = function (filename, cb) {
   })
 }
 
-Bankai.prototype.style = function (cb) {
+Bankai.prototype.styles = function (filename, cb) {
+  assert.equal(typeof filename, 'string')
   assert.equal(typeof cb, 'function')
-  var stepName = 'style'
-  var edgeName = 'bundle'
+  var stepName = 'styles'
+  var edgeName = filename.split('.')[0]
   var self = this
   this.queue[stepName].add(function () {
     var data = self.graph.data[stepName][edgeName]
-    if (!data) return cb(new Error('bankai.style: could not find bundle'))
+    if (!data) return cb(new Error('bankai.styles: could not find bundle'))
     cb(null, data)
   })
 }

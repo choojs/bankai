@@ -27,7 +27,7 @@ tape('extract style from script', function (assert) {
   fs.writeFileSync(tmpScriptname, script)
 
   var compiler = bankai(tmpScriptname, { watch: false })
-  compiler.style(function (err, res) {
+  compiler.styles('bundle.css', function (err, res) {
     assert.error(err, 'no error writing style')
     assert.equal(res.buffer.toString(), expected, 'res was equal')
     rimraf.sync(tmpDirname)
@@ -59,7 +59,7 @@ tape('remove unused styles', function (assert) {
   fs.writeFileSync(tmpScriptname, script)
 
   var compiler = bankai(tmpScriptname, { watch: false })
-  compiler.style(function (err, res) {
+  compiler.styles('bundle.css', function (err, res) {
     assert.error(err, 'no error writing style')
     assert.equal(res.buffer.toString(), expected, 'res was equal')
     rimraf.sync(tmpDirname)
