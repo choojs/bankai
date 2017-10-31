@@ -227,6 +227,24 @@ function start (entry, opts) {
 
   router.default(function (req, res, next) {
     var url = req.url
+
+    if (state.ssr && state.ssr.renderRoute) {
+      state.ssr.renderRoute(url, function (err, buffer) {
+        if (err) {
+          state.ssr.success = false
+          state.ssr.error = err
+          return sendDocument(url, req, res, next)
+        }
+
+        res.setHeader('content-type', 'text/html')
+        gzip(buffer, req, res)
+      })
+    } else {
+      return sendDocument(url, req, res, next)
+    }
+  })
+
+  function sendDocument (url, req, res, next) {
     compiler.documents(url, function (err, node) {
       if (err) {
         return compiler.documents('/404', function (err, node) {
@@ -239,7 +257,7 @@ function start (entry, opts) {
       res.setHeader('content-type', 'text/html')
       gzip(node.buffer, req, res)
     })
-  })
+  }
 
   // TODO: move all UI code out of this file
   handler.state = state
