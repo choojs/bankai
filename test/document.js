@@ -54,7 +54,7 @@ tape('renders some HTML', function (assert) {
     expected = expected.replace('__SCRIPTS_HASH__', res.hash.toString('hex').slice(0, 16))
     expected = expected.replace('__SCRIPTS_INTEGRITY__', res.hash.toString('base64'))
 
-    compiler.style(function (err, res) {
+    compiler.styles('bundle.css', function (err, res) {
       assert.ifError(err, 'no err bundling style')
       expected = expected.replace('__STYLE_HASH__', res.hash.toString('hex').slice(0, 16))
       expected = expected.replace('__STYLE_INTEGRITY__', res.hash.toString('base64'))
@@ -116,7 +116,7 @@ tape('server render choo apps', function (assert) {
     assert.ifError(err, 'no err bundling scripts')
     expected = expected.replace('__SCRIPTS_HASH__', res.hash.toString('hex').slice(0, 16))
     expected = expected.replace('__SCRIPTS_INTEGRITY__', res.hash.toString('base64'))
-    compiler.style(function (err, res) {
+    compiler.styles('bundle.css', function (err, res) {
       assert.ifError(err, 'no err bundling style')
       assert.ifError(err)
       expected = expected.replace('__STYLE_HASH__', res.hash.toString('hex').slice(0, 16))

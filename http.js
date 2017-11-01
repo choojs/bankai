@@ -14,7 +14,7 @@ var files = [
   'documents',
   'scripts',
   'manifest',
-  'style',
+  'styles',
   'service-worker'
 ]
 
@@ -80,7 +80,7 @@ function start (entry, opts) {
     state.files[nodeName] = data
 
     if (name === 'scripts:bundle') emitter.emit('scripts:bundle', node)
-    if (name === 'style:bundle') emitter.emit('style:bundle', node)
+    if (name === 'styles:bundle') emitter.emit('styles:bundle', node)
 
     // Only calculate the gzip size if there's a buffer. Apparently zipping
     // an empty file means it'll pop out with a 20B base size.
@@ -128,8 +128,9 @@ function start (entry, opts) {
     })
   })
 
-  router.route(/\/bundle.css$/, function (req, res, params) {
-    compiler.style(function (err, node) {
+  router.route(/\/([a-zA-Z0-9-_]+)\.css$/, function (req, res, params) {
+    var name = params[1]
+    compiler.styles(name, function (err, node) {
       if (err) {
         res.statusCode = 404
         return res.end(err.message)
