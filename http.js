@@ -141,7 +141,7 @@ function start (entry, opts) {
   })
 
   // Source maps. Each source map is stored as 'foo.js.map' within their
-  // respective node. So in order to figure out the right osurce map we must
+  // respective node. So in order to figure out the right source map we must
   // derive figure out where the extension comes from.
   router.route(/\/([a-zA-Z0-9-_.]+)\.map$/, function (req, res, params) {
     var source = params[1]
