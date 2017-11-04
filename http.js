@@ -189,17 +189,13 @@ function start (entry, opts) {
     res.write('retry: 10000\n')
 
     var interval = setInterval(function () {
+      if (res.finished) return // prevent writes after stream has closed
       res.write(`id:${id++}\ndata:{ "type:": "heartbeat" }\n\n`)
     }, 4000)
 
-    // Attach an error handler, but no need to actually handle the error.
-    // This is a bug in Node core according to mcollina which will be fixed
-    // in a future Node release. Let's keep this in place as long as v8.x.x of
-    // Node isn't in LTS yet.
-    res.on('error', disconnect)
     req.on('error', disconnect)
-
-    req.connection.addListener('close', disconnect, false)
+    res.on('error', disconnect)
+    res.on('finish', disconnect)
 
     function disconnect () {
       clearInterval(interval)
