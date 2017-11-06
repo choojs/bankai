@@ -78,8 +78,6 @@ can be useful to know which optimizations we apply. This is a list:
 - __cleanCSS:__ minify the bundle.
 
 ### HTML
-- __polyfill:__ preloads [polyfill.io](http://polyfill.io/), the zero overhead
-  polyfilling service.
 - __inline-critical-css:__ extract all crititical CSS for a page into the
   `<head>` of the document. This means that every page will be able to render
   after the first roundtrip, which makes for super snappy pages.
