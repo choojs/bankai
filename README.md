@@ -179,7 +179,7 @@ Pass in a filename and output a JS bundle.
 ### `compiler.assets(assetName, done(err, buffer))`
 Output any other file besides JS, CSS or HTML.
 
-### `compiler.style(done(err, buffer))`
+### `compiler.styles(name, done(err, buffer))`
 Output a CSS bundle.
 
 ### `compiler.manifest(done(err, buffer))`
