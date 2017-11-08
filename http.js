@@ -172,7 +172,7 @@ function start (entry, opts) {
         res.statusCode = 404
         return res.end(err.message)
       }
-      send(filename, res)
+      pump(send(req, filename), res)
     })
   })
 
