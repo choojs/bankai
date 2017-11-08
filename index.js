@@ -200,7 +200,7 @@ Bankai.prototype.assets = function (filename, cb) {
     filename = path.join(self.dirname, filename)
     var data = self.metadata.assets[filename]
     if (!data) return cb(new Error('bankai.asset: could not find a file for ' + filename))
-    cb(null, data)
+    cb(null, filename)
   })
 }
 
