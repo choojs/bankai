@@ -194,6 +194,7 @@ function start (entry, opts) {
     }, 4000)
 
     req.on('error', disconnect)
+    res.on('error', disconnect)
     res.on('close', disconnect)
     res.on('finish', disconnect)
 
