@@ -1,5 +1,6 @@
 var EventEmitter = require('events').EventEmitter
 var gzipMaybe = require('http-gzip-maybe')
+var mime = require('mime/lite')
 var gzipSize = require('gzip-size')
 var assert = require('assert')
 var path = require('path')
@@ -171,6 +172,7 @@ function start (entry, opts) {
         res.statusCode = 404
         return res.end(err.message)
       }
+      res.setHeader('content-type', mime.getType(name))
       res.end(node.buffer)
     })
   })
