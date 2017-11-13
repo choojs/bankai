@@ -71,7 +71,7 @@
     "stdout-stream": "^1.4.0",
     "strip-ansi": "^4.0.0",
     "through2": "^2.0.3",
-    "tinyify": "^2.2.0",
+    "tinyify": "github:goto-bus-stop/tinyify#pipelines",
     "watchify": "^3.9.0",
     "wayfarer": "^6.6.2",
     "xtend": "^4.0.1",
