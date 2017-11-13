@@ -178,7 +178,7 @@ function start (entry, opts) {
   router.route(/\/reload/, function sse (req, res) {
     var connected = true
     emitter.on('scripts:bundle', reloadScript)
-    emitter.on('style:bundle', reloadStyle)
+    emitter.on('styles:bundle', reloadStyle)
     state.sse += 1
     if (!quiet) render()
 
@@ -202,7 +202,7 @@ function start (entry, opts) {
       clearInterval(interval)
       if (connected) {
         emitter.removeListener('scripts:bundle', reloadScript)
-        emitter.removeListener('style:bundle', reloadStyle)
+        emitter.removeListener('styles:bundle', reloadStyle)
         connected = false
         state.sse -= 1
         if (!quiet) render()
@@ -216,7 +216,7 @@ function start (entry, opts) {
 
     function reloadStyle (node) {
       var msg = JSON.stringify({
-        type: 'style',
+        type: 'styles',
         bundle: node.buffer.toString()
       })
       res.write(`id:${id++}\ndata:${msg}\n\n`)
