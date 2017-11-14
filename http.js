@@ -4,6 +4,7 @@ var gzipSize = require('gzip-size')
 var assert = require('assert')
 var path = require('path')
 var pump = require('pump')
+var send = require('send')
 
 var Router = require('./lib/regex-router')
 var ui = require('./lib/ui')
@@ -166,12 +167,12 @@ function start (entry, opts) {
   router.route(/^\/assets\/(.*)$/, function (req, res, params) {
     var prefix = 'assets' // TODO: also accept 'content'
     var name = prefix + '/' + params[1]
-    compiler.assets(name, function (err, node) {
+    compiler.assets(name, function (err, filename) {
       if (err) {
         res.statusCode = 404
         return res.end(err.message)
       }
-      res.end(node.buffer)
+      pump(send(req, filename), res)
     })
   })
 
