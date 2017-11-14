@@ -66,7 +66,7 @@
     "selfsigned": "^1.10.1",
     "server-router": "^6.0.0",
     "sheetify": "^6.1.0",
-    "split-require": "github:goto-bus-stop/browserify-dynamic-import#split-require",
+    "split-require": "^2.0.0",
     "split2": "^2.1.1",
     "stdout-stream": "^1.4.0",
     "strip-ansi": "^4.0.0",
