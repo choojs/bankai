@@ -7,7 +7,7 @@ var pump = require('pump')
 var send = require('send')
 
 var Router = require('./lib/regex-router')
-var ui = require('./lib/ui')
+var ui = require('./lib/ui-basic')
 var bankai = require('./')
 
 var files = [
