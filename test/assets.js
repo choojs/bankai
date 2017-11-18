@@ -7,7 +7,14 @@ var os = require('os')
 
 var bankai = require('../')
 
+var tmpDirname
+
+function cleanup () {
+  rimraf.sync(tmpDirname)
+}
+
 tape('run an asset pipeline', function (assert) {
+  assert.on('end', cleanup)
   var script = dedent`
     1 + 1
   `
@@ -17,35 +24,26 @@ tape('run an asset pipeline', function (assert) {
   `
 
   var dirname = 'manifest-pipeline-' + (Math.random() * 1e4).toFixed()
-  var tmpDirname = path.join(os.tmpdir(), dirname)
+  tmpDirname = path.join(os.tmpdir(), dirname)
   var assetDirname = path.join(os.tmpdir(), dirname, 'assets')
 
   var tmpScriptname = path.join(tmpDirname, 'index.js')
-  var tmpManifestname = path.join(assetDirname, 'file.txt')
+  var tmpFilename = path.join(assetDirname, 'file.txt')
 
   fs.mkdirSync(tmpDirname)
   fs.mkdirSync(assetDirname)
   fs.writeFileSync(tmpScriptname, script)
-  fs.writeFileSync(tmpManifestname, file)
+  fs.writeFileSync(tmpFilename, file)
 
   var compiler = bankai(tmpScriptname, { watch: false })
+
   compiler.on('error', function (name, sub, err) {
-    assert.notOk(`${name}:${sub}`, 'no error')
-  })
-  compiler.scripts('bundle.js', function (err, res) {
-    assert.error(err, 'no error writing script')
+    assert.error(err, 'no error')
   })
 
-  compiler.on('error', function (one, two, err) {
-    assert.error(err)
-  })
-
-  compiler.on('change', function (first, second) {
-    var name = `${first}:${second}`
-    if (name === 'documents:list') {
-      rimraf.sync(tmpDirname)
-      assert.end()
-    }
+  compiler.on('change', function (nodeName, second) {
+    if (nodeName !== 'documents' || second !== 'list') return
+    assert.end()
   })
 
   compiler.assets('assets/file.txt', function (err, buf) {

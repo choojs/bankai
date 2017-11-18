@@ -70,6 +70,8 @@ can be useful to know which optimizations we apply. This is a list:
   useful in combination with minification, which removes unused code paths.
 - __brfs:__ Statically inline calls to `fs.readFile()`. Useful to ship assets
   in the browser.
+- __split-require:__ Lazy load parts of your application using the
+  [`require('split-require')`][split-require] function.
 
 ### CSS
 - __sheetify:__ extract all inline CSS from JavaScript, and include it in
@@ -195,6 +197,7 @@ Apache License 2.0
 [sheetify]: https://github.com/stackcss/sheetify
 [documentify]: https://github.com/stackhtml/documentify
 [browserify]: https://github.com/substack/node-browserify
+[split-require]: https://github.com/goto-bus-stop/split-require
 
 [0]: https://img.shields.io/badge/stability-experimental-orange.svg?style=flat-square
 [1]: https://nodejs.org/api/documentation.html#documentation_stability_index

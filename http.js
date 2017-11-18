@@ -4,6 +4,7 @@ var gzipSize = require('gzip-size')
 var assert = require('assert')
 var path = require('path')
 var pump = require('pump')
+var send = require('send')
 
 var Router = require('./lib/regex-router')
 var ui = require('./lib/ui')
@@ -79,7 +80,7 @@ function start (entry, opts) {
     }
     state.files[nodeName] = data
 
-    if (name === 'scripts:bundle') emitter.emit('scripts:bundle', node)
+    if (name === 'documents:index.html') emitter.emit('documents:index.html', node)
     if (name === 'styles:bundle') emitter.emit('styles:bundle', node)
 
     // Only calculate the gzip size if there's a buffer. Apparently zipping
@@ -166,18 +167,18 @@ function start (entry, opts) {
   router.route(/^\/assets\/(.*)$/, function (req, res, params) {
     var prefix = 'assets' // TODO: also accept 'content'
     var name = prefix + '/' + params[1]
-    compiler.assets(name, function (err, node) {
+    compiler.assets(name, function (err, filename) {
       if (err) {
         res.statusCode = 404
         return res.end(err.message)
       }
-      res.end(node.buffer)
+      pump(send(req, filename), res)
     })
   })
 
   router.route(/\/reload/, function sse (req, res) {
     var connected = true
-    emitter.on('scripts:bundle', reloadScript)
+    emitter.on('documents:index.html', reloadScript)
     emitter.on('styles:bundle', reloadStyle)
     state.sse += 1
     if (!quiet) render()
@@ -201,7 +202,7 @@ function start (entry, opts) {
     function disconnect () {
       clearInterval(interval)
       if (connected) {
-        emitter.removeListener('scripts:bundle', reloadScript)
+        emitter.removeListener('documents:index.html', reloadScript)
         emitter.removeListener('styles:bundle', reloadStyle)
         connected = false
         state.sse -= 1
