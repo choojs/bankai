@@ -68,7 +68,6 @@
     "sheetify": "^6.1.0",
     "split-require": "^2.0.0",
     "split2": "^2.1.1",
-    "stdout-stream": "^1.4.0",
     "strip-ansi": "^4.0.0",
     "through2": "^2.0.3",
     "tinyify": "^2.3.0",
