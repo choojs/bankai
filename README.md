@@ -153,6 +153,8 @@ can be useful to know which optimizations we apply. This is a list:
   in the browser.
 - __split-require:__ Lazy load parts of your application using the
   [`require('split-require')`][split-require] function.
+- __babelify:__ Bring the latest browser features to _all_ browsers. See
+  [our babel section](#babel) for more details.
 
 ### CSS
 - __sheetify:__ extract all inline CSS from JavaScript, and include it in
@@ -234,6 +236,30 @@ server.listen(8080, function () {
   console.log('listening on port 8080')
 })
 ```
+
+## Babel
+Not all browsers support all of the Web Platform's features. So in order to use
+newer features on older browsers, we have to find a solution. The best solution
+out there at the moment is Babel.
+
+[Babel](https://babeljs.io/) is a plugin-based JavaScript compiler. It takes
+JavaScript in, and outputs JavaScript based for the platforms you've decided to
+target. In Bankai we target the last 2 versions of FireFox, Chrome and Edge,
+and every other browser that's used by more than 1% of people on earth. This
+includes IE11. And if you have different opinions on which browsers to use,
+Bankai respects `.babelrc` files.
+
+Some newer JavaScript features require loading an extra library; `async/await`
+being the clearest example. To enable this features, the `babel-polyfill`
+library needs to be included in your application's root (e.g. `index.js`).
+
+```js
+require('babel-polyfill')
+```
+
+We don't include this file by default in Bankai, because it has a significant
+size overhead. Once Babel includes only the language features you're using,
+we'll work to include `babel-polyfill` by default.
 
 ## Events
 ### `compiler.on('error', callback(error))`
