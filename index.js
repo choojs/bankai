@@ -132,7 +132,7 @@ Bankai.prototype.scripts = function (filename, cb) {
   var self = this
   this.queue[stepName].add(function () {
     var data = self.graph.data[stepName][edgeName]
-    if (!data) return cb(new Error('bankai.scripts: could not find a bundle for ' + filename))
+    if (!data) return cb(new Error(`bankai.scripts: could not find a bundle for "${filename}"`))
     cb(null, data)
   })
 }
