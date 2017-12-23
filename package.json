@@ -76,6 +76,7 @@
     "yo-yoify": "^4.1.0"
   },
   "devDependencies": {
+    "a-module-with-babelrc": "^1.0.0",
     "assert-html": "^1.1.4",
     "choo": "^6.0.0",
     "choo-devtools": "^2.0.0",
