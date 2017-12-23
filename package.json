@@ -37,6 +37,7 @@
     "fast-json-parse": "^1.0.2",
     "findup": "^0.1.5",
     "flush-write-stream": "^1.0.2",
+    "fs-compare": "0.0.4",
     "getport": "^0.1.0",
     "glslify": "^6.1.0",
     "gzip-size": "^3.0.0",
