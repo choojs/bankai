@@ -69,6 +69,7 @@
     "split-require": "^2.0.0",
     "split2": "^2.1.1",
     "strip-ansi": "^4.0.0",
+    "tfilter": "^1.0.1",
     "through2": "^2.0.3",
     "tinyify": "^2.3.0",
     "watchify": "^3.9.0",
@@ -76,6 +77,7 @@
     "yo-yoify": "^4.1.0"
   },
   "devDependencies": {
+    "a-module-with-babelrc": "^1.0.0",
     "assert-html": "^1.1.4",
     "choo": "^6.0.0",
     "choo-devtools": "^2.0.0",
