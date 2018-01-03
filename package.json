@@ -72,7 +72,7 @@
     "through2": "^2.0.3",
     "tinyify": "^2.4.0",
     "v8-compile-cache": "^1.1.0",
-    "wasm-brotli": "^1.0.1",
+    "wasm-brotli": "^1.0.2",
     "watchify": "^3.9.0",
     "wayfarer": "^6.6.2",
     "yo-yoify": "^4.1.0"
