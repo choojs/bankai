@@ -6,8 +6,6 @@ var path = require('path')
 var tape = require('tape')
 var fs = require('fs')
 
-var __PRELOAD_INTEGRITY__ = 'ADDfrBcy5Z/jCgJsnxz75acy+CtquYdLuj+nu8nCaVZtvf9HI2TV08KKH3ZsSwYrkmfzEomyc626T8TlddpyiQ=='
-
 var bankai = require('../')
 
 var tmpDirname
@@ -72,7 +70,6 @@ tape('renders some HTML', function (assert) {
       assert.ifError(err, 'no err bundling style')
       expected = expected.replace('__STYLE_HASH__', res.hash.toString('hex').slice(0, 16))
       expected = expected.replace('__STYLE_INTEGRITY__', res.hash.toString('base64'))
-      expected = expected.replace('__PRELOAD_INTEGRITY__', __PRELOAD_INTEGRITY__)
     })
   })
 })
@@ -141,7 +138,6 @@ tape('server render choo apps', function (assert) {
       assert.ifError(err)
       expected = expected.replace('__STYLE_HASH__', res.hash.toString('hex').slice(0, 16))
       expected = expected.replace('__STYLE_INTEGRITY__', res.hash.toString('base64'))
-      expected = expected.replace('__PRELOAD_INTEGRITY__', __PRELOAD_INTEGRITY__)
     })
   })
 })
