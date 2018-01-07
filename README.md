@@ -159,7 +159,7 @@ can be useful to know which optimizations we apply. This is a list:
 ### CSS
 - __sheetify:__ extract all inline CSS from JavaScript, and include it in
   `bundle.js`.
-- __purifyCSS:__ removes unused CSS from the project.
+- __purgeCSS:__ removes unused CSS from the project.
 - __cleanCSS:__ minify the bundle.
 
 ### HTML
