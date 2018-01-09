@@ -164,7 +164,7 @@ function start (entry, opts) {
     })
   })
 
-  router.route(/^\/assets\/([a-zA-Z0-9-_.]*)\?{0,1}[\w\&=]*$/, function (req, res, params) {
+  router.route(/^\/assets\/([a-zA-Z0-9-_.]*)\?{0,1}[\w&=]*$/, function (req, res, params) {
     var prefix = 'assets' // TODO: also accept 'content'
     var name = prefix + '/' + params[1]
     compiler.assets(name, function (err, filename) {
