@@ -23,7 +23,7 @@
     "babel-preset-env": "^1.6.1",
     "babelify": "^8.0.0",
     "brfs": "^1.4.3",
-    "browserify": "^14.4.0",
+    "browserify": "^15.0.0",
     "buffer-graph": "^4.0.0",
     "clean-css": "^4.1.8",
     "concat-stream": "^1.6.0",
