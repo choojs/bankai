@@ -2,6 +2,8 @@
 
 process.title = 'bankai'
 
+require('v8-compile-cache')
+
 var ansi = require('ansi-escape-sequences')
 var minimist = require('minimist')
 var dedent = require('dedent')

@@ -72,3 +72,38 @@ tape('output multiple bundles if `split-require` is used', function (assert) {
     })
   })
 })
+
+tape('use custom babel config for local files, but not for dependencies', function (assert) {
+  assert.plan(2)
+
+  var babelPlugin = `
+    module.exports = function (b) {
+      return {
+        visitor: {
+          Program: function (path) {
+            path.unshiftContainer('body', b.types.stringLiteral('hello'))
+          }
+        }
+      }
+    }
+  `
+  var babelrc = JSON.stringify({
+    plugins: ['./plugin']
+  })
+  var file = `
+   require('a-module-with-babelrc')
+  `
+
+  var tmpDirname = path.join(__dirname, '../tmp', 'js-pipeline-' + (Math.random() * 1e4).toFixed())
+  mkdirp.sync(tmpDirname)
+  fs.writeFileSync(path.join(tmpDirname, 'plugin.js'), babelPlugin)
+  fs.writeFileSync(path.join(tmpDirname, '.babelrc'), babelrc)
+  fs.writeFileSync(path.join(tmpDirname, 'app.js'), file)
+
+  var compiler = bankai(path.join(tmpDirname, 'app.js'), { watch: false })
+  compiler.on('error', assert.error)
+  compiler.scripts('bundle.js', function (err, res) {
+    assert.error(err, 'error building .babelrc dependency')
+    assert.pass('should build')
+  })
+})

@@ -49,6 +49,87 @@ a project setup from scratch :sparkles:.
   https://opencollective.com/choo
 ```
 
+## ⚠️  HTTPS Instructions
+When you first open up your application in a browser, you'll probably see a
+warning page about HTTPS connections being untrusted. No worries, this is
+entirely expected behavior. Follow the instructions below to solve this for
+your browser.
+
+<details>
+  <summary>
+    <b>How does this work?</b>
+  </summary>
+  For HTTPS to run on <code>localhost</code>, we must sign a TLS certificate
+  locally. This is better known as a "self-signed certificate". Browsers
+  actively check for certificates from uknown providers, and warn you (for good
+  reason!) In our case, however, it's safe to ignore.
+
+  HTTPS is needed for an increasing amount of APIs to work in the browser. For
+  example if you want to test HTTP/2 connections or use parts of the storage
+  API, you have no choice but to use an HTTPS connection on localhost. That's
+  why we try and make this work as efficiently, and securely as possible.
+
+  We generate a unique certificate for each Bankai installation. This means
+  that you'll only need to trust an HTTPS certificate for Bankai once. This
+  should be secure from remote attackers, because unless they have successfully
+  acquired access to your machine's filesystem, they won't be able to replicate
+  the certificate.
+</details>
+
+<details>
+  <summary>
+    <b>Firefox Instructions</b>
+  </summary>
+  <h3>Step 1</h3>
+
+  A wild security screen appears!. Click on "advanced".
+  <img src="/assets/firefox01.png" alt="firefox01">
+
+  <h3>Step 2</h3>
+  More details emerge! Click on "Add Exception".
+  <img src="/assets/firefox02.png" alt="firefox02">
+
+  <h3>Step 3</h3>
+  In the dropdown click "Confirm Security Exception".
+  <img src="/assets/firefox03.png" alt="firefox03">
+
+  <h3>Step 4</h3>
+  Success!
+  <img src="/assets/firefox04.png" alt="firefox04">
+</details>
+
+<details>
+  <summary>
+    <b>Chrome Instructions</b>
+  </summary>
+  Click the "more details" dropdown, then click "proceed". Pull Request for
+  screenshots welcome!
+</details>
+
+<details>
+  <summary>
+    <b>Safari Instructions</b>
+  </summary>
+  <h3>Step 1</h3>
+  A wild security screen appears! Click "Show Certificate".
+  <img src="/assets/safari01.png" alt="safari01">
+
+  <h3>Step 2</h3>
+  More details emerge! Check "Always trust 'localhost'…".
+  <img src="/assets/safari02.png" alt="safari02">
+
+  <h3>Step 3</h3>
+  The box is checked! Click "Continue".
+  <img src="/assets/safari03.png" alt="safari03">
+
+  <h3>Step 4</h3>
+  A box is asking you for your crendentials. Fill them in, and hit "Enter".
+
+  <h3>Step 5</h3>
+  Success!
+  <img src="/assets/safari04.png" alt="safari04">
+</details>
+
 ## Optimizations
 Bankai applies lots of optimizations to projects. Generally you won't need to
 care how we do this: it's lots of glue code, and not necessarily pretty. But it
@@ -72,6 +153,8 @@ can be useful to know which optimizations we apply. This is a list:
   in the browser.
 - __split-require:__ Lazy load parts of your application using the
   [`require('split-require')`][split-require] function.
+- __babelify:__ Bring the latest browser features to _all_ browsers. See
+  [our babel section](#babel) for more details.
 
 ### CSS
 - __sheetify:__ extract all inline CSS from JavaScript, and include it in
@@ -153,6 +236,30 @@ server.listen(8080, function () {
   console.log('listening on port 8080')
 })
 ```
+
+## Babel
+Not all browsers support all of the Web Platform's features. So in order to use
+newer features on older browsers, we have to find a solution. The best solution
+out there at the moment is Babel.
+
+[Babel](https://babeljs.io/) is a plugin-based JavaScript compiler. It takes
+JavaScript in, and outputs JavaScript based for the platforms you've decided to
+target. In Bankai we target the last 2 versions of FireFox, Chrome and Edge,
+and every other browser that's used by more than 1% of people on earth. This
+includes IE11. And if you have different opinions on which browsers to use,
+Bankai respects `.babelrc` files.
+
+Some newer JavaScript features require loading an extra library; `async/await`
+being the clearest example. To enable this features, the `babel-polyfill`
+library needs to be included in your application's root (e.g. `index.js`).
+
+```js
+require('babel-polyfill')
+```
+
+We don't include this file by default in Bankai, because it has a significant
+size overhead. Once Babel includes only the language features you're using,
+we'll work to include `babel-polyfill` by default.
 
 ## Events
 ### `compiler.on('error', callback(error))`

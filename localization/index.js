@@ -1,5 +1,4 @@
 var enUs = require('./en-US')
-var xtend = require('xtend')
 
 module.exports = l10n
 
@@ -9,5 +8,5 @@ function l10n (language) {
   } catch (e) {
     return enUs
   }
-  return xtend(enUs, lang)
+  return Object.assign({}, enUs, lang)
 }
