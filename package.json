@@ -65,7 +65,7 @@
     "selfsigned": "^1.10.1",
     "send": "^0.16.0",
     "server-router": "^6.0.0",
-    "sheetify": "^6.1.0",
+    "sheetify": "^7.0.0",
     "split-require": "^2.0.0",
     "split2": "^2.1.1",
     "strip-ansi": "^4.0.0",
