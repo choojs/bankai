@@ -185,6 +185,7 @@ function start (entry, opts) {
 
     res.writeHead(200, {
       'Content-Type': 'text/event-stream',
+      'X-Accel-Buffering': 'no',
       'Cache-Control': 'no-cache'
     })
     res.write('retry: 10000\n')
