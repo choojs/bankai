@@ -53,7 +53,7 @@ function setup () {
   fs.writeFileSync(tmpJpgSubFilename, file)
 }
 
-tape('foo', function (assert) {
+tape('should route urls appropriately', function (assert) {
   setup()
   var handler = bankai(tmpScriptname, { watch: false, quiet: true })
   var server = http.createServer(function (req, res) {
