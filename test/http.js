@@ -53,10 +53,10 @@ function setup () {
   fs.writeFileSync(tmpJpgSubFilename, file)
 }
 
-tape.only('foo', function (assert) {
+tape('foo', function (assert) {
   setup()
   var handler = bankai(tmpScriptname, { watch: false, quiet: true })
-  var server = http.createServer(function(req, res) {
+  var server = http.createServer(function (req, res) {
     handler(req, res, function () {
       res.statusCode = 404
       res.end('not found')
@@ -90,7 +90,7 @@ tape.only('foo', function (assert) {
 
   var count = 0
   urls.forEach(function (url) {
-    http.get('http://localhost:3030' + url, function(res) {
+    http.get('http://localhost:3030' + url, function (res) {
       assert.equal(res.statusCode, 200, url)
       if (++count === urls.length) {
         server.close()
@@ -98,5 +98,4 @@ tape.only('foo', function (assert) {
       }
     })
   })
-
 })
