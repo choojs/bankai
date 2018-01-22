@@ -117,6 +117,18 @@ function start (entry, opts) {
     })
   })
 
+  router.route(/^\/assets\/([^?]*)(\?.*)?$/, function (req, res, params) {
+    var prefix = 'assets' // TODO: also accept 'content'
+    var name = prefix + '/' + params[1]
+    compiler.assets(name, function (err, filename) {
+      if (err) {
+        res.statusCode = 404
+        return res.end(err.message)
+      }
+      pump(send(req, filename), res)
+    })
+  })
+
   router.route(/\/([a-zA-Z0-9-_.]+)\.js(\?.*)?$/, function (req, res, params) {
     var name = params[1]
     compiler.scripts(name, function (err, node) {
@@ -161,18 +173,6 @@ function start (entry, opts) {
       }
       res.setHeader('content-type', 'application/json')
       gzip(node.buffer, req, res)
-    })
-  })
-
-  router.route(/^\/assets\/([^?]*)(\?.*)?$/, function (req, res, params) {
-    var prefix = 'assets' // TODO: also accept 'content'
-    var name = prefix + '/' + params[1]
-    compiler.assets(name, function (err, filename) {
-      if (err) {
-        res.statusCode = 404
-        return res.end(err.message)
-      }
-      pump(send(req, filename), res)
     })
   })
 
