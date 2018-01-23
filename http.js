@@ -117,7 +117,7 @@ function start (entry, opts) {
     })
   })
 
-  router.route(/\/([a-zA-Z0-9-_.]+)\.js\?{0,1}[\w&=]*$/, function (req, res, params) {
+  router.route(/\/([a-zA-Z0-9-_.\/]+)\.js\?{0,1}[\w&=]*$/, function (req, res, params) {
     var name = params[1]
     compiler.scripts(name, function (err, node) {
       if (err) {
@@ -129,7 +129,7 @@ function start (entry, opts) {
     })
   })
 
-  router.route(/\/([a-zA-Z0-9-_.]+)\.css\?{0,1}[\w&=]*$/, function (req, res, params) {
+  router.route(/\/([a-zA-Z0-9-_.\/]+)\.css\?{0,1}[\w&=]*$/, function (req, res, params) {
     var name = params[1]
     compiler.styles(name, function (err, node) {
       if (err) {
@@ -144,7 +144,7 @@ function start (entry, opts) {
   // Source maps. Each source map is stored as 'foo.js.map' within their
   // respective node. So in order to figure out the right source map we must
   // derive figure out where the extension comes from.
-  router.route(/\/([a-zA-Z0-9-_.]+)\.map$/, function (req, res, params) {
+  router.route(/\/([a-zA-Z0-9-_.\/]+)\.map$/, function (req, res, params) {
     var source = params[1]
     var ext = path.extname(source.replace(/\.map$/, ''))
     var type = source === 'bankai-reload.js'
@@ -164,7 +164,7 @@ function start (entry, opts) {
     })
   })
 
-  router.route(/^\/assets\/([a-zA-Z0-9-_.]*)\?{0,1}[\w&=]*$/, function (req, res, params) {
+  router.route(/^\/assets\/([a-zA-Z0-9-_.\/]*)\?{0,1}[\w&=]*$/, function (req, res, params) {
     var prefix = 'assets' // TODO: also accept 'content'
     var name = prefix + '/' + params[1]
     compiler.assets(name, function (err, filename) {
