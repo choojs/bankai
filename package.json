@@ -22,6 +22,7 @@
     "ansi-scrollbox": "^0.2.0",
     "async-collection": "^1.0.1",
     "babel-core": "^6.26.0",
+    "babel-plugin-dynamic-import-split-require": "^1.0.0",
     "babel-preset-env": "^1.6.1",
     "babelify": "^8.0.0",
     "brfs": "^1.4.4",
@@ -87,6 +88,7 @@
   "devDependencies": {
     "a-module-with-babelrc": "^1.0.0",
     "assert-html": "^1.1.5",
+    "babel-preset-react": "^6.24.1",
     "choo": "^6.8.0",
     "choo-devtools": "^2.3.3",
     "choo-service-worker": "^2.4.0",

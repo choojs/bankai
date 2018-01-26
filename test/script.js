@@ -258,3 +258,30 @@ tape('envify in watch mode', function (assert) {
     compiler.graph.removeListener('change', next)
   }
 })
+
+tape('nonstandard syntax using babel', function (assert) {
+  var babelrc = JSON.stringify({
+    presets: ['react']
+  })
+  var file = `
+    var React = {/* pretend that this is a react import */}
+    export default class Title extends React.Component {
+      render () {
+        return <h1>JSX!</h1>
+      }
+    }
+  `
+
+  var tmpDirname = path.join(__dirname, '../tmp', 'js-pipeline-' + (Math.random() * 1e4).toFixed())
+  mkdirp.sync(tmpDirname)
+  fs.writeFileSync(path.join(tmpDirname, '.babelrc'), babelrc)
+  fs.writeFileSync(path.join(tmpDirname, 'app.js'), file)
+
+  var compiler = bankai(path.join(tmpDirname, 'app.js'), { watch: false })
+  compiler.on('error', assert.error)
+  compiler.scripts('bundle.js', function (err, res) {
+    assert.error(err, 'error building .babelrc dependency')
+    console.error(res.buffer + '')
+    assert.pass('should build')
+  })
+})
