@@ -224,7 +224,7 @@ var bankai = require('bankai/http')
 var http = require('http')
 var path = require('path')
 
-var compiler = bankai(path.join(__dirname, 'example'))
+var compiler = bankai(path.join(__dirname, 'client.js'))
 var server = http.createServer(function (req, res) {
   compiler(req, res, function () {
     res.statusCode = 404
@@ -270,8 +270,11 @@ Whenever a change in the internal graph occurs.
 
 ## API
 ### `compiler = bankai(entry, [opts])`
-Create a new bankai instance. Takes either an entry file location, or an array
-of files.
+Create a new bankai instance from the route to JavaScript file. The following
+options are available:
+
+- __opts.quiet:__ Defaults to `false`. Don't output any data to `stdout`. Useful
+  if you have your own logging system.
 
 ### `compiler.documents(routename, [opts], done(err, buffer))`
 Output an HTML bundle for a route. Routes are determined based on the project's
