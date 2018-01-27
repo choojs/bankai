@@ -47,7 +47,6 @@ tape('remove unused styles', function (assert) {
     css\`
       .foo { color: blue }
       .bar { color: purple }
-      .foo2 { color: green }
     \`
     html\`<foo class="foo">hello</foo>\`
   `
