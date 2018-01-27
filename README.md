@@ -276,26 +276,26 @@ options are available:
 - __opts.quiet:__ Defaults to `false`. Don't output any data to `stdout`. Useful
   if you have your own logging system.
 
-### `compiler.documents(routename, [opts], done(err, buffer))`
+### `compiler.documents(routename, [opts], done(err, { buffer }))`
 Output an HTML bundle for a route. Routes are determined based on the project's
 router. Pass `'/'` to get the default route.
 
 - __opts.state:__ Will be passed the render function for the route, and inlined
   in the `<head>` of the body as `window.initialState`.
 
-### `compiler.scripts(filename, done(err, buffer))`
+### `compiler.scripts(filename, done(err, { buffer }))`
 Pass in a filename and output a JS bundle.
 
-### `compiler.assets(assetName, done(err, buffer))`
+### `compiler.assets(assetName, done(err, { buffer }))`
 Output any other file besides JS, CSS or HTML.
 
-### `compiler.styles(name, done(err, buffer))`
+### `compiler.styles(name, done(err, { buffer }))`
 Output a CSS bundle.
 
-### `compiler.manifest(done(err, buffer))`
+### `compiler.manifest(done(err, { buffer }))`
 Output a `manifest.json`.
 
-### `compiler.serviceWorker(done(err, buffer))`
+### `compiler.serviceWorker(done(err, { buffer }))`
 Output a service worker.
 
 ### `compiler.close()`
