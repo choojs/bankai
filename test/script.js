@@ -1,3 +1,4 @@
+var async = require('async-collection')
 var dedent = require('dedent')
 var rimraf = require('rimraf')
 var mkdirp = require('mkdirp')
@@ -71,6 +72,60 @@ tape('output multiple bundles if `split-require` is used', function (assert) {
       rimraf.sync(tmpDirname)
     })
   })
+})
+
+tape('adds tsify if typescript is installed', function (assert) {
+  assert.plan(3)
+
+  var barePackage = JSON.stringify({
+    dependencies: {}
+  }, null, 2)
+  var tsPackage = JSON.stringify({
+    dependencies: {},
+    devDependencies: { typescript: '^2.6.2' }
+  }, null, 2)
+
+  var file = `
+    class Counter {
+      private count: number;
+      public next (): number {
+        return this.count++;
+      }
+    }
+    export = Counter
+  `
+
+  var tmpDirname = path.join(__dirname, '../tmp', 'js-pipeline-' + (Math.random() * 1e4).toFixed())
+  mkdirp.sync(tmpDirname)
+  fs.writeFileSync(path.join(tmpDirname, 'app.ts'), file)
+
+  async.series([
+    withoutTypescript,
+    withTypescript
+  ], assert.end)
+
+  function withoutTypescript (cb) {
+    fs.writeFileSync(path.join(tmpDirname, 'package.json'), barePackage)
+    var compiler = bankai(path.join(tmpDirname, 'app.ts'), { watch: false })
+    compiler.on('error', function (step, type, err) {
+      assert.equal(err.filename, path.join(tmpDirname, 'app.ts'))
+      cb()
+    })
+    compiler.scripts('bundle.js', function () {
+      assert.fail('should have failed')
+    })
+  }
+  function withTypescript (cb) {
+    fs.writeFileSync(path.join(tmpDirname, 'package.json'), tsPackage)
+
+    var compiler = bankai(path.join(tmpDirname, 'app.ts'), { watch: false })
+    compiler.on('error', assert.error)
+    compiler.scripts('bundle.js', function (err, res) {
+      assert.error(err, 'error compiling typescript')
+      assert.ok(res)
+      cb()
+    })
+  }
 })
 
 tape('use custom babel config for local files, but not for dependencies', function (assert) {
