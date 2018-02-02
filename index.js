@@ -21,6 +21,9 @@ module.exports = Bankai
 
 function Bankai (entry, opts) {
   if (!(this instanceof Bankai)) return new Bankai(entry, opts)
+
+  Emitter.call(this)
+
   opts = opts || {}
   this.local = localization(opts.language || 'en-US')
   this.log = pino(opts.logStream || process.stdout)
