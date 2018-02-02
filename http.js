@@ -8,15 +8,6 @@ var send = require('send')
 var Router = require('./lib/regex-router')
 var bankai = require('./')
 
-var files = [
-  'assets',
-  'documents',
-  'scripts',
-  'manifest',
-  'styles',
-  'service-worker'
-]
-
 module.exports = start
 
 function start (entry, opts) {
