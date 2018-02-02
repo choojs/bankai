@@ -1,13 +1,11 @@
 var EventEmitter = require('events').EventEmitter
 var gzipMaybe = require('http-gzip-maybe')
-var gzipSize = require('gzip-size')
 var assert = require('assert')
 var path = require('path')
 var pump = require('pump')
 var send = require('send')
 
 var Router = require('./lib/regex-router')
-var ui = require('./lib/ui-basic')
 var bankai = require('./')
 
 var files = [
@@ -27,7 +25,6 @@ function start (entry, opts) {
   assert.equal(typeof entry, 'string', 'bankai/http: entry should be type string')
   assert.equal(typeof opts, 'object', 'bankai/http: opts should be type object')
 
-  var quiet = !!opts.quiet
   opts = Object.assign({ reload: true }, opts)
   var compiler = bankai(entry, opts)
   var router = new Router()
@@ -51,16 +48,13 @@ function start (entry, opts) {
     }
   })
 
-  if (!quiet) var render = ui(state)
   compiler.on('error', function (topic, sub, err) {
     if (err.pretty) state.error = err.pretty
     else state.error = `${topic}:${sub} ${err.message}\n${err.stack}`
-    if (!quiet) render()
   })
 
   compiler.on('progress', function () {
     state.error = null
-    if (!quiet) render()
   })
 
   compiler.on('ssr', function (result) {
@@ -82,18 +76,6 @@ function start (entry, opts) {
 
     if (name === 'documents:index.html') emitter.emit('documents:index.html', node)
     if (name === 'styles:bundle') emitter.emit('styles:bundle', node)
-
-    // Only calculate the gzip size if there's a buffer. Apparently zipping
-    // an empty file means it'll pop out with a 20B base size.
-    if (node.buffer.length) {
-      gzipSize(node.buffer)
-        .then(function (size) { data.size = size })
-        .catch(function () { data.size = node.buffer.length })
-        .then(function () {
-          if (!quiet) render()
-        })
-    }
-    if (!quiet) render()
   })
 
   router.route(/^\/manifest.json$/, function (req, res, params) {
@@ -182,7 +164,7 @@ function start (entry, opts) {
     emitter.on('documents:index.html', reloadScript)
     emitter.on('styles:bundle', reloadStyle)
     state.sse += 1
-    if (!quiet) render()
+    // if (!quiet) render()
 
     res.writeHead(200, {
       'Content-Type': 'text/event-stream',
@@ -208,7 +190,7 @@ function start (entry, opts) {
         emitter.removeListener('styles:bundle', reloadStyle)
         connected = false
         state.sse -= 1
-        if (!quiet) render()
+        // if (!quiet) render()
       }
     }
 
