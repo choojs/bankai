@@ -141,3 +141,71 @@ tape('server render choo apps', function (assert) {
     })
   })
 })
+
+var ANIMAL_NOISES_SCRIPT = dedent`
+  var html = require('choo/html')
+  var choo = require('choo')
+
+  var app = choo()
+  app.route('/', function (state) {
+    return html\`<body>${'$'}{state.animal === 'cat' ? 'meow' : 'rufruf'}</body>\`
+  })
+  if (module.parent) module.exports = app
+  else app.mount('body')
+`
+
+tape('server render choo apps with state - scenario a, cat', function (assert) {
+  var dirname = 'document-pipeline-' + (Math.random() * 1e4).toFixed()
+  tmpDirname = path.join(__dirname, '../tmp', dirname)
+  var tmpScriptname = path.join(tmpDirname, 'index.js')
+
+  mkdirp.sync(tmpDirname)
+  fs.writeFileSync(tmpScriptname, ANIMAL_NOISES_SCRIPT)
+
+  var compiler = bankai(
+    tmpScriptname, {
+      onPreRender: function (cb) {
+        cb(null, { animal: 'cat' })
+      },
+      watch: false
+    }
+  )
+  compiler.documents('/', function (err, res) {
+    assert.error(err, 'no error writing document')
+    var html = String(res.buffer)
+    assert.ok(!!html.match(/meow/))
+    assert.end()
+  })
+
+  compiler.on('error', function (err) {
+    assert.end(err)
+  })
+})
+
+tape('server render choo apps with state - scenario b, dog', function (assert) {
+  var dirname = 'document-pipeline-' + (Math.random() * 1e4).toFixed()
+  tmpDirname = path.join(__dirname, '../tmp', dirname)
+  var tmpScriptname = path.join(tmpDirname, 'index.js')
+
+  mkdirp.sync(tmpDirname)
+  fs.writeFileSync(tmpScriptname, ANIMAL_NOISES_SCRIPT)
+
+  var compiler = bankai(
+    tmpScriptname, {
+      onPreRender: function (cb) {
+        cb(null, { animal: 'dog' })
+      },
+      watch: false
+    }
+  )
+  compiler.documents('/', function (err, res) {
+    assert.error(err, 'no error writing document')
+    var html = String(res.buffer)
+    assert.ok(!!html.match(/rufruf/))
+    assert.end()
+  })
+
+  compiler.on('error', function (err) {
+    assert.end(err)
+  })
+})

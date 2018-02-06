@@ -90,9 +90,20 @@ function Bankai (entry, opts) {
     self.emit('ssr', result)
   })
 
+  var onPreRender = documentNode
+  if (opts.onPreRender) {
+    onPreRender = function callUserPreRender () {
+      var args = Array.from(arguments)
+      opts.onPreRender(function onUserPreRendered (err, state) {
+        if (err) return documentNode.emit('ssr', {success: false, error: err})
+        documentNode.apply(self.graph, args.concat(state))
+      })
+    }
+  }
+
   // Insert nodes into the graph.
   this.graph.node('assets', assetsNode)
-  this.graph.node('documents', [ 'assets:list', 'manifest:color', 'manifest:description', 'styles:bundle', 'scripts:list', 'reload:bundle' ], documentNode)
+  this.graph.node('documents', [ 'assets:list', 'manifest:color', 'manifest:description', 'styles:bundle', 'scripts:list', 'reload:bundle' ], onPreRender)
   this.graph.node('manifest', manifestNode)
   this.graph.node('scripts', scriptNode)
   this.graph.node('reload', reloadNode)
