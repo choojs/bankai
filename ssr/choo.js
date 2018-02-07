@@ -75,6 +75,7 @@ module.exports.render = function (app, route, cb) {
     if (body) res.body = body
     if (app.state.title) res.title = app.state.title
     if (app.state.language) res.language = app.state.language
+    if (app.selector) res.selector = app.selector
     cb(null, res)
   }
 }
