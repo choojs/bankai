@@ -173,7 +173,11 @@ tape('server render choo apps with state - scenario a, cat', function (assert) {
   compiler.documents('/', function (err, res) {
     assert.error(err, 'no error writing document')
     var html = String(res.buffer)
-    assert.ok(!!html.match(/meow/))
+    assert.ok(html.indexOf('<body>meow') > 0, 'ssr honors uses app state')
+    assert.ok(
+      html.indexOf('window.initialState={"animal":"cat"}') > 0,
+      'initial state in document'
+    )
     assert.end()
   })
 
@@ -201,7 +205,11 @@ tape('server render choo apps with state - scenario b, dog', function (assert) {
   compiler.documents('/', function (err, res) {
     assert.error(err, 'no error writing document')
     var html = String(res.buffer)
-    assert.ok(!!html.match(/rufruf/))
+    assert.ok(html.indexOf('<body>rufruf') > 0, 'ssr honors uses app state')
+    assert.ok(
+      html.indexOf('window.initialState={"animal":"dog"}') > 0,
+      'initial state in document'
+    )
     assert.end()
   })
 
