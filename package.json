@@ -68,7 +68,7 @@
     "server-router": "^6.0.0",
     "sheetify": "^7.0.0",
     "split-require": "^2.1.0",
-    "split2": "^2.2.1",
+    "split2": "^2.2.0",
     "strip-ansi": "^4.0.0",
     "tfilter": "^1.0.1",
     "through2": "^2.0.3",
