@@ -117,7 +117,19 @@ function start (entry, opts) {
     })
   })
 
-  router.route(/\/([a-zA-Z0-9-_]+)\.js$/, function (req, res, params) {
+  router.route(/^\/assets\/([^?]*)(\?.*)?$/, function (req, res, params) {
+    var prefix = 'assets' // TODO: also accept 'content'
+    var name = prefix + '/' + params[1]
+    compiler.assets(name, function (err, filename) {
+      if (err) {
+        res.statusCode = 404
+        return res.end(err.message)
+      }
+      pump(send(req, filename), res)
+    })
+  })
+
+  router.route(/\/([a-zA-Z0-9-_.]+)\.js(\?.*)?$/, function (req, res, params) {
     var name = params[1]
     compiler.scripts(name, function (err, node) {
       if (err) {
@@ -129,7 +141,7 @@ function start (entry, opts) {
     })
   })
 
-  router.route(/\/([a-zA-Z0-9-_]+)\.css$/, function (req, res, params) {
+  router.route(/\/([a-zA-Z0-9-_.]+)\.css(\?.*)?$/, function (req, res, params) {
     var name = params[1]
     compiler.styles(name, function (err, node) {
       if (err) {
@@ -164,18 +176,6 @@ function start (entry, opts) {
     })
   })
 
-  router.route(/^\/assets\/(.*)$/, function (req, res, params) {
-    var prefix = 'assets' // TODO: also accept 'content'
-    var name = prefix + '/' + params[1]
-    compiler.assets(name, function (err, filename) {
-      if (err) {
-        res.statusCode = 404
-        return res.end(err.message)
-      }
-      pump(send(req, filename), res)
-    })
-  })
-
   router.route(/\/reload/, function sse (req, res) {
     var connected = true
     emitter.on('documents:index.html', reloadScript)
@@ -185,6 +185,7 @@ function start (entry, opts) {
 
     res.writeHead(200, {
       'Content-Type': 'text/event-stream',
+      'X-Accel-Buffering': 'no',
       'Cache-Control': 'no-cache'
     })
     res.write('retry: 10000\n')
