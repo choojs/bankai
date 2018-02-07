@@ -43,7 +43,6 @@
     "glslify": "^6.1.0",
     "gzip-size": "^4.1.0",
     "hstream": "^1.1.0",
-    "html-minifier": "^3.5.3",
     "html-minifier": "^3.5.8",
     "http-gzip-maybe": "^1.0.0",
     "inline-critical-css": "^1.2.0",
