@@ -88,7 +88,7 @@ function start (entry, opts) {
     if (node.buffer.length) {
       gzipSize(node.buffer)
         .then(function (size) { data.size = size })
-        .catch(function (err) { data.size = node.buffer.length })
+        .catch(function () { data.size = node.buffer.length })
         .then(function () {
           if (!quiet) render()
         })
