@@ -86,11 +86,12 @@ function start (entry, opts) {
     // Only calculate the gzip size if there's a buffer. Apparently zipping
     // an empty file means it'll pop out with a 20B base size.
     if (node.buffer.length) {
-      gzipSize(node.buffer, function (err, size) {
-        if (err) data.size = node.buffer.length
-        else data.size = size
-        if (!quiet) render()
-      })
+      gzipSize(node.buffer)
+        .then(function (size) { data.size = size })
+        .catch(function (err) { data.size = node.buffer.length })
+        .then(function () {
+          if (!quiet) render()
+        })
     }
     if (!quiet) render()
   })
