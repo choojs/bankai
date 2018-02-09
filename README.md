@@ -246,8 +246,9 @@ var compiler = bankai(
   ...,
   {
     ...,
-    onPreRender: function (cb) {
-      cb(null, { animal: 'cat' }) // callback with application state
+    onPreRender: function (route, cb) {
+      var initialState = { animal: 'cat' }
+      cb(null, initalState) // callback with application state
     }
   }
 )
