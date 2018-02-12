@@ -262,7 +262,7 @@ size overhead. Once Babel includes only the language features you're using,
 we'll work to include `babel-polyfill` by default.
 
 ## Events
-### `compiler.on('error', callback(error))`
+### `compiler.on('error', callback(nodeName, edgeName, error))`
 Whenever an internal error occurs.
 
 ### `compiler.on('change', callback(nodeName, edgeName, state))`
