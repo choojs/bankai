@@ -41,14 +41,14 @@ function serverRender (entry, cb) {
   channel.emit('list', routes)
   render.list = routes
 
-  // Listen for incoming requests, and render.
+  // Listen for incoming requests, and render asynchronously.
   channel.on('req', function (route, state) {
-    if (appType === 'choo') route(route, state, done)
+    if (appType === 'choo') choo.render(app, route, state, done)
     else channel.emit('res', DEFAULT_RESPONSE)
 
     function done (err, res) {
-      if (err) return channel.emit('err', err)
-      channel.emit('res', Object.extend({}, DEFAULT_RESPONSE, res))
+      if (err) return channel.emit('err', err) // TODO: handle this error
+      channel.emit('res', Object.assign({}, DEFAULT_RESPONSE, res))
     }
   })
 
@@ -61,7 +61,8 @@ function serverRender (entry, cb) {
   }
 
   function getAppType (app) {
-    return choo.is(app) || 'default'
+    if (choo.is(app)) return 'choo'
+    else return 'default'
   }
 
   function render (route, state) {

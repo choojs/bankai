@@ -1,7 +1,10 @@
 var getAllRoutes = require('wayfarer/get-all-routes')
 
 module.exports.is = function (app) {
-  return app && !app.router && !app.router.router && !app.router.router._trie
+  return Boolean(app &&
+    app.router &&
+    app.router.router &&
+    app.router.router._trie)
 }
 
 module.exports.listRoutes = function (app) {
