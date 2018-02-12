@@ -1,8 +1,14 @@
+var debug = require('debug')('bankai.server-render')
 var EventEmitter = require('events').EventEmitter
 var assert = require('assert')
-var debug = require('debug')('bankai.server-render')
 
-var getAllRoutes = require('wayfarer/get-all-routes')
+var choo = require('./choo')
+
+var DEFAULT_RESPONSE = {
+  body: '<body></body>',
+  title: '',
+  language: 'en-US'
+}
 
 // NOTE: Oh boy, I never hoped to be writing code like this - but here we are.
 // In order to make sure server rendering works in combination with file
@@ -18,59 +24,45 @@ module.exports = serverRender
 function serverRender (entry, cb) {
   assert.equal(typeof entry, 'string')
 
-  var app
-  var ssrError = null
   var channel = new EventEmitter()
-  channel.once('list', function (list) {
-    render.list = list
-  })
 
-  try {
-    app = freshRequire(entry)
-  } catch (err) {
-    var failedRequire = err.message === `Cannot find module '${entry}'`
-    if (!failedRequire) {
-      ssrError = err
-      ssrError.isSsr = true
-    }
+  var app, ssrError
+  app = getApp(entry)
+  if (app.isSsr) {
+    ssrError = app
     app = null
   }
 
+  // Figure out what type of app we're looking at
+  var appType = getAppType(app)
+
+  // List all routes
   var routes = listRoutes(app)
   channel.emit('list', routes)
+  render.list = routes
 
+  // Listen for incoming requests, and render.
   channel.on('req', function (route, state) {
-    var body, title, language
+    if (appType === 'choo') route(route, state, done)
+    else channel.emit('res', DEFAULT_RESPONSE)
 
-    // Choo.
-    if (app && app.router && app.router.router && app.router.router._trie) {
-      body = app.toString(route, state)
-      title = app.state.title
-      language = app.state.language
+    function done (err, res) {
+      if (err) return channel.emit('err', err)
+      channel.emit('res', Object.extend({}, DEFAULT_RESPONSE, res))
     }
-
-    channel.emit('res', {
-      body: body || '<body></body>',
-      title: title || '',
-      language: language || 'en-US'
-    })
   })
 
+  cb(ssrError, render)
+
+  // Get all lists from an app instance. Fall back to '/'.
   function listRoutes (app) {
-    var keys
-    if (app && app.router && app.router.router && app.router.router._trie) {
-      // Choo.
-      keys = getAllRoutes(app.router.router)
-      // Server rendering partials is tricky.
-      if (keys['/:']) delete keys['/:']
-      return Object.keys(keys)
-    } else {
-      // Default.
-      return [ '/' ]
-    }
+    if (appType === 'choo') return choo.listRoutes(app)
+    return ['/']
   }
 
-  cb(ssrError, render)
+  function getAppType (app) {
+    return choo.is(app) || 'default'
+  }
 
   function render (route, state) {
     var res
@@ -79,6 +71,19 @@ function serverRender (entry, cb) {
     })
     channel.emit('req', route, state)
     return res
+  }
+}
+
+function getApp (entry) {
+  try {
+    return freshRequire(entry)
+  } catch (err) {
+    var failedRequire = err.message === `Cannot find module '${entry}'`
+    if (!failedRequire) {
+      var ssrError = err
+      ssrError.isSsr = true
+      return ssrError
+    }
   }
 }
 
