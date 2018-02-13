@@ -270,8 +270,8 @@ Whenever a change in the internal graph occurs.
 
 ## API
 ### `compiler = bankai(entry, [opts])`
-Create a new bankai instance from the route to JavaScript file. The following
-options are available:
+Create a new bankai instance. Takes a path to a JavaScript file as the first
+argument. The following options are available:
 
 - __opts.quiet:__ Defaults to `false`. Don't output any data to `stdout`. Useful
   if you have your own logging system.
