@@ -65,12 +65,12 @@ function serverRender (entry, cb) {
     else return 'default'
   }
 
-  function render (route, state) {
+  function render (route) {
     var res
     channel.once('res', function (_res) {
       res = _res
     })
-    channel.emit('req', route, state)
+    channel.emit('req', route)
     return res
   }
 }
