@@ -224,7 +224,7 @@ var bankai = require('bankai/http')
 var http = require('http')
 var path = require('path')
 
-var compiler = bankai(path.join(__dirname, 'example'))
+var compiler = bankai(path.join(__dirname, 'client.js'))
 var server = http.createServer(function (req, res) {
   compiler(req, res, function () {
     res.statusCode = 404
@@ -270,29 +270,34 @@ Whenever a change in the internal graph occurs.
 
 ## API
 ### `compiler = bankai(entry, [opts])`
-Create a new bankai instance. Takes either an entry file location, or an array
-of files.
+Create a new bankai instance. Takes a path to a JavaScript file as the first
+argument. The following options are available:
 
-### `compiler.documents(routename, [opts], done(err, buffer))`
+- __opts.quiet:__ Defaults to `false`. Don't output any data to `stdout`. Useful
+  if you have your own logging system.
+- __opts.watch:__ Defaults to `true`. Watch for changes in the source files and
+  rebuild. Set to `false` to get optimized bundles.
+
+### `compiler.documents(routename, [opts], done(err, { buffer, hash }))`
 Output an HTML bundle for a route. Routes are determined based on the project's
 router. Pass `'/'` to get the default route.
 
 - __opts.state:__ Will be passed the render function for the route, and inlined
   in the `<head>` of the body as `window.initialState`.
 
-### `compiler.scripts(filename, done(err, buffer))`
+### `compiler.scripts(filename, done(err, { buffer, hash }))`
 Pass in a filename and output a JS bundle.
 
-### `compiler.assets(assetName, done(err, buffer))`
+### `compiler.assets(assetName, done(err, { buffer, hash }))`
 Output any other file besides JS, CSS or HTML.
 
-### `compiler.styles(name, done(err, buffer))`
+### `compiler.styles(name, done(err, { buffer, hash }))`
 Output a CSS bundle.
 
-### `compiler.manifest(done(err, buffer))`
+### `compiler.manifest(done(err, { buffer, hash }))`
 Output a `manifest.json`.
 
-### `compiler.serviceWorker(done(err, buffer))`
+### `compiler.serviceWorker(done(err, { buffer, hash }))`
 Output a service worker.
 
 ### `compiler.close()`
