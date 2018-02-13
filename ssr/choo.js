@@ -1,5 +1,4 @@
 var getAllRoutes = require('wayfarer/get-all-routes')
-var waitAll = require('p-wait-all')
 
 module.exports.is = function (app) {
   return Boolean(app &&
@@ -60,16 +59,18 @@ module.exports.listRoutes = function (app) {
 // should, so we can treat the state as the only stateful bits, and the rest is
 // just context.
 
-module.exports.render = function (app, route, state, cb) {
-  state = state || {}
+module.exports.render = function (app, route, cb) {
+  var state = {}
   state._experimental_prefetch = []
   app.toString(route, state)
 
-  waitAll(state._experimental_prefetch)
+  // TODO: replace with p-wait-all, once it knows how to handle an empty array.
+  Promise.all(state._experimental_prefetch)
     .then(render)
     .catch(render)
 
   function render () {
+    console.log('render done')
     var body = app.toString(route, state)
     delete state._experimental_prefetch // State needs to be serializable.
     cb(null, {

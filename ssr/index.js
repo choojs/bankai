@@ -42,9 +42,14 @@ function serverRender (entry, cb) {
   render.list = routes
 
   // Listen for incoming requests, and render asynchronously.
-  channel.on('req', function (route, state) {
-    if (appType === 'choo') choo.render(app, route, state, done)
-    else channel.emit('res', DEFAULT_RESPONSE)
+  //
+  // NOTE: we're passing this into the callback so we can do JIT rendering.
+  // We should probably turn this method into a class instead, so we can
+  // directly listen for events - rather than calling functions and passing
+  // emitters around. Pull-requests for this would be very much appreciated!
+  channel.on('req', function (route) {
+    if (appType === 'choo') choo.render(app, route, done)
+    else channel.emit('res', Object.assign({route: route}, DEFAULT_RESPONSE))
 
     function done (err, res) {
       if (err) return channel.emit('err', err) // TODO: handle this error
@@ -65,13 +70,12 @@ function serverRender (entry, cb) {
     else return 'default'
   }
 
-  function render (route) {
-    var res
-    channel.once('res', function (_res) {
-      res = _res
+  // this is the function we call for dynamic dispatch.
+  function render (route, cb) {
+    channel.once('res', function (res) {
+      cb(null, res)
     })
     channel.emit('req', route)
-    return res
   }
 }
 
