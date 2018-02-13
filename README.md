@@ -275,6 +275,8 @@ options are available:
 
 - __opts.quiet:__ Defaults to `false`. Don't output any data to `stdout`. Useful
   if you have your own logging system.
+- __opts.watch:__ Defaults to `true`. Watch for changes in the source files and
+  rebuild. Set to `false` to get optimized bundles.
 
 ### `compiler.documents(routename, [opts], done(err, { buffer, hash }))`
 Output an HTML bundle for a route. Routes are determined based on the project's
