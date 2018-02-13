@@ -306,7 +306,7 @@ includes IE11. And if you have different opinions on which browsers to use,
 Bankai respects `.babelrc` and [`.browserslistrc`](https://github.com/ai/browserslist) files.
 
 Some newer JavaScript features require loading an extra library; `async/await`
-being the clearest example. To enable this features, the `babel-polyfill`
+being the clearest example. To enable such features, the `babel-polyfill`
 library needs to be included in your application's root (e.g. `index.js`).
 
 ```js
@@ -333,6 +333,7 @@ argument. The following options are available:
   if you have your own logging system.
 - __opts.watch:__ Defaults to `true`. Watch for changes in the source files and
   rebuild. Set to `false` to get optimized bundles.
+- __babelifyDeps:__ Defaults to true. Transform dependencies with babelify.
 
 ### `compiler.documents(routename, [opts], done(err, { buffer, hash }))`
 Output an HTML bundle for a route. Routes are determined based on the project's
