@@ -280,14 +280,16 @@ router. Pass `'/'` to get the default route.
 - __opts.state:__ Will be passed the render function for the route, and inlined
   in the `<head>` of the body as `window.initialState`.
 
-### `compiler.scripts(filename, done(err, buffer))`
-Pass in a filename and output a JS bundle.
+### `compiler.scripts(filename, done(err, node))`
+Pass in a filename and receive a node object, which has the compiled JavaScript bundle as a
+buffer in its `buffer` property.
 
 ### `compiler.assets(assetName, done(err, buffer))`
 Output any other file besides JS, CSS or HTML.
 
-### `compiler.styles(name, done(err, buffer))`
-Output a CSS bundle.
+### `compiler.styles(name, done(err, node))`
+Pass in a filename and receive a node object, which has the compiled CSS bundle as a
+buffer in its `buffer` property.
 
 ### `compiler.manifest(done(err, buffer))`
 Output a `manifest.json`.
