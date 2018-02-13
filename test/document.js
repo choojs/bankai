@@ -182,7 +182,7 @@ tape('server render choo apps with root set', function (assert) {
   mkdirp.sync(tmpDirname)
   fs.writeFileSync(tmpScriptname, script)
 
-  var compiler = bankai(tmpScriptname, { watch: false, baseHref: 'some-custom-root' })
+  var compiler = bankai(tmpScriptname, { watch: false, base: 'some-custom-root' })
   compiler.documents('/', function (err, res) {
     assert.error(err, 'no error writing document')
     assertHtml(assert, String(res.buffer), expected)
