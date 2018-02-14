@@ -67,7 +67,7 @@
     "send": "^0.16.1",
     "server-router": "^6.0.0",
     "sheetify": "^7.1.0",
-    "split-require": "^3.0.0",
+    "split-require": "^3.0.1",
     "split2": "^2.2.0",
     "strip-ansi": "^4.0.0",
     "tfilter": "^1.0.1",
