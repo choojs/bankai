@@ -262,6 +262,8 @@ function start (entry, opts) {
 
   // TODO: move all UI code out of this file
   handler.state = state
+  // Expose compiler so we can use it in `bankai start`
+  handler.compiler = compiler
   return handler
 
   // Return a handler to listen.
