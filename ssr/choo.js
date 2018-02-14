@@ -66,8 +66,7 @@ module.exports.render = function (app, route, cb) {
 
   // TODO: replace with p-wait-all, once it knows how to handle an empty array.
   Promise.all(state._experimental_prefetch)
-    .then(render)
-    .catch(render)
+    .then(render, render)
 
   function render () {
     var body = app.toString(route, state)
