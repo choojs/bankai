@@ -70,14 +70,12 @@ module.exports.render = function (app, route, cb) {
     .catch(render)
 
   function render () {
-    console.log('render done')
     var body = app.toString(route, state)
     delete state._experimental_prefetch // State needs to be serializable.
-    cb(null, {
-      body: body,
-      title: app.state.title,
-      language: app.state.language,
-      initialState: state
-    })
+    var res = { state: state }
+    if (body) res.body = body
+    if (app.state.title) res.title = app.state.title
+    if (app.state.language) res.language = app.state.language
+    cb(null, res)
   }
 }

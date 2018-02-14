@@ -1,122 +1,87 @@
 var debug = require('debug')('bankai.server-render')
-var EventEmitter = require('events').EventEmitter
 var assert = require('assert')
 
 var choo = require('./choo')
 
-var DEFAULT_RESPONSE = {
-  body: '<body></body>',
-  title: '',
-  language: 'en-US'
-}
+module.exports = class ServerRender {
+  constructor (entry) {
+    assert.equal(typeof entry, 'string', 'bankai/ssr/index.js: entry should be type string')
 
-// NOTE: Oh boy, I never hoped to be writing code like this - but here we are.
-// In order to make sure server rendering works in combination with file
-// watching, we need to be able to clear the `require()` cache. Plucking out
-// the stuff you need from a global cache is tricky, so instead we just
-// recreate the cache on each run. To make sure this only happens for the
-// application code, we run all that stuff inside a VM. And then we cry. We cry
-// a little. Because we're now deep in the woods of Node's internals, and,
-// well, all we wanted to do was output some HTML strings. ;_;
+    this.entry = entry
+    this.app = this._requireApp(this.entry)
 
-module.exports = serverRender
+    this.appType = this._getAppType(this.app)
+    this.routes = this._listRoutes(this.app)
+    this.entry = entry
+    this.error = null
 
-function serverRender (entry, cb) {
-  assert.equal(typeof entry, 'string')
-
-  var channel = new EventEmitter()
-
-  var app, ssrError
-  app = getApp(entry)
-  if (app.isSsr) {
-    ssrError = app
-    app = null
-  }
-
-  // Figure out what type of app we're looking at
-  var appType = getAppType(app)
-
-  // List all routes
-  var routes = listRoutes(app)
-  channel.emit('list', routes)
-  render.list = routes
-
-  // Listen for incoming requests, and render asynchronously.
-  //
-  // NOTE: we're passing this into the callback so we can do JIT rendering.
-  // We should probably turn this method into a class instead, so we can
-  // directly listen for events - rather than calling functions and passing
-  // emitters around. Pull-requests for this would be very much appreciated!
-  channel.on('req', function (route) {
-    if (appType === 'choo') choo.render(app, route, done)
-    else channel.emit('res', Object.assign({route: route}, DEFAULT_RESPONSE))
-
-    function done (err, res) {
-      if (err) return channel.emit('err', err) // TODO: handle this error
-      channel.emit('res', Object.assign({}, DEFAULT_RESPONSE, res))
+    this.DEFAULT_RESPONSE = {
+      body: '<body></body>',
+      title: '',
+      language: 'en-US'
     }
-  })
-
-  cb(ssrError, render)
-
-  // Get all lists from an app instance. Fall back to '/'.
-  function listRoutes (app) {
-    if (appType === 'choo') return choo.listRoutes(app)
-    return ['/']
   }
 
-  function getAppType (app) {
+  render (route, done) {
+    var self = this
+    if (this.appType === 'choo') choo.render(this.app, route, send)
+    else done(null, Object.assign({ route: route }, this.DEFAULT_RESPONSE))
+
+    function send (err, res) {
+      if (err) return done(err)
+      done(null, Object.assign(self.DEFAULT_RESPONSE, res))
+    }
+  }
+
+  _getAppType (app) {
     if (choo.is(app)) return 'choo'
     else return 'default'
   }
 
-  // this is the function we call for dynamic dispatch.
-  function render (route, cb) {
-    channel.once('res', function (res) {
-      cb(null, res)
-    })
-    channel.emit('req', route)
-  }
-}
-
-function getApp (entry) {
-  try {
-    return freshRequire(entry)
-  } catch (err) {
-    var failedRequire = err.message === `Cannot find module '${entry}'`
-    if (!failedRequire) {
-      var ssrError = err
-      ssrError.isSsr = true
-      return ssrError
+  _requireApp (entry) {
+    try {
+      return freshRequire(entry)
+    } catch (err) {
+      var failedRequire = err.message === `Cannot find module '${entry}'`
+      if (!failedRequire) {
+        var ssrError = err
+        ssrError.isSsr = true
+        this.error = ssrError
+      }
     }
   }
+
+  _listRoutes (app) {
+    if (this.appType === 'choo') return choo.listRoutes(this.app)
+    return ['/']
+  }
 }
 
+// Clear the cache, and require the file again.
 function freshRequire (file) {
   clearRequireAndChildren(file)
-
   var exports = require(file)
-
   return exports
-}
 
-function isNotNativeModulePath (file) {
-  return /\.node$/.test(file.id) === false
-}
+  function isNotNativeModulePath (file) {
+    return /\.node$/.test(file.id) === false
+  }
 
-function isNotInNodeModules (file) {
-  return /node_modules/.test(file.id) === false
-}
+  function isNotInNodeModules (file) {
+    return /node_modules/.test(file.id) === false
+  }
 
-function clearRequireAndChildren (key) {
-  if (!require.cache[key]) return
+  function clearRequireAndChildren (key) {
+    if (!require.cache[key]) return
 
-  require.cache[key].children
-    .filter(isNotNativeModulePath)
-    .filter(isNotInNodeModules)
-    .forEach(function (child) {
-      clearRequireAndChildren(child.id)
-    })
-  debug('clearing require cache for %s', key)
-  delete require.cache[key]
+    require.cache[key].children
+      .filter(isNotNativeModulePath)
+      .filter(isNotInNodeModules)
+      .forEach(function (child) {
+        clearRequireAndChildren(child.id)
+      })
+
+    debug('clearing require cache for %s', key)
+    delete require.cache[key]
+  }
 }
