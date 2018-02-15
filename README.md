@@ -237,6 +237,23 @@ server.listen(8080, function () {
 })
 ```
 
+## Server Side Rendering (SSR)
+By default, bankai will render choo routes server side if it can.  If you need
+to provide app state to the renderer, you may do so via `opts.onPreRender`.
+
+```js
+var compiler = bankai(
+  ...,
+  {
+    ...,
+    onPreRender: function (route, cb) {
+      var initialState = { animal: 'cat' }
+      cb(null, initalState) // callback with application state
+    }
+  }
+)
+```
+
 ## Babel
 Not all browsers support all of the Web Platform's features. So in order to use
 newer features on older browsers, we have to find a solution. The best solution

@@ -10,6 +10,15 @@ var bankai = require('../')
 
 var tmpDirname
 
+function createTestContext (script) {
+  var dirname = 'document-pipeline-' + (Math.random() * 1e4).toFixed()
+  tmpDirname = path.join(__dirname, '../tmp', dirname)
+  var tmpScriptname = path.join(tmpDirname, 'index.js')
+  mkdirp.sync(tmpDirname)
+  fs.writeFileSync(tmpScriptname, script)
+  return { tmpDirname, tmpScriptname }
+}
+
 function cleanup () {
   rimraf.sync(tmpDirname)
 }
@@ -140,4 +149,94 @@ tape('server render choo apps', function (assert) {
       expected = expected.replace('__STYLE_INTEGRITY__', res.hash.toString('base64'))
     })
   })
+})
+
+var ANIMAL_NOISES_SCRIPT = dedent`
+  var html = require('choo/html')
+  var choo = require('choo')
+
+  var app = choo()
+  app.route('/animals', function (state) {
+    return html\`<body>${'$'}{state.animal === 'cat' ? 'meow' : 'rufruf'}</body>\`
+  })
+  if (module.parent) module.exports = app
+  else app.mount('body')
+`
+
+tape('server render choo apps with state - scenario a, cat', function (assert) {
+  var ctx = createTestContext(ANIMAL_NOISES_SCRIPT)
+  var compiler = bankai(
+    ctx.tmpScriptname,
+    {
+      onPreRender: function (route, cb) {
+        assert.equal(route, '/animals', 'prerender route matched')
+        cb(null, { animal: 'cat' })
+      },
+      watch: false
+    }
+  )
+  compiler.documents('/animals', function (err, res) {
+    assert.error(err, 'no error writing document')
+    var html = String(res.buffer)
+    assert.ok(html.indexOf('<body>meow') > 0, 'ssr honors uses app state')
+    assert.ok(
+      html.indexOf('window.initialState={"animal":"cat"}') > 0,
+      'initial state in document'
+    )
+    assert.end()
+  })
+  compiler.on('error', assert.end)
+})
+
+tape('server render choo apps with state - scenario b, dog', function (assert) {
+  var ctx = createTestContext(ANIMAL_NOISES_SCRIPT)
+  var compiler = bankai(
+    ctx.tmpScriptname,
+    {
+      onPreRender: function (route, cb) {
+        cb(null, { animal: 'dog' })
+      },
+      watch: false
+    }
+  )
+  compiler.documents('/animals', function (err, res) {
+    assert.error(err, 'no error writing document')
+    var html = String(res.buffer)
+    assert.ok(html.indexOf('<body>rufruf') > 0, 'ssr honors uses app state')
+    assert.ok(
+      html.indexOf('window.initialState={"animal":"dog"}') > 0,
+      'initial state in document'
+    )
+    assert.end()
+  })
+  compiler.on('error', assert.end)
+})
+
+tape('server render choo apps with state - scenario c, toggle initial state', function (assert) {
+  var ctx = createTestContext(ANIMAL_NOISES_SCRIPT)
+  var initalStateA = { animal: 'cat' }
+  var initalStateB = { animal: 'dog' }
+  var renderCount = 0
+  var compiler = bankai(
+    ctx.tmpScriptname, {
+      onPreRender: function (route, cb) {
+        var intialState = !renderCount ? initalStateA : initalStateB
+        ++renderCount
+        cb(null, intialState)
+      },
+      watch: false
+    }
+  )
+  compiler.documents('/animals', function (err, res) {
+    assert.error(err)
+    var htmlA = String(res.buffer)
+    assert.ok(htmlA.indexOf('<body>meow') > 0, 'first render valid')
+    compiler.documents('/animals', function (err, res) {
+      assert.error(err)
+      var htmlB = String(res.buffer)
+      assert.ok(htmlB.indexOf('<body>rufruf') > 0, 'first render valid')
+      assert.end()
+    })
+  })
+  compiler.on('error', assert.end)
 })
