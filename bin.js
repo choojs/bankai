@@ -57,7 +57,8 @@ var argv = minimist(process.argv.slice(2), {
   alias: {
     help: 'h',
     quiet: 'q',
-    version: 'v'
+    version: 'v',
+    'base': 'base'
   },
   boolean: [
     'help',
