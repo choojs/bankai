@@ -57,7 +57,8 @@ var argv = minimist(process.argv.slice(2), {
   alias: {
     help: 'h',
     quiet: 'q',
-    version: 'v'
+    version: 'v',
+    'base': 'base'
   },
   boolean: [
     'help',
@@ -81,7 +82,8 @@ var argv = minimist(process.argv.slice(2), {
   } else if (argv.version) {
     console.log(require('./package.json').version)
   } else if (cmd === 'build') {
-    require('./lib/cmd-build')(path.join(entry), argv)
+    var outdir = argv._[2]
+    require('./lib/cmd-build')(path.join(entry), outdir, argv)
   } else if (cmd === 'inspect') {
     require('./lib/cmd-inspect')(path.join(entry), argv)
   } else if (cmd === 'start') {
