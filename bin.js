@@ -58,7 +58,7 @@ var argv = minimist(process.argv.slice(2), {
     help: 'h',
     quiet: 'q',
     version: 'v',
-    'base': 'base'
+    base: 'b'
   },
   boolean: [
     'help',
