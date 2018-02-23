@@ -54,6 +54,7 @@
     "nanotiming": "^7.2.0",
     "on-idle": "^3.1.4",
     "open": "^0.0.5",
+    "p-wait-all": "^1.0.0",
     "pino": "^4.10.4",
     "pino-colada": "^1.4.2",
     "prettier-bytes": "^1.0.4",
@@ -81,7 +82,7 @@
   "devDependencies": {
     "a-module-with-babelrc": "^1.0.0",
     "assert-html": "^1.1.5",
-    "choo": "^6.7.0",
+    "choo": "^6.8.0",
     "choo-devtools": "^2.3.3",
     "choo-service-worker": "^2.4.0",
     "rimraf": "^2.6.2",
