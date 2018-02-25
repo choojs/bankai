@@ -247,7 +247,7 @@ JavaScript in, and outputs JavaScript based for the platforms you've decided to
 target. In Bankai we target the last 2 versions of FireFox, Chrome and Edge,
 and every other browser that's used by more than 1% of people on earth. This
 includes IE11. And if you have different opinions on which browsers to use,
-Bankai respects `.babelrc` files.
+Bankai respects `.babelrc` and [`.browserslistrc`](https://github.com/ai/browserslist) files.
 
 Some newer JavaScript features require loading an extra library; `async/await`
 being the clearest example. To enable this features, the `babel-polyfill`
