@@ -137,3 +137,46 @@ tape('use custom browserslist config', function (assert) {
     assert.ok(/yield/.test(content), 'did not transpile yield keyword')
   })
 })
+
+tape('envify in watch mode', function (assert) {
+  assert.plan(5)
+
+  var file = `
+    console.log(process.env.BANKAI_TEST_VALUE)
+  `
+  var file2 = `
+    var a = process.env.BANKAI_TEST_VALUE
+    console.log({ a: a })
+  `
+
+  var tmpDirname = path.join(__dirname, '../tmp', 'js-pipeline-' + (Math.random() * 1e4).toFixed())
+  mkdirp.sync(tmpDirname)
+  fs.writeFileSync(path.join(tmpDirname, 'app.js'), file)
+
+  process.env.BANKAI_TEST_VALUE = 'replacement'
+  var compiler = bankai(path.join(tmpDirname, 'app.js'), { watch: true, reload: false })
+  compiler.on('error', assert.error)
+  compiler.scripts('bundle.js', function (err, res) {
+    assert.error(err, 'no error writing script')
+    assert.notEqual(res.buffer.toString('utf8').indexOf('replacement'), -1, 'contains replacement value')
+
+    compiler.graph.on('change', next)
+
+    // Wait for a bit before changing the source file, because the watcher setup isn't instant.
+    setTimeout(function () {
+      fs.writeFileSync(path.join(tmpDirname, 'app.js'), file2)
+    }, 500)
+  })
+
+  function next (stepName, nodeName) {
+    if (stepName !== 'scripts' || nodeName !== 'bundle') return
+    compiler.scripts('bundle.js', function (err, res) {
+      assert.error(err, 'no error writing script')
+      assert.notEqual(res.buffer.toString('utf8').indexOf('replacement'), -1, 'contains replacement value')
+      assert.notEqual(res.buffer.toString('utf8').indexOf('a: a'), -1, 'is the updated file')
+
+      compiler.close()
+    })
+    compiler.graph.removeListener('change', next)
+  }
+})
