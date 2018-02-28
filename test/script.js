@@ -107,3 +107,33 @@ tape('use custom babel config for local files, but not for dependencies', functi
     assert.pass('should build')
   })
 })
+
+tape('use custom browserslist config', function (assert) {
+  assert.plan(5)
+
+  var browserslist = `
+    last 1 Chrome versions
+  `
+  var file = `
+    for (const value of generator()) {}
+    function * generator () {
+      yield 'foo'
+    }
+  `
+
+  var tmpDirname = path.join(__dirname, '../tmp', 'js-pipeline-' + (Math.random() * 1e4).toFixed())
+  mkdirp.sync(tmpDirname)
+  fs.writeFileSync(path.join(tmpDirname, '.browserslistrc'), browserslist)
+  fs.writeFileSync(path.join(tmpDirname, 'app.js'), file)
+
+  var compiler = bankai(path.join(tmpDirname, 'app.js'), { watch: false })
+  compiler.on('error', assert.error)
+  compiler.scripts('bundle.js', function (err, res) {
+    assert.error(err, 'no error writing script')
+    var content = res.buffer.toString('utf8')
+    assert.ok(/for\s*\(\w+ \w+ of /.test(content), 'did not transpile for...of')
+    assert.ok(/const/.test(content), 'did not transpile const keyword')
+    assert.ok(/function\s*\*/.test(content), 'did not transpile generator function')
+    assert.ok(/yield/.test(content), 'did not transpile yield keyword')
+  })
+})
