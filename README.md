@@ -136,6 +136,22 @@ care how we do this: it's lots of glue code, and not necessarily pretty. But it
 can be useful to know which optimizations we apply. This is a list:
 
 ### JavaScript
+- __yo-yoify:__ Optimize `choo` HTML code so it run significantly faster in the
+  browser.
+- __glslify:__ Adds a module system to GLSL shaders.
+- __brfs:__ Statically inline calls to `fs.readFile()`. Useful to ship assets
+  in the browser.
+- __envify:__ Allow environment variables to be used in the bundle. Especially
+  useful in combination with minification, which removes unused code paths.
+- __split-require:__ Lazy load parts of your application using the
+  [`require('split-require')`][split-require] function.
+- __babelify:__ Bring the latest browser features to _all_ browsers. See
+  [our babel section](#babel) for more details.
+
+And bankai uses tinyify, which adds the following optimizations:
+
+- __browser-pack-flat:__ Remove function wrappers from the bundle, making
+  the result faster to run and easier to minify.
 - __bundle-collapser:__ Remove all pathnames from inside the bundle, and
   replace them with IDs. This not only makes bundles smaller, it prevents
   details from your local dev setup leaking.
@@ -144,17 +160,6 @@ can be useful to know which optimizations we apply. This is a list:
 - __unassertify:__ Remove all `require('assert')` statements from the code.
   Only applied for production builds.
 - __uglifyify:__ Minify the bundle.
-- __yo-yoify:__ Optimize `choo` HTML code so it run significantly faster in the
-  browser.
-- __glslify:__ Adds a module system to GLSL shaders.
-- __envify:__ Allow environment variables to be used in the bundle. Especially
-  useful in combination with minification, which removes unused code paths.
-- __brfs:__ Statically inline calls to `fs.readFile()`. Useful to ship assets
-  in the browser.
-- __split-require:__ Lazy load parts of your application using the
-  [`require('split-require')`][split-require] function.
-- __babelify:__ Bring the latest browser features to _all_ browsers. See
-  [our babel section](#babel) for more details.
 
 ### CSS
 - __sheetify:__ extract all inline CSS from JavaScript, and include it in
