@@ -72,9 +72,9 @@ var CONFIG_USAGE = `
   It can be one of either:
 
   1. An array of transform names. 
-       ie:  ${clr('[ "babelify" ]', 'cyan')}
+       ie:  ${clr('[ "vueify" ]', 'cyan')}
   2. An array of tuples transform name + configuration object.
-       ie: ${clr('[[ "babelify", { "presets": [ "env" ] } ]]', 'cyan')}
+       ie: ${clr('[[ "vueify", { "sass": { "includePaths": [ "src/assets/css" ] } } ]]', 'cyan')}
 
 
   Full example:
@@ -82,7 +82,7 @@ var CONFIG_USAGE = `
   ${clr(`{
     "browserify": {
       "transform": [
-        [ "babelify", { "presets": [ "env" ] } ]
+        [[ "vueify", { "sass": { "includePaths": [ "src/assets/css" ] } } ]]
       ]
     },
     "sheetify": {
