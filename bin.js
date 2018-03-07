@@ -36,6 +36,8 @@ var USAGE = `
     Compile all files in the project to disk
     ${clr('$ bankai build index.js', 'cyan')}
 
+  For configuration usage, type 'bankai --help config'
+
   Running into trouble? Feel free to file an issue:
   ${clr('https://github.com/choojs/bankai/issues/new', 'cyan')}
 
@@ -51,6 +53,49 @@ var NOCOMMAND = `
     ${clr('$ bankai start', 'cyan')} ${clr('index.js', 'green')}
 
   Run ${clr('bankai --help', 'cyan')} to see all options.
+`.replace(/\n$/, '').replace(/^\n/, '')
+
+var CONFIG_USAGE = `
+
+  ${clr('Configuration', 'bold')}
+
+
+  Bankai is built on top of compilers for scripts, styles and documents. 
+  Each of them can be configured by adding a field to your project's 
+  package.json file.
+
+  These three fields are, respectively: ${clr('"browserify"', 'cyan')}, ${clr('"sheetify"', 'cyan')} and 
+  ${clr('"documentify"', 'cyan')}. Each one should have a configuration object as it's value.
+
+  There is currently one possible configuration field: "transform".
+
+  It can be one of either:
+
+  1. An array of transform names. 
+       ie:  ${clr('[ "vueify" ]', 'cyan')}
+  2. An array of tuples transform name + configuration object.
+       ie: ${clr('[[ "vueify", { "sass": { "includePaths": [ "src/assets/css" ] } } ]]', 'cyan')}
+
+
+  Full example:
+
+  ${clr(`{
+    "browserify": {
+      "transform": [
+        [ "vueify", { "sass": { "includePaths": [ "src/assets/css" ] } } ]
+      ]
+    },
+    "sheetify": {
+      "transform": [
+        "sheetify-cssnext"
+      ]
+    },
+    "documentify": {
+      "transform": [
+        [ "posthtmlify", { "use": [ "posthtml-custom-elements" ] } ]
+      ]
+    }
+  }`, 'cyan')}
 `.replace(/\n$/, '').replace(/^\n/, '')
 
 var argv = minimist(process.argv.slice(2), {
@@ -78,6 +123,7 @@ var argv = minimist(process.argv.slice(2), {
   }
 
   if (argv.help) {
+    if (cmd === 'config') return console.log(CONFIG_USAGE)
     console.log(USAGE)
   } else if (argv.version) {
     console.log(require('./package.json').version)
