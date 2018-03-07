@@ -82,7 +82,7 @@ var CONFIG_USAGE = `
   ${clr(`{
     "browserify": {
       "transform": [
-        [[ "vueify", { "sass": { "includePaths": [ "src/assets/css" ] } } ]]
+        [ "vueify", { "sass": { "includePaths": [ "src/assets/css" ] } } ]
       ]
     },
     "sheetify": {
