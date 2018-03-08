@@ -9,8 +9,9 @@ module.exports.is = function (app) {
 
 module.exports.listRoutes = function (app) {
   var keys = getAllRoutes(app.router.router)
-  if (keys['/:']) delete keys['/:'] // Server rendering partials is tricky.
-  return Object.keys(keys)
+  return Object.keys(keys).filter(function (key) {
+    return !/\/:/.test(key) // Server rendering partials is tricky.
+  })
 }
 
 // Do a double render pass - the first time around we wait for promises to be
