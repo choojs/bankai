@@ -143,6 +143,8 @@ tape('server render choo apps', function (assert) {
 })
 
 tape('server render choo apps with root set', function (assert) {
+  assert.on('end', cleanup)
+
   var expected = `
     <!DOCTYPE html>
     <html lang="en-US" dir="ltr">
@@ -207,5 +209,83 @@ tape('server render choo apps with root set', function (assert) {
       expected = expected.replace('__STYLE_HASH__', res.hash.toString('hex').slice(0, 16))
       expected = expected.replace('__STYLE_INTEGRITY__', res.hash.toString('base64'))
     })
+  })
+})
+
+tape('custom index.html template', function (assert) {
+  assert.on('end', cleanup)
+  assert.plan(3)
+
+  var template = `
+    <html>
+    <head>
+      <meta name="test" content="ok">
+    </head>
+    <body>
+    </body>
+    </html>
+  `
+  var file = `
+    var html = require('choo/html')
+    var choo = require('choo')
+
+    var app = choo()
+    app.route('/', function () {
+      return html\`<body>meow</body>\`
+    })
+    module.exports = app.mount('body')
+  `
+
+  var dirname = 'document-pipeline-' + (Math.random() * 1e4).toFixed()
+  tmpDirname = path.join(__dirname, '../tmp', dirname)
+  mkdirp.sync(tmpDirname)
+  fs.writeFileSync(path.join(tmpDirname, 'index.js'), file)
+  fs.writeFileSync(path.join(tmpDirname, 'index.html'), template)
+
+  var compiler = bankai(tmpDirname, { watch: false })
+  compiler.documents('/', function (err, res) {
+    assert.error(err, 'no error writing document')
+    var body = res.buffer.toString('utf8')
+    assert.notEqual(body.indexOf('<meta name="test" content="ok">'), -1, 'used the custom index.html')
+    assert.notEqual(body.indexOf('meow'), -1, 'inserted the rendered app')
+  })
+})
+
+tape('mount choo app into given selector', function (assert) {
+  assert.on('end', cleanup)
+  assert.plan(3)
+
+  var template = `
+    <html>
+    <head></head>
+    <body>
+      <h1>Some Title!</h1>
+      <div id="app"></div>
+    </body>
+    </html>
+  `
+  var file = `
+    var html = require('choo/html')
+    var choo = require('choo')
+
+    var app = choo()
+    app.route('/', function () {
+      return html\`<div>meow</div>\`
+    })
+    module.exports = app.mount('#app')
+  `
+
+  var dirname = 'document-pipeline-' + (Math.random() * 1e4).toFixed()
+  tmpDirname = path.join(__dirname, '../tmp', dirname)
+  mkdirp.sync(tmpDirname)
+  fs.writeFileSync(path.join(tmpDirname, 'index.js'), file)
+  fs.writeFileSync(path.join(tmpDirname, 'index.html'), template)
+
+  var compiler = bankai(tmpDirname, { watch: false })
+  compiler.documents('/', function (err, res) {
+    assert.error(err, 'no error writing document')
+    var body = res.buffer.toString('utf8')
+    assert.notEqual(body.indexOf('<h1>Some Title!</h1>'), -1, 'preserved body contents outside #app selector')
+    assert.notEqual(body.indexOf('meow'), -1, 'inserted the rendered app')
   })
 })
