@@ -221,6 +221,26 @@ JavaScript, no extra configuration is needed.
 }
 ```
 
+By default, Bankai starts with an empty HTML document, injecting the tags
+mentioned [above](#html). You can also create a custom template as `index.html`,
+and Bankai will inject tags into it instead.
+
+```js
+// app.js
+...
+module.exports = app.mount('#app')
+```
+
+```html
+<!-- index.html -->
+...
+<body>
+  <div id="app"></div>
+  <div id="footer">© 2018</div>
+</body>
+...
+```
+
 ## HTTP
 Bankai can be hooked up directly to an HTTP server, which is useful when
 working on full stack code.
