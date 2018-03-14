@@ -30,7 +30,7 @@ module.exports = class ServerRender {
 
     function send (err, res) {
       if (err) return done(err)
-      done(null, Object.assign(self.DEFAULT_RESPONSE, res))
+      done(null, Object.assign({ route: route }, self.DEFAULT_RESPONSE, res))
     }
   }
 
