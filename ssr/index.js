@@ -18,7 +18,8 @@ module.exports = class ServerRender {
     this.DEFAULT_RESPONSE = {
       body: '<body></body>',
       title: '',
-      language: 'en-US'
+      language: 'en-US',
+      selector: 'body'
     }
   }
 
