@@ -289,3 +289,41 @@ tape('mount choo app into given selector', function (assert) {
     assert.notEqual(body.indexOf('meow'), -1, 'inserted the rendered app')
   })
 })
+
+tape('inlines critical css', function (assert) {
+  assert.on('end', cleanup)
+  assert.plan(3)
+
+  var file = `
+    var css = require('sheetify')
+    var html = require('choo/html')
+    var choo = require('choo')
+
+    css\`
+      .classA { color: red }
+      .classB { color: blue }
+    \`
+
+    var app = choo()
+    app.route('/', function () {
+      return html\`<body class="classA"></body>\`
+    })
+
+    // classB
+
+    module.exports = app.mount('body')
+  `
+
+  var dirname = 'document-pipeline-' + (Math.random() * 1e4).toFixed()
+  tmpDirname = path.join(__dirname, '../tmp', dirname)
+  mkdirp.sync(tmpDirname)
+  fs.writeFileSync(path.join(tmpDirname, 'index.js'), file)
+
+  var compiler = bankai(tmpDirname, { watch: false })
+  compiler.documents('/', function (err, res) {
+    assert.error(err, 'no error writing document')
+    var body = res.buffer.toString('utf8')
+    assert.notEqual(body.indexOf('.classA{color:red;}'), -1, 'inlined the .classA selector')
+    assert.equal(body.indexOf('.classB{color:blue;}'), -1, 'did not inline the .classB selector')
+  })
+})
