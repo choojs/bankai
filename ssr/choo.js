@@ -7,11 +7,23 @@ module.exports.is = function (app) {
     app.router.router._trie)
 }
 
-module.exports.listRoutes = function (app) {
-  var keys = getAllRoutes(app.router.router)
-  return Object.keys(keys).filter(function (key) {
-    return !/\/:/.test(key) // Server rendering partials is tricky.
+module.exports.listRoutes = function (app, cb) {
+  var state = { events: app._events }
+  state._experimental_prefetch = []
+
+  app._stores.forEach(function (initStore) {
+    initStore(state)
   })
+
+  Promise.all(state._experimental_prefetch).then(getRoutes, getRoutes)
+
+  function getRoutes () {
+    delete state._experimental_prefetch
+    var keys = getAllRoutes(app.router.router)
+    cb(null, Object.keys(keys).filter(function (key) {
+      return !/\/:/.test(key) // Server rendering partials is tricky.
+    }))
+  }
 }
 
 // Do a double render pass - the first time around we wait for promises to be
@@ -74,8 +86,8 @@ module.exports.render = function (app, route, cb) {
     delete state._experimental_prefetch // State needs to be serializable.
     var res = { state: state }
     if (body) res.body = body
-    if (app.state.title) res.title = app.state.title
-    if (app.state.language) res.language = app.state.language
+    if (state.title) res.title = state.title
+    if (state.language) res.language = state.language
     if (app.selector) res.selector = app.selector
     cb(null, res)
   }

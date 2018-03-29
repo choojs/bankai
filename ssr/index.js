@@ -11,7 +11,6 @@ module.exports = class ServerRender {
     this.app = this._requireApp(this.entry)
 
     this.appType = this._getAppType(this.app)
-    this.routes = this._listRoutes(this.app)
     this.entry = entry
     this.error = null
 
@@ -34,6 +33,11 @@ module.exports = class ServerRender {
     }
   }
 
+  listRoutes (cb) {
+    if (this.appType === 'choo') return choo.listRoutes(this.app, cb)
+    return cb(null, ['/'])
+  }
+
   _getAppType (app) {
     if (choo.is(app)) return 'choo'
     else return 'default'
@@ -50,11 +54,6 @@ module.exports = class ServerRender {
         this.error = ssrError
       }
     }
-  }
-
-  _listRoutes (app) {
-    if (this.appType === 'choo') return choo.listRoutes(this.app)
-    return ['/']
   }
 }
 

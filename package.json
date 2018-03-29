@@ -84,7 +84,7 @@
   "devDependencies": {
     "a-module-with-babelrc": "^1.0.0",
     "assert-html": "^1.1.5",
-    "choo": "^6.8.0",
+    "choo": "^6.10.3",
     "choo-devtools": "^2.3.3",
     "choo-service-worker": "^2.4.0",
     "rimraf": "^2.6.2",
