@@ -64,24 +64,24 @@ module.exports.render = function (app, route, cb) {
   var state = {}
   state._experimental_prefetch = []
 
-  // Use try catch here for wayfarer missing route throws
-  try {
-    app.router.match(route)
-  } catch (e) {
-    console.error(e)
-    return cb(null, { status: 404, body: 'Not found' })
-  }
-
-  app.toString(route, state)
-
-  // TODO: replace with p-wait-all, once it knows how to handle an empty array.
-  Promise.all(state._experimental_prefetch)
-    .then(render, render)
+  return new Promise(function (resolve, reject) {
+    // First pass to populate prefetch
+    try {
+      app.toString(route, state)
+    } catch (err) {
+      // logging full stack trace to aid with debugging, sorry ui.
+      console.error(err)
+      return reject(err)
+    }
+    resolve(state._experimental_prefetch)
+  }).then(function (prefetches) {
+    return Promise.all(prefetches)
+  }).then(render).catch(cb)
 
   function render () {
     var res = { state: state }
-    delete state._experimental_prefetch // State needs to be serializable.
     res.body = app.toString(route, state)
+    delete res.state._experimental_prefetch // State needs to be serializable.
     if (app.state.title) res.title = app.state.title
     if (app.state.language) res.language = app.state.language
     if (app.selector) res.selector = app.selector
