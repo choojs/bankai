@@ -69,7 +69,6 @@ module.exports.render = function (app, route, cb) {
     try {
       app.toString(route, state)
     } catch (err) {
-      // logging full stack trace to aid with debugging, sorry ui.
       return reject(err)
     }
     resolve(state._experimental_prefetch)
