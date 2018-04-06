@@ -221,9 +221,13 @@ JavaScript, no extra configuration is needed.
 }
 ```
 
+### Custom HTML
 By default, Bankai starts with an empty HTML document, injecting the tags
 mentioned [above](#html). You can also create a custom template as `index.html`,
 and Bankai will inject tags into it instead.
+
+If you export your Choo app instance after doing `.mount()`, Bankai respects the
+mount location during server side rendering:
 
 ```js
 // app.js
@@ -240,6 +244,33 @@ module.exports = app.mount('#app')
 </body>
 ...
 ```
+
+### Service Workers
+Bankai comes with support for service workers. You can place a service worker
+entry point in a file called `sw.js` or `service-worker.js`. Bankai will output
+a browserify bundle by the same name.
+
+You can easily register service workers using
+[choo-service-worker](https://github.com/choojs/choo-service-worker):
+```js
+app.use(require('choo-service-worker')())
+```
+
+choo-service-worker defaults to `/sw.js` for the service worker file name. If
+you named your service worker `service-worker.js` instead, do:
+```js
+app.use(require('choo-service-worker')('/service-worker.js'))
+```
+
+Service workers have access to some environment variables:
+ * __process.env.STYLE_LIST:__ An array of URLs to stylesheet files.
+ * __process.env.SCRIPT_LIST:__ An array of URLs to script files.
+ * __process.env.ASSET_LIST:__ An array of URLs to assets.
+ * __process.env.DOCUMENT_LIST:__ An array of URLs to server-rendered routes.
+ * __process.env.MANIFEST_LIST:__ An array containing the URL to the manifest
+   file.
+ * __process.env.FILE_LIST:__ An array of URLs to assets and routes. This can
+   be used to add all your app's files to a service worker cache.
 
 ## HTTP
 Bankai can be hooked up directly to an HTTP server, which is useful when
