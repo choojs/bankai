@@ -263,6 +263,12 @@ app.use(require('choo-service-worker')('/service-worker.js'))
 ```
 
 Service workers have access to some environment variables:
+ * __process.env.STYLE_LIST:__ An array of URLs to stylesheet files.
+ * __process.env.SCRIPT_LIST:__ An array of URLs to script files.
+ * __process.env.ASSET_LIST:__ An array of URLs to assets.
+ * __process.env.DOCUMENT_LIST:__ An array of URLs to server-rendered routes.
+ * __process.env.MANIFEST_LIST:__ An array containing the URL to the manifest
+   file.
  * __process.env.FILE_LIST:__ An array of URLs to assets and routes. This can
    be used to add all your app's files to a service worker cache.
 
