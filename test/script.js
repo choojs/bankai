@@ -28,6 +28,26 @@ tape('run a JS pipeline', function (assert) {
   })
 })
 
+tape('use a folder as an entry point', function (assert) {
+  assert.plan(2)
+  var file = dedent`
+    console.log(1 + 1)
+  `
+
+  var dirname = 'js-pipeline-' + (Math.random() * 1e4).toFixed()
+  var tmpDirname = path.join(os.tmpdir(), dirname)
+  var tmpScriptname = path.join(tmpDirname, 'index.js')
+  fs.mkdirSync(tmpDirname)
+  fs.writeFileSync(tmpScriptname, file)
+
+  var compiler = bankai(tmpDirname, { watch: false })
+  compiler.scripts('bundle.js', function (err, res) {
+    assert.error(err, 'no error writing script')
+    assert.notEqual(res.buffer.toString('utf8').indexOf('console.log'), -1, 'contains js')
+    rimraf.sync(tmpDirname)
+  })
+})
+
 tape('return an error if an incorrect script is selected', function (assert) {
   assert.plan(1)
   var file = dedent`
