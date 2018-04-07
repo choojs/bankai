@@ -30,11 +30,12 @@ function setup () {
 
   var dirname = 'manifest-pipeline-' + (Math.random() * 1e4).toFixed()
   tmpDirname = path.join(os.tmpdir(), dirname)
+  var contentDirname = path.join(tmpDirname, 'content')
   var assetDirname = path.join(tmpDirname, 'assets')
   var assetSubdirname = path.join(assetDirname, 'images')
 
   tmpScriptname = path.join(tmpDirname, 'index.js')
-  var tmpFilename = path.join(assetDirname, 'file.txt')
+  var tmpFilename = path.join(contentDirname, 'file.txt')
   var tmpAssetJsFilename = path.join(assetDirname, 'file.js')
   var tmpAssetCssFilename = path.join(assetDirname, 'file.css')
   var tmpJsonFilename = path.join(assetDirname, 'file.json')
@@ -42,6 +43,7 @@ function setup () {
   var tmpJpgSubFilename = path.join(assetSubdirname, 'file.jpg')
 
   fs.mkdirSync(tmpDirname)
+  fs.mkdirSync(contentDirname)
   fs.mkdirSync(assetDirname)
   fs.mkdirSync(assetSubdirname)
   fs.writeFileSync(tmpScriptname, script)
@@ -74,8 +76,8 @@ tape('should route urls appropriately', function (assert) {
     '/bundle.js?cache=busted',
     '/bundle.css',
     '/bundle.css?cache=busted',
-    '/assets/file.txt',
-    '/assets/file.txt?cache=busted',
+    '/content/file.txt',
+    '/content/file.txt?cache=busted',
     '/assets/file.json',
     '/assets/file.css',
     '/assets/file.css?cache=busted',
