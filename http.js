@@ -118,9 +118,9 @@ function start (entry, opts) {
     })
   })
 
-  router.route(/^\/assets\/([^?]*)(\?.*)?$/, function (req, res, params) {
-    var prefix = 'assets' // TODO: also accept 'content'
-    var name = prefix + '/' + params[1]
+  router.route(/^\/(assets|content|public)\/([^?]*)(\?.*)?$/, function (req, res, params) {
+    var prefix = params[1] // asset dir
+    var name = prefix + '/' + params[2]
     compiler.assets(name, function (err, filename) {
       if (err) {
         res.statusCode = 404
