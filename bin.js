@@ -60,18 +60,18 @@ var CONFIG_USAGE = `
   ${clr('Configuration', 'bold')}
 
 
-  Bankai is built on top of compilers for scripts, styles and documents. 
-  Each of them can be configured by adding a field to your project's 
+  Bankai is built on top of compilers for scripts, styles and documents.
+  Each of them can be configured by adding a field to your project's
   package.json file.
 
-  These three fields are, respectively: ${clr('"browserify"', 'cyan')}, ${clr('"sheetify"', 'cyan')} and 
+  These three fields are, respectively: ${clr('"browserify"', 'cyan')}, ${clr('"sheetify"', 'cyan')} and
   ${clr('"documentify"', 'cyan')}. Each one should have a configuration object as it's value.
 
   There is currently one possible configuration field: "transform".
 
   It can be one of either:
 
-  1. An array of transform names. 
+  1. An array of transform names.
        ie:  ${clr('[ "vueify" ]', 'cyan')}
   2. An array of tuples transform name + configuration object.
        ie: ${clr('[[ "vueify", { "sass": { "includePaths": [ "src/assets/css" ] } } ]]', 'cyan')}
@@ -152,8 +152,8 @@ function alternateBuffer () {
   var esc = Buffer.from([0x1B])
 
   process.stdout.write('\x1b[?1049h') // Enter alternate buffer.
-  process.stdout.write('\x1b[H')      // Reset screen to top.
-  process.stdout.write('\x1b[?25l')   // Hide cursor
+  process.stdout.write('\x1b[H') // Reset screen to top.
+  process.stdout.write('\x1b[?25l') // Hide cursor
 
   process.on('unhandledRejection', onexit)
   process.on('uncaughtException', onexit)
@@ -169,8 +169,8 @@ function alternateBuffer () {
   }
 
   function onexit (statusCode) {
-    process.stdout.write('\x1b[?1049l')  // Enter to main buffer.
-    process.stdout.write('\x1b[?25h')    // Restore cursor
+    process.stdout.write('\x1b[?1049l') // Enter to main buffer.
+    process.stdout.write('\x1b[?25h') // Restore cursor
 
     if (statusCode instanceof Error) {
       console.error('A critical error occured, forcing Bankai to abort:\n')

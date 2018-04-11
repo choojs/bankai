@@ -88,7 +88,7 @@
     "choo-devtools": "^2.3.3",
     "choo-service-worker": "^2.4.0",
     "rimraf": "^2.6.2",
-    "standard": "^10.0.3",
+    "standard": "^11.0",
     "tachyons": "^4.9.1",
     "tape": "^4.8.0"
   }
