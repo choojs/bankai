@@ -16,6 +16,7 @@
   },
   "keywords": [],
   "dependencies": {
+    "@choojs/findup": "^0.2.0",
     "ansi-diff": "^1.0.10",
     "ansi-escape-sequences": "^4.0.0",
     "async-collection": "^1.0.1",
@@ -38,7 +39,6 @@
     "exorcist": "^1.0.0",
     "explain-error": "^1.0.4",
     "fast-json-parse": "^1.0.3",
-    "findup": "^0.1.5",
     "flush-write-stream": "^1.0.2",
     "fs-compare": "^0.0.4",
     "get-port": "^3.2.0",
