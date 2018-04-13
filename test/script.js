@@ -4,6 +4,7 @@ var mkdirp = require('mkdirp')
 var path = require('path')
 var tape = require('tape')
 var fs = require('fs')
+var vm = require('vm')
 var os = require('os')
 var tmp = require('tmp')
 
@@ -191,6 +192,33 @@ tape('use custom browserslist config', function (assert) {
     assert.ok(/const/.test(content), 'did not transpile const keyword')
     assert.ok(/function\s*\*/.test(content), 'did not transpile generator function')
     assert.ok(/yield/.test(content), 'did not transpile yield keyword')
+  })
+})
+
+tape('does not transform top level `this` in dependencies', function (assert) {
+  assert.plan(4)
+  var file = `
+    T.equal(require('a')(), 10)
+  `
+  var dependency = `
+    module.exports = this.number || (() => 10)
+  `
+
+  var tmpDirname = path.join(__dirname, '../tmp', 'js-pipeline-' + (Math.random() * 1e4).toFixed())
+  mkdirp.sync(path.join(tmpDirname, 'node_modules'))
+  fs.writeFileSync(path.join(tmpDirname, 'app.js'), file)
+  fs.writeFileSync(path.join(tmpDirname, 'node_modules', 'a.js'), dependency)
+
+  var compiler = bankai(path.join(tmpDirname, 'app.js'), { watch: false })
+  compiler.on('error', assert.error)
+  compiler.scripts('bundle.js', function (err, res) {
+    assert.error(err, 'no error writing script')
+    var content = res.buffer.toString('utf8')
+
+    assert.ok(/this\.number/.test(content), 'did not rewrite `this`')
+    assert.ok(/return 10/.test(content), 'did rewrite arrow function')
+
+    vm.runInNewContext(content, { T: assert })
   })
 })
 
