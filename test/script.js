@@ -5,6 +5,7 @@ var path = require('path')
 var tape = require('tape')
 var fs = require('fs')
 var os = require('os')
+var tmp = require('tmp')
 
 var bankai = require('../')
 
@@ -125,6 +126,41 @@ tape('use custom babel config for local files, but not for dependencies', functi
   compiler.scripts('bundle.js', function (err, res) {
     assert.error(err, 'error building .babelrc dependency')
     assert.pass('should build')
+  })
+})
+
+tape('skip babel for dependencies if babelifyDeps is false', function (assert) {
+  assert.plan(4)
+  var file = dedent`
+    const depFunc = require('mydep').depFunc
+    depFunc(1)
+  `
+  var depFile = dedent`
+    const depFunc = (arg) => {
+      console.log(arg)
+    }
+    module.exports = {
+      depFunc
+    }
+`
+
+  var filename = 'js-pipeline-' + (Math.random() * 1e4).toFixed() + '.js'
+  const outputDir = tmp.dirSync({unsafeCleanup: true})
+  var tmpFilename = path.join(outputDir.name, filename)
+  fs.writeFileSync(tmpFilename, file)
+  const nodeModulesDir = path.join(outputDir.name, 'node_modules')
+  mkdirp.sync(nodeModulesDir)
+  fs.writeFileSync(path.join(nodeModulesDir, 'mydep.js'), depFile)
+
+  var compiler = bankai(tmpFilename, { watch: false, babelifyDeps: false })
+  compiler.scripts('bundle.js', function (err, node) {
+    assert.error(err, 'no error writing script')
+    assert.ok(node, 'output exists')
+    assert.ok(node.buffer, 'output buffer exists')
+
+    const compiledJs = node.buffer.toString('utf8')
+    assert.notOk(/['"]use strict['"]/.test(compiledJs))
+    outputDir.removeCallback()
   })
 })
 
