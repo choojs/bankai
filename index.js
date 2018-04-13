@@ -44,7 +44,9 @@ function Bankai (entry, opts) {
 
   // Initialize data structures.
   var key = Buffer.from('be intolerant of intolerance')
-  this.dirname = utils.dirname(entry) // The base directory.
+  this.dirname = path.basename(entry).includes('.') // The base directory.
+    ? utils.dirname(entry)
+    : entry
   this.queue = queue(methods) // The queue caches requests until ready.
   this.graph = graph(key) // The graph manages relations between deps.
 
