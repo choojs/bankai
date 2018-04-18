@@ -68,12 +68,12 @@ module.exports = class ServerRender {
     return this.require(file)
   }
 
-
   _listRoutes (app) {
     if (this.appType === 'choo') return choo.listRoutes(this.app)
     return ['/']
   }
 }
+
 function clearRequireAndChildren (key) {
   if (!require.cache[key]) return
 
