@@ -1,8 +1,8 @@
 var debug = require('debug')('bankai.server-render')
-var assert = require('assert')
+var withGlobal = require('require-with-global')
 var Console = require('console').Console
 var through = require('through2')
-var withGlobal = require('../../../goto-bus-stop/require-with-global')
+var assert = require('assert')
 
 var choo = require('./choo')
 
