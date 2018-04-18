@@ -8,6 +8,7 @@ var pino = require('pino')
 var localization = require('./localization')
 var queue = require('./lib/queue')
 var utils = require('./lib/utils')
+var ServerRender = require('./ssr')
 
 var assetsNode = require('./lib/graph-assets')
 var documentNode = require('./lib/graph-document')
@@ -47,6 +48,8 @@ function Bankai (entry, opts) {
   this.dirname = utils.dirname(entry) // The base directory.
   this.queue = queue(methods) // The queue caches requests until ready.
   this.graph = graph(key) // The graph manages relations between deps.
+
+  this.ssr = new ServerRender(entry)
 
   // Detect when we're ready to allow requests to go through.
   this.graph.on('change', function (nodeName, edgeName, state) {
@@ -110,6 +113,7 @@ function Bankai (entry, opts) {
     fullPaths: opts.fullPaths,
     reload: Boolean(opts.reload),
     log: this.log,
+    ssr: this.ssr,
     watchers: {},
     entry: entry,
     opts: opts,
