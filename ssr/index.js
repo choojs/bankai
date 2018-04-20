@@ -2,6 +2,7 @@ var debug = require('debug')('bankai.server-render')
 var assert = require('assert')
 
 var choo = require('./choo')
+var reactRouter = require('./react-router')
 
 module.exports = class ServerRender {
   constructor (entry) {
@@ -26,6 +27,7 @@ module.exports = class ServerRender {
   render (route, done) {
     var self = this
     if (this.appType === 'choo') choo.render(this.app, route, send)
+    else if (this.appType === 'react-router') reactRouter.render(this.app, route, send)
     else done(null, Object.assign({ route: route }, this.DEFAULT_RESPONSE))
 
     function send (err, res) {
@@ -36,12 +38,14 @@ module.exports = class ServerRender {
 
   _getAppType (app) {
     if (choo.is(app)) return 'choo'
-    else return 'default'
+    if (reactRouter.is(app)) return 'react-router'
+    return 'default'
   }
 
   _requireApp (entry) {
     try {
-      return freshRequire(entry)
+      var exports = freshRequire(entry)
+      return exports.__esModule ? exports.default : exports
     } catch (err) {
       var failedRequire = err.message === `Cannot find module '${entry}'`
       if (!failedRequire) {
@@ -54,6 +58,7 @@ module.exports = class ServerRender {
 
   _listRoutes (app) {
     if (this.appType === 'choo') return choo.listRoutes(this.app)
+    if (this.appType === 'react-router') return reactRouter.listRoutes(this.app)
     return ['/']
   }
 }
