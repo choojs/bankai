@@ -30,5 +30,4 @@ app.route('/other', function (state, emit) {
   `
 })
 
-if (module.parent) module.exports = app
-else app.mount('body')
+module.exports = app.mount('body')
