@@ -1,5 +1,6 @@
 var debug = require('debug')('bankai.server-render')
 var assert = require('assert')
+var sr = require('split-require')
 
 var choo = require('./choo')
 
