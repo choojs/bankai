@@ -16,7 +16,6 @@ module.exports = class ServerRender {
     this.console = through()
     this.consoleInstance = new Console(this.console)
     this.require = requireWithGlobal()
-    this.console.pipe(require('fs').createWriteStream('/tmp/test.txt'))
 
     this.reload()
 
