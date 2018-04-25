@@ -224,6 +224,7 @@ Bankai.prototype.sourceMaps = function (stepName, edgeName, cb) {
 
 Bankai.prototype.close = function () {
   debug('closing all file watchers')
+  this.ssr.close()
   this.graph.emit('close')
   this.emit('close')
 }

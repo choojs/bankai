@@ -44,6 +44,10 @@ module.exports = class ServerRender {
     }
   }
 
+  close () {
+    this.require.remove()
+  }
+
   _getAppType (app) {
     if (choo.is(app)) return 'choo'
     else return 'default'
