@@ -1,5 +1,5 @@
+var requireWithGlobal = require('require-with-global')
 var debug = require('debug')('bankai.server-render')
-var withGlobal = require('require-with-global')
 var Console = require('console').Console
 var through = require('through2')
 var assert = require('assert')
@@ -15,7 +15,8 @@ module.exports = class ServerRender {
 
     this.console = through()
     this.consoleInstance = new Console(this.console)
-    this.require = withGlobal(require, { console: this.consoleInstance })
+    this.require = requireWithGlobal()
+    this.console.pipe(require('fs').createWriteStream('/tmp/test.txt'))
 
     this.reload()
 
@@ -51,7 +52,7 @@ module.exports = class ServerRender {
 
   _requireApp (entry) {
     try {
-      return this._freshRequire(entry)
+      return this._freshRequire(entry, { console: this.consoleInstance })
     } catch (err) {
       var failedRequire = err.message === `Cannot find module '${entry}'`
       if (!failedRequire) {
@@ -63,9 +64,9 @@ module.exports = class ServerRender {
   }
 
   // Clear the cache, and require the file again.
-  _freshRequire (file) {
+  _freshRequire (file, vars) {
     clearRequireAndChildren(file)
-    return this.require(file)
+    return this.require(file, vars)
   }
 
   _listRoutes (app) {
