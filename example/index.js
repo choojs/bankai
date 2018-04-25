@@ -3,7 +3,6 @@ var css = require('sheetify')
 var choo = require('choo')
 
 css('tachyons')
-console.log('whateever')
 
 var app = choo()
 
