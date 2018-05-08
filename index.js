@@ -44,7 +44,10 @@ function Bankai (entry, opts) {
 
   // Initialize data structures.
   var key = Buffer.from('be intolerant of intolerance')
-  this.dirname = utils.dirname(entry) // The base directory.
+  // TODO maybe use fs.stat here to check if it's a directory?
+  // That would be best but we may have to do a sync call, because graph nodes depend on this
+  // value being available immediately, which is less great.
+  this.dirname = path.extname(entry) === '' ? entry : utils.dirname(entry) // The base directory.
   this.queue = queue(methods) // The queue caches requests until ready.
   this.graph = graph(key) // The graph manages relations between deps.
 

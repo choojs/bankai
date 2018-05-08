@@ -9,7 +9,7 @@
     "bankai": "bin.js"
   },
   "scripts": {
-    "build": "./bin.js build example",
+    "build": "./bin.js build example dist",
     "test": "standard && node test",
     "start": "NODE_NO_WARNINGS=1 ./bin.js start example",
     "debug": "DEBUG='*' ./bin.js start -q example"
