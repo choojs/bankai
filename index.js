@@ -99,7 +99,7 @@ function Bankai (entry, opts) {
   // Insert nodes into the graph.
   var documentNodeDepList = [ 'assets:list', 'manifest:bundle', 'styles:bundle', 'scripts:bundle' ]
 
-  if (opts.watch === false) {
+  if (opts.watch !== false) {
     documentNodeDepList.push('reload:bundle')
     this.graph.node('reload', reloadNode)
   }
