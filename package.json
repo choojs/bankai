@@ -20,6 +20,7 @@
     "ansi-diff": "^1.0.10",
     "ansi-escape-sequences": "^4.0.0",
     "ansi-scrollbox": "^0.2.0",
+    "async-cls": "^1.0.1",
     "async-collection": "^1.0.1",
     "babel-core": "^6.26.0",
     "babel-preset-env": "^1.6.1",
