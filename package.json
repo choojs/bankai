@@ -51,6 +51,7 @@
     "keypress": "^0.2.1",
     "minimist": "^1.2.0",
     "mkdirp": "^0.5.1",
+    "nanohtml": "^1.2.4",
     "nanologger": "^1.3.1",
     "nanoraf": "^3.0.1",
     "nanotiming": "^7.2.0",
@@ -79,8 +80,7 @@
     "v8-compile-cache": "^2.0.0",
     "wasm-brotli": "^1.0.2",
     "watchify": "^3.10.0",
-    "wayfarer": "^6.6.3",
-    "yo-yoify": "^4.3.0"
+    "wayfarer": "^6.6.3"
   },
   "devDependencies": {
     "a-module-with-babelrc": "^1.0.0",
