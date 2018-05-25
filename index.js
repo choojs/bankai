@@ -12,6 +12,7 @@ var utils = require('./lib/utils')
 var assetsNode = require('./lib/graph-assets')
 var documentNode = require('./lib/graph-document')
 var manifestNode = require('./lib/graph-manifest')
+var packageJsonNode = require('./lib/graph-package-json')
 var reloadNode = require('./lib/graph-reload')
 var scriptNode = require('./lib/graph-script')
 var serviceWorkerNode = require('./lib/graph-service-worker')
@@ -98,7 +99,8 @@ function Bankai (entry, opts) {
 
   // Insert nodes into the graph.
   this.graph.node('assets', assetsNode)
-  this.graph.node('documents', [ 'assets:list', 'manifest:bundle', 'styles:bundle', 'scripts:bundle', 'reload:bundle' ], documentNode)
+  this.graph.node('package-json', packageJsonNode)
+  this.graph.node('documents', [ 'assets:list', 'package-json:list', 'manifest:bundle', 'styles:bundle', 'scripts:bundle', 'reload:bundle' ], documentNode)
   this.graph.node('manifest', manifestNode)
   this.graph.node('scripts', scriptNode)
   this.graph.node('reload', reloadNode)
