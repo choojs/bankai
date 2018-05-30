@@ -78,7 +78,7 @@ tape('outputs split bundles', function (assert) {
   })
 
   var output = path.join(tmpDir.name, 'dist')
-  var p = build(tmpDir.name, output, function (err) {
+  build(tmpDir.name, output, function (err) {
     assert.ifError(err)
 
     // maybe these should use globs instead of hardcoded hashes
