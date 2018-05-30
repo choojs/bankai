@@ -88,6 +88,7 @@
     "choo": "^6.8.0",
     "choo-devtools": "^2.3.3",
     "choo-service-worker": "^2.4.0",
+    "read-file-tree": "^1.1.0",
     "standard": "^11.0",
     "tachyons": "^4.9.1",
     "tape": "^4.8.0",
