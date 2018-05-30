@@ -236,7 +236,9 @@ tape('custom index.html template', function (assert) {
   `
 
   var tmpDir = tmp.dirSync({ dir: path.join(__dirname, '../tmp'), unsafeCleanup: true })
-  assert.on('end', tmpDir.removeCallback)
+  assert.on('end', function () {
+    try { tmpDir.removeCallback() } catch (err) { console.log(fs.readdirSync(tmpDir.name)) }
+  })
   fs.writeFileSync(path.join(tmpDir.name, 'index.js'), file)
   fs.writeFileSync(path.join(tmpDir.name, 'index.html'), template)
 
