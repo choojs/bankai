@@ -81,9 +81,6 @@ tape('outputs split bundles', function (assert) {
   build(tmpDir.name, output, function (err) {
     assert.ifError(err)
 
-    // eslint-disable-next-line
-    console.log(fs.readFileSync(require('glob').sync(path.join(output, '*', 'bundle.js'))[0], 'utf8'))
-
     // maybe these should use globs instead of hardcoded hashes
     // eg glob.sync('dist/*/bundle.js')
     assert.ok(fs.existsSync(path.join(output, '3372223d6e7a953f', 'bundle.js')))
