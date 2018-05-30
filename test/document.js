@@ -1,22 +1,14 @@
 var assertHtml = require('assert-html')
 var dedent = require('dedent')
 var mkdirp = require('mkdirp')
-var rimraf = require('rimraf')
 var path = require('path')
 var tape = require('tape')
+var tmp = require('tmp')
 var fs = require('fs')
 
 var bankai = require('../')
 
-var tmpDirname
-
-function cleanup () {
-  rimraf.sync(tmpDirname)
-}
-
 tape('renders some HTML', function (assert) {
-  assert.on('end', cleanup)
-
   var expected = `
     <!DOCTYPE html>
     <html lang="en-US" dir="ltr">
@@ -39,11 +31,11 @@ tape('renders some HTML', function (assert) {
     1 + 1
   `
 
-  var dirname = 'document-pipeline-' + (Math.random() * 1e4).toFixed()
-  tmpDirname = path.join(__dirname, '../tmp', dirname)
-  var tmpScriptname = path.join(tmpDirname, 'index.js')
+  var tmpDir = tmp.dirSync({ dir: path.join(__dirname, '../tmp'), unsafeCleanup: true })
+  assert.on('end', tmpDir.removeCallback)
+  var tmpScriptname = path.join(tmpDir.name, 'index.js')
 
-  mkdirp.sync(tmpDirname)
+  mkdirp.sync(tmpDir.name)
   fs.writeFileSync(tmpScriptname, script)
 
   var compiler = bankai(tmpScriptname, { watch: false })
@@ -108,13 +100,12 @@ tape('server render choo apps', function (assert) {
     else app.mount('body')
   `
 
-  var dirname = 'document-pipeline-' + (Math.random() * 1e4).toFixed()
-  tmpDirname = path.join(__dirname, '../tmp', dirname)
-  var tmpScriptname = path.join(tmpDirname, 'index.js')
-  var assetDirname = path.join(tmpDirname, 'assets')
+  var tmpDir = tmp.dirSync({ dir: path.join(__dirname, '../tmp'), unsafeCleanup: true })
+  assert.on('end', tmpDir.removeCallback)
+  var tmpScriptname = path.join(tmpDir.name, 'index.js')
+  var assetDirname = path.join(tmpDir.name, 'assets')
   var fontFilename = path.join(assetDirname, 'font.woff')
 
-  mkdirp.sync(tmpDirname)
   mkdirp.sync(assetDirname)
 
   fs.writeFileSync(tmpScriptname, script)
@@ -149,8 +140,6 @@ tape('server render choo apps', function (assert) {
 })
 
 tape('server render choo apps with root set', function (assert) {
-  assert.on('end', cleanup)
-
   var expected = `
     <!DOCTYPE html>
     <html lang="en-US" dir="ltr">
@@ -184,13 +173,12 @@ tape('server render choo apps with root set', function (assert) {
     else app.mount('body')
   `
 
-  var dirname = 'document-pipeline-' + (Math.random() * 1e4).toFixed()
-  tmpDirname = path.join(__dirname, '../tmp', dirname)
-  var tmpScriptname = path.join(tmpDirname, 'index.js')
-  var assetDirname = path.join(tmpDirname, 'assets')
+  var tmpDir = tmp.dirSync({ dir: path.join(__dirname, '../tmp'), unsafeCleanup: true })
+  assert.on('end', tmpDir.removeCallback)
+  var tmpScriptname = path.join(tmpDir.name, 'index.js')
+  var assetDirname = path.join(tmpDir.name, 'assets')
   var fontFilename = path.join(assetDirname, 'font.woff')
 
-  mkdirp.sync(tmpDirname)
   mkdirp.sync(assetDirname)
 
   fs.writeFileSync(tmpScriptname, script)
@@ -225,7 +213,6 @@ tape('server render choo apps with root set', function (assert) {
 })
 
 tape('custom index.html template', function (assert) {
-  assert.on('end', cleanup)
   assert.plan(3)
 
   var template = `
@@ -248,13 +235,12 @@ tape('custom index.html template', function (assert) {
     module.exports = app.mount('body')
   `
 
-  var dirname = 'document-pipeline-' + (Math.random() * 1e4).toFixed()
-  tmpDirname = path.join(__dirname, '../tmp', dirname)
-  mkdirp.sync(tmpDirname)
-  fs.writeFileSync(path.join(tmpDirname, 'index.js'), file)
-  fs.writeFileSync(path.join(tmpDirname, 'index.html'), template)
+  var tmpDir = tmp.dirSync({ dir: path.join(__dirname, '../tmp'), unsafeCleanup: true })
+  assert.on('end', tmpDir.removeCallback)
+  fs.writeFileSync(path.join(tmpDir.name, 'index.js'), file)
+  fs.writeFileSync(path.join(tmpDir.name, 'index.html'), template)
 
-  var compiler = bankai(tmpDirname, { watch: false })
+  var compiler = bankai(tmpDir.name, { watch: false })
   compiler.documents('/', function (err, res) {
     assert.error(err, 'no error writing document')
     var body = res.buffer.toString('utf8')
@@ -264,7 +250,6 @@ tape('custom index.html template', function (assert) {
 })
 
 tape('mount choo app into given selector', function (assert) {
-  assert.on('end', cleanup)
   assert.plan(3)
 
   var template = `
@@ -287,13 +272,12 @@ tape('mount choo app into given selector', function (assert) {
     module.exports = app.mount('#app')
   `
 
-  var dirname = 'document-pipeline-' + (Math.random() * 1e4).toFixed()
-  tmpDirname = path.join(__dirname, '../tmp', dirname)
-  mkdirp.sync(tmpDirname)
-  fs.writeFileSync(path.join(tmpDirname, 'index.js'), file)
-  fs.writeFileSync(path.join(tmpDirname, 'index.html'), template)
+  var tmpDir = tmp.dirSync({ dir: path.join(__dirname, '../tmp'), unsafeCleanup: true })
+  assert.on('end', tmpDir.removeCallback)
+  fs.writeFileSync(path.join(tmpDir.name, 'index.js'), file)
+  fs.writeFileSync(path.join(tmpDir.name, 'index.html'), template)
 
-  var compiler = bankai(tmpDirname, { watch: false })
+  var compiler = bankai(tmpDir.name, { watch: false })
   compiler.documents('/', function (err, res) {
     assert.error(err, 'no error writing document')
     var body = res.buffer.toString('utf8')
@@ -303,7 +287,6 @@ tape('mount choo app into given selector', function (assert) {
 })
 
 tape('inlines critical css', function (assert) {
-  assert.on('end', cleanup)
   assert.plan(3)
 
   var file = `
@@ -326,12 +309,11 @@ tape('inlines critical css', function (assert) {
     module.exports = app.mount('body')
   `
 
-  var dirname = 'document-pipeline-' + (Math.random() * 1e4).toFixed()
-  tmpDirname = path.join(__dirname, '../tmp', dirname)
-  mkdirp.sync(tmpDirname)
-  fs.writeFileSync(path.join(tmpDirname, 'index.js'), file)
+  var tmpDir = tmp.dirSync({ dir: path.join(__dirname, '../tmp'), unsafeCleanup: true })
+  assert.on('end', tmpDir.removeCallback)
+  fs.writeFileSync(path.join(tmpDir.name, 'index.js'), file)
 
-  var compiler = bankai(tmpDirname, { watch: false })
+  var compiler = bankai(tmpDir.name, { watch: false })
   compiler.documents('/', function (err, res) {
     assert.error(err, 'no error writing document')
     var body = res.buffer.toString('utf8')

@@ -1,12 +1,10 @@
 var dedent = require('dedent')
-var rimraf = require('rimraf')
 var mkdirp = require('mkdirp')
 var path = require('path')
 var tape = require('tape')
+var tmp = require('tmp')
 var fs = require('fs')
 var vm = require('vm')
-var os = require('os')
-var tmp = require('tmp')
 
 var bankai = require('../')
 
@@ -16,17 +14,16 @@ tape('run a JS pipeline', function (assert) {
     1 + 1
   `
 
-  var filename = 'js-pipeline-' + (Math.random() * 1e4).toFixed() + '.js'
-  var tmpFilename = path.join(os.tmpdir(), filename)
-  fs.writeFileSync(tmpFilename, file)
+  var tmpFile = tmp.fileSync({ dir: path.join(__dirname, '../tmp'), discardDescriptor: true, postfix: '.js' })
+  assert.on('end', tmpFile.removeCallback)
+  fs.writeFileSync(tmpFile.name, file)
 
-  var compiler = bankai(tmpFilename, { watch: false })
+  var compiler = bankai(tmpFile.name, { watch: false })
   compiler.scripts('bundle.js', function (err, res) {
     assert.error(err, 'no error writing script')
     assert.ok(res, 'output exists')
     assert.ok(res.buffer, 'output buffer exists')
     assert.ok(res.hash, 'output hash exists')
-    rimraf.sync(tmpFilename)
   })
 })
 
@@ -36,17 +33,15 @@ tape('use a folder as an entry point', function (assert) {
     console.log(1 + 1)
   `
 
-  var dirname = 'js-pipeline-' + (Math.random() * 1e4).toFixed()
-  var tmpDirname = path.join(os.tmpdir(), dirname)
-  var tmpScriptname = path.join(tmpDirname, 'index.js')
-  fs.mkdirSync(tmpDirname)
+  var tmpDir = tmp.dirSync({ dir: path.join(__dirname, '../tmp'), unsafeCleanup: true })
+  assert.on('end', tmpDir.removeCallback)
+  var tmpScriptname = path.join(tmpDir.name, 'index.js')
   fs.writeFileSync(tmpScriptname, file)
 
-  var compiler = bankai(tmpDirname, { watch: false })
+  var compiler = bankai(tmpDir.name, { watch: false })
   compiler.scripts('bundle.js', function (err, res) {
     assert.error(err, 'no error writing script')
     assert.notEqual(res.buffer.toString('utf8').indexOf('console.log'), -1, 'contains js')
-    rimraf.sync(tmpDirname)
   })
 })
 
@@ -56,14 +51,13 @@ tape('return an error if an incorrect script is selected', function (assert) {
     1 + 1
   `
 
-  var filename = 'js-pipeline-' + (Math.random() * 1e4).toFixed() + '.js'
-  var tmpFilename = path.join(os.tmpdir(), filename)
-  fs.writeFileSync(tmpFilename, file)
+  var tmpFile = tmp.fileSync({ dir: path.join(__dirname, '../tmp'), discardDescriptor: true, postfix: '.js' })
+  assert.on('end', tmpFile.removeCallback)
+  fs.writeFileSync(tmpFile.name, file)
 
-  var compiler = bankai(tmpFilename, { watch: false })
+  var compiler = bankai(tmpFile.name, { watch: false })
   compiler.scripts('bad-bad-not-good.js', function (err, res) {
     assert.ok(err, 'error writing script')
-    rimraf.sync(tmpFilename)
   })
 })
 
@@ -78,19 +72,17 @@ tape('output multiple bundles if `split-require` is used', function (assert) {
     module.exports = null
   `
 
-  var tmpDirname = path.join(__dirname, '../tmp', 'js-pipeline-' + (Math.random() * 1e4).toFixed())
-  mkdirp.sync(tmpDirname)
-  fs.writeFileSync(path.join(tmpDirname, 'app.js'), file)
-  fs.writeFileSync(path.join(tmpDirname, 'dynamic.js'), dynamicFile)
+  var tmpDir = tmp.dirSync({ dir: path.join(__dirname, '../tmp'), unsafeCleanup: true })
+  assert.on('end', tmpDir.removeCallback)
+  fs.writeFileSync(path.join(tmpDir.name, 'app.js'), file)
+  fs.writeFileSync(path.join(tmpDir.name, 'dynamic.js'), dynamicFile)
 
-  var compiler = bankai(path.join(tmpDirname, 'app.js'), { watch: false })
+  var compiler = bankai(path.join(tmpDir.name, 'app.js'), { watch: false })
   compiler.scripts('bundle.js', function (err, res) {
-    assert.error(err, 'error writing main bundle')
+    assert.error(err, 'no error writing main bundle')
     var dynamicName = /bundle-\d+\.js/.exec(res.buffer.toString('utf-8'))
     compiler.scripts(dynamicName[0], function (err, res) {
-      assert.error(err, 'error writing dynamic bundle')
-
-      rimraf.sync(tmpDirname)
+      assert.error(err, 'no error writing dynamic bundle')
     })
   })
 })
@@ -116,13 +108,13 @@ tape('use custom babel config for local files, but not for dependencies', functi
    require('a-module-with-babelrc')
   `
 
-  var tmpDirname = path.join(__dirname, '../tmp', 'js-pipeline-' + (Math.random() * 1e4).toFixed())
-  mkdirp.sync(tmpDirname)
-  fs.writeFileSync(path.join(tmpDirname, 'plugin.js'), babelPlugin)
-  fs.writeFileSync(path.join(tmpDirname, '.babelrc'), babelrc)
-  fs.writeFileSync(path.join(tmpDirname, 'app.js'), file)
+  var tmpDir = tmp.dirSync({ dir: path.join(__dirname, '../tmp'), unsafeCleanup: true })
+  assert.on('end', tmpDir.removeCallback)
+  fs.writeFileSync(path.join(tmpDir.name, 'plugin.js'), babelPlugin)
+  fs.writeFileSync(path.join(tmpDir.name, '.babelrc'), babelrc)
+  fs.writeFileSync(path.join(tmpDir.name, 'app.js'), file)
 
-  var compiler = bankai(path.join(tmpDirname, 'app.js'), { watch: false })
+  var compiler = bankai(path.join(tmpDir.name, 'app.js'), { watch: false })
   compiler.on('error', assert.error)
   compiler.scripts('bundle.js', function (err, res) {
     assert.error(err, 'error building .babelrc dependency')
@@ -146,12 +138,13 @@ tape('skip babel for dependencies if babelifyDeps is false', function (assert) {
 `
 
   var filename = 'js-pipeline-' + (Math.random() * 1e4).toFixed() + '.js'
-  const outputDir = tmp.dirSync({unsafeCleanup: true})
-  var tmpFilename = path.join(outputDir.name, filename)
+  var tmpDir = tmp.dirSync({ dir: path.join(__dirname, '../tmp'), unsafeCleanup: true })
+  assert.on('end', tmpDir.removeCallback)
+
+  var tmpFilename = path.join(tmpDir.name, filename)
   fs.writeFileSync(tmpFilename, file)
-  const nodeModulesDir = path.join(outputDir.name, 'node_modules')
-  mkdirp.sync(nodeModulesDir)
-  fs.writeFileSync(path.join(nodeModulesDir, 'mydep.js'), depFile)
+  mkdirp.sync(path.join(tmpDir.name, 'node_modules'))
+  fs.writeFileSync(path.join(tmpDir.name, 'node_modules', 'mydep.js'), depFile)
 
   var compiler = bankai(tmpFilename, { watch: false, babelifyDeps: false })
   compiler.scripts('bundle.js', function (err, node) {
@@ -161,7 +154,6 @@ tape('skip babel for dependencies if babelifyDeps is false', function (assert) {
 
     const compiledJs = node.buffer.toString('utf8')
     assert.notOk(/['"]use strict['"]/.test(compiledJs))
-    outputDir.removeCallback()
   })
 })
 
@@ -178,12 +170,12 @@ tape('use custom browserslist config', function (assert) {
     }
   `
 
-  var tmpDirname = path.join(__dirname, '../tmp', 'js-pipeline-' + (Math.random() * 1e4).toFixed())
-  mkdirp.sync(tmpDirname)
-  fs.writeFileSync(path.join(tmpDirname, '.browserslistrc'), browserslist)
-  fs.writeFileSync(path.join(tmpDirname, 'app.js'), file)
+  var tmpDir = tmp.dirSync({ dir: path.join(__dirname, '../tmp'), unsafeCleanup: true })
+  assert.on('end', tmpDir.removeCallback)
+  fs.writeFileSync(path.join(tmpDir.name, '.browserslistrc'), browserslist)
+  fs.writeFileSync(path.join(tmpDir.name, 'app.js'), file)
 
-  var compiler = bankai(path.join(tmpDirname, 'app.js'), { watch: false })
+  var compiler = bankai(path.join(tmpDir.name, 'app.js'), { watch: false })
   compiler.on('error', assert.error)
   compiler.scripts('bundle.js', function (err, res) {
     assert.error(err, 'no error writing script')
@@ -204,12 +196,14 @@ tape('does not transform top level `this` in dependencies', function (assert) {
     module.exports = this.number || (() => 10)
   `
 
-  var tmpDirname = path.join(__dirname, '../tmp', 'js-pipeline-' + (Math.random() * 1e4).toFixed())
-  mkdirp.sync(path.join(tmpDirname, 'node_modules'))
-  fs.writeFileSync(path.join(tmpDirname, 'app.js'), file)
-  fs.writeFileSync(path.join(tmpDirname, 'node_modules', 'a.js'), dependency)
+  var tmpDir = tmp.dirSync({ dir: path.join(__dirname, '../tmp'), unsafeCleanup: true })
+  assert.on('end', tmpDir.removeCallback)
 
-  var compiler = bankai(path.join(tmpDirname, 'app.js'), { watch: false })
+  mkdirp.sync(path.join(tmpDir.name, 'node_modules'))
+  fs.writeFileSync(path.join(tmpDir.name, 'app.js'), file)
+  fs.writeFileSync(path.join(tmpDir.name, 'node_modules', 'a.js'), dependency)
+
+  var compiler = bankai(path.join(tmpDir.name, 'app.js'), { watch: false })
   compiler.on('error', assert.error)
   compiler.scripts('bundle.js', function (err, res) {
     assert.error(err, 'no error writing script')
@@ -233,12 +227,12 @@ tape('envify in watch mode', function (assert) {
     console.log({ a: a })
   `
 
-  var tmpDirname = path.join(__dirname, '../tmp', 'js-pipeline-' + (Math.random() * 1e4).toFixed())
-  mkdirp.sync(tmpDirname)
-  fs.writeFileSync(path.join(tmpDirname, 'app.js'), file)
+  var tmpDir = tmp.dirSync({ dir: path.join(__dirname, '../tmp'), unsafeCleanup: true })
+  assert.on('end', tmpDir.removeCallback)
+  fs.writeFileSync(path.join(tmpDir.name, 'app.js'), file)
 
   process.env.BANKAI_TEST_VALUE = 'replacement'
-  var compiler = bankai(path.join(tmpDirname, 'app.js'), { watch: true, reload: false })
+  var compiler = bankai(path.join(tmpDir.name, 'app.js'), { watch: true, reload: false })
   compiler.on('error', assert.error)
   compiler.scripts('bundle.js', function (err, res) {
     assert.error(err, 'no error writing script')
@@ -248,7 +242,7 @@ tape('envify in watch mode', function (assert) {
 
     // Wait for a bit before changing the source file, because the watcher setup isn't instant.
     setTimeout(function () {
-      fs.writeFileSync(path.join(tmpDirname, 'app.js'), file2)
+      fs.writeFileSync(path.join(tmpDir.name, 'app.js'), file2)
     }, 500)
   })
 

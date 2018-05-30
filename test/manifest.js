@@ -1,19 +1,12 @@
 var dedent = require('dedent')
-var rimraf = require('rimraf')
 var path = require('path')
 var tape = require('tape')
+var tmp = require('tmp')
 var fs = require('fs')
-var os = require('os')
 
 var bankai = require('../')
-var tmpDirname
-
-function cleanup () {
-  rimraf.sync(tmpDirname)
-}
 
 tape('read a manifest', function (assert) {
-  assert.on('end', cleanup)
   assert.plan(5)
   var script = dedent`
     1 + 1
@@ -36,12 +29,11 @@ tape('read a manifest', function (assert) {
     }
   `
 
-  var dirname = 'manifest-pipeline-' + (Math.random() * 1e4).toFixed()
-  tmpDirname = path.join(os.tmpdir(), dirname)
-  var tmpScriptname = path.join(tmpDirname, 'index.js')
-  var tmpManifestname = path.join(tmpDirname, 'manifest.json')
+  var tmpDir = tmp.dirSync({ dir: path.join(__dirname, '../tmp'), unsafeCleanup: true })
+  assert.on('end', tmpDir.removeCallback)
+  var tmpScriptname = path.join(tmpDir.name, 'index.js')
+  var tmpManifestname = path.join(tmpDir.name, 'manifest.json')
 
-  fs.mkdirSync(tmpDirname)
   fs.writeFileSync(tmpScriptname, script)
   fs.writeFileSync(tmpManifestname, manifest)
 
@@ -59,18 +51,16 @@ tape('read a manifest', function (assert) {
 })
 
 tape('should provide a default manifest', function (assert) {
-  assert.on('end', cleanup)
   assert.plan(3)
 
   var script = dedent`
     1 + 1
   `
 
-  var dirname = 'manifest-pipeline-' + (Math.random() * 1e4).toFixed()
-  tmpDirname = path.join(os.tmpdir(), dirname)
-  var tmpScriptname = path.join(tmpDirname, 'index.js')
+  var tmpDir = tmp.dirSync({ dir: path.join(__dirname, '../tmp'), unsafeCleanup: true })
+  assert.on('end', tmpDir.removeCallback)
+  var tmpScriptname = path.join(tmpDir.name, 'index.js')
 
-  fs.mkdirSync(tmpDirname)
   fs.writeFileSync(tmpScriptname, script)
 
   var compiler = bankai(tmpScriptname, { watch: false })
@@ -87,7 +77,6 @@ tape('should provide a default manifest', function (assert) {
 tape('should watch the manifest for changes', function (assert) {
   assert.on('end', function () {
     compiler.close()
-    cleanup()
   })
   assert.plan(12)
 
@@ -103,12 +92,11 @@ tape('should watch the manifest for changes', function (assert) {
     { "name": "bar" }
   `
 
-  var dirname = 'manifest-pipeline-' + (Math.random() * 1e4).toFixed()
-  tmpDirname = path.join(os.tmpdir(), dirname)
-  var tmpScriptname = path.join(tmpDirname, 'index.js')
-  var tmpManifestname = path.join(tmpDirname, 'manifest.json')
+  var tmpDir = tmp.dirSync({ dir: path.join(__dirname, '../tmp'), unsafeCleanup: true })
+  assert.on('end', tmpDir.removeCallback)
+  var tmpScriptname = path.join(tmpDir.name, 'index.js')
+  var tmpManifestname = path.join(tmpDir.name, 'manifest.json')
 
-  fs.mkdirSync(tmpDirname)
   fs.writeFileSync(tmpScriptname, script)
   fs.writeFileSync(tmpManifestname, manifest1)
 
