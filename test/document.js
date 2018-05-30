@@ -236,10 +236,7 @@ tape('custom index.html template', function (assert) {
   `
 
   var tmpDir = tmp.dirSync({ dir: path.join(__dirname, '../tmp'), unsafeCleanup: true })
-  assert.on('end', function () {
-    console.log(require('read-file-tree').sync(tmpDir.name, { encoding: 'utf8' }))
-    tmpDir.removeCallback()
-  })
+  assert.on('end', tmpDir.removeCallback)
   fs.writeFileSync(path.join(tmpDir.name, 'index.js'), file)
   fs.writeFileSync(path.join(tmpDir.name, 'index.html'), template)
 
