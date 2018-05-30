@@ -81,6 +81,8 @@ tape('outputs split bundles', function (assert) {
   build(tmpDir.name, output, function (err) {
     assert.ifError(err)
 
+    console.log(require('read-file-tree').sync(output))
+
     // maybe these should use globs instead of hardcoded hashes
     // eg glob.sync('dist/*/bundle.js')
     assert.ok(fs.existsSync(path.join(output, '3372223d6e7a953f', 'bundle.js')))
