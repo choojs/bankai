@@ -1,3 +1,7 @@
+var path = require('path')
+var mkdirp = require('mkdirp')
+mkdirp.sync(path.join(__dirname, '../tmp'))
+
 require('./assets')
 require('./document')
 require('./http')
