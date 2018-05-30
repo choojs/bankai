@@ -36,7 +36,7 @@ function start (entry, opts) {
     if (name === 'styles:bundle') emitter.emit('styles:bundle', node)
   })
 
-  router.route(/^\/manifest.json$/, function (req, res, params) {
+  router.route(/^\/manifest\.json$/, function (req, res, params) {
     compiler.manifest(function (err, node) {
       if (err) {
         res.statusCode = 404
