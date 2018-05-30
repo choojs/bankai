@@ -91,6 +91,7 @@
     "standard": "^11.0",
     "tachyons": "^4.9.1",
     "tape": "^4.8.0",
-    "tmp": "github:raszi/node-tmp#310c60f"
+    "tmp": "github:raszi/node-tmp#310c60f",
+    "write-file-tree": "^1.0.0"
   }
 }
