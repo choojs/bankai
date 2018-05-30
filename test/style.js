@@ -1,9 +1,8 @@
 var dedent = require('dedent')
-var rimraf = require('rimraf')
 var path = require('path')
 var tape = require('tape')
+var tmp = require('tmp')
 var fs = require('fs')
-var os = require('os')
 
 var bankai = require('../')
 
@@ -19,18 +18,16 @@ tape('extract style from script', function (assert) {
     html\`<foo class="foo">hello</foo>\`
   `
 
-  var dirname = 'style-pipeline-' + (Math.random() * 1e4).toFixed()
-  var tmpDirname = path.join(os.tmpdir(), dirname)
-  var tmpScriptname = path.join(tmpDirname, 'index.js')
+  var tmpDir = tmp.dirSync({ dir: path.join(__dirname, '../tmp'), unsafeCleanup: true })
+  assert.on('end', tmpDir.removeCallback)
+  var tmpScriptname = path.join(tmpDir.name, 'index.js')
 
-  fs.mkdirSync(tmpDirname)
   fs.writeFileSync(tmpScriptname, script)
 
   var compiler = bankai(tmpScriptname, { watch: false })
   compiler.styles('bundle.css', function (err, res) {
     assert.error(err, 'no error writing style')
     assert.equal(res.buffer.toString(), expected, 'res was equal')
-    rimraf.sync(tmpDirname)
   })
 
   compiler.scripts('bundle.js', function (err, res) {
@@ -51,18 +48,16 @@ tape('remove unused styles', function (assert) {
     html\`<foo class="foo">hello</foo>\`
   `
 
-  var dirname = 'style-pipeline-' + (Math.random() * 1e4).toFixed()
-  var tmpDirname = path.join(os.tmpdir(), dirname)
-  var tmpScriptname = path.join(tmpDirname, 'index.js')
+  var tmpDir = tmp.dirSync({ dir: path.join(__dirname, '../tmp'), unsafeCleanup: true })
+  assert.on('end', tmpDir.removeCallback)
+  var tmpScriptname = path.join(tmpDir.name, 'index.js')
 
-  fs.mkdirSync(tmpDirname)
   fs.writeFileSync(tmpScriptname, script)
 
   var compiler = bankai(tmpScriptname, { watch: false })
   compiler.styles('bundle.css', function (err, res) {
     assert.error(err, 'no error writing style')
     assert.equal(res.buffer.toString(), expected, 'res was equal')
-    rimraf.sync(tmpDirname)
   })
 
   compiler.scripts('bundle.js', function (err, res) {

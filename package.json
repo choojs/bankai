@@ -88,10 +88,9 @@
     "choo": "^6.8.0",
     "choo-devtools": "^2.3.3",
     "choo-service-worker": "^2.4.0",
-    "rimraf": "^2.6.2",
     "standard": "^11.0",
     "tachyons": "^4.9.1",
     "tape": "^4.8.0",
-    "tmp": "0.0.33"
+    "tmp": "github:raszi/node-tmp#310c60f"
   }
 }

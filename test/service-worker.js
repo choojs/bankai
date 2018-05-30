@@ -1,9 +1,8 @@
 var dedent = require('dedent')
-var rimraf = require('rimraf')
 var path = require('path')
 var tape = require('tape')
+var tmp = require('tmp')
 var fs = require('fs')
-var os = require('os')
 
 var bankai = require('../')
 
@@ -30,12 +29,11 @@ tape('read a manifest', function (assert) {
     }
   `
 
-  var dirname = 'manifest-pipeline-' + (Math.random() * 1e4).toFixed()
-  var tmpDirname = path.join(os.tmpdir(), dirname)
-  var tmpScriptname = path.join(tmpDirname, 'index.js')
-  var tmpManifestname = path.join(tmpDirname, 'manifest.json')
+  var tmpDir = tmp.dirSync({ dir: path.join(__dirname, '../tmp'), unsafeCleanup: true })
+  assert.on('end', tmpDir.removeCallback)
+  var tmpScriptname = path.join(tmpDir.name, 'index.js')
+  var tmpManifestname = path.join(tmpDir.name, 'manifest.json')
 
-  fs.mkdirSync(tmpDirname)
   fs.writeFileSync(tmpScriptname, script)
   fs.writeFileSync(tmpManifestname, manifest)
 
@@ -49,7 +47,6 @@ tape('read a manifest', function (assert) {
 
   compiler.scripts('bundle.js', function (err, res) {
     assert.error(err, 'no error writing script')
-    rimraf.sync(tmpDirname)
   })
 })
 
@@ -59,11 +56,10 @@ tape('should provide a default manifest', function (assert) {
     1 + 1
   `
 
-  var dirname = 'manifest-pipeline-' + (Math.random() * 1e4).toFixed()
-  var tmpDirname = path.join(os.tmpdir(), dirname)
-  var tmpScriptname = path.join(tmpDirname, 'index.js')
+  var tmpDir = tmp.dirSync({ dir: path.join(__dirname, '../tmp'), unsafeCleanup: true })
+  assert.on('end', tmpDir.removeCallback)
+  var tmpScriptname = path.join(tmpDir.name, 'index.js')
 
-  fs.mkdirSync(tmpDirname)
   fs.writeFileSync(tmpScriptname, script)
 
   var compiler = bankai(tmpScriptname, { watch: false })
@@ -74,6 +70,5 @@ tape('should provide a default manifest', function (assert) {
 
   compiler.scripts('bundle.js', function (err, res) {
     assert.error(err, 'no error writing script')
-    rimraf.sync(tmpDirname)
   })
 })
