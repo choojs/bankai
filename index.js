@@ -97,11 +97,16 @@ function Bankai (entry, opts) {
   })
 
   // Insert nodes into the graph.
+  var documentDependencies = [ 'assets:list', 'manifest:bundle', 'styles:bundle', 'scripts:bundle' ]
+
+  if (opts.reload) {
+    documentDependencies.push('reload:bundle')
+    this.graph.node('reload', reloadNode)
+  }
   this.graph.node('assets', assetsNode)
-  this.graph.node('documents', [ 'assets:list', 'manifest:bundle', 'styles:bundle', 'scripts:bundle', 'reload:bundle' ], documentNode)
+  this.graph.node('documents', documentDependencies, documentNode)
   this.graph.node('manifest', manifestNode)
   this.graph.node('scripts', scriptNode)
-  this.graph.node('reload', reloadNode)
   this.graph.node('service-worker', [ 'assets:list', 'styles:bundle', 'scripts:bundle', 'documents:list' ], serviceWorkerNode)
   this.graph.node('styles', [ 'scripts:style', 'scripts:bundle' ], styleNode)
 
