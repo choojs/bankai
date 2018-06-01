@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 9.14.0
+* Add console paonel. (#468)
+  With `bankai start`, press "2" to switch to the console output.
+  Press "1" to switch to the main output.
+
 ## 9.13.0
 * enable reload when necessary (#493)
 * correct router regex (#496)
