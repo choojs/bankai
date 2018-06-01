@@ -1,4 +1,7 @@
+var requireWithGlobal = require('require-with-global')
 var debug = require('debug')('bankai.server-render')
+var Console = require('console').Console
+var through = require('through2')
 var assert = require('assert')
 
 var choo = require('./choo')
@@ -8,12 +11,13 @@ module.exports = class ServerRender {
     assert.equal(typeof entry, 'string', 'bankai/ssr/index.js: entry should be type string')
 
     this.entry = entry
-    this.app = this._requireApp(this.entry)
-
-    this.appType = this._getAppType(this.app)
-    this.routes = this._listRoutes(this.app)
-    this.entry = entry
     this.error = null
+
+    this.console = through()
+    this.consoleInstance = new Console(this.console)
+    this.require = requireWithGlobal()
+
+    this.reload()
 
     this.DEFAULT_RESPONSE = {
       body: '<body></body>',
@@ -21,6 +25,12 @@ module.exports = class ServerRender {
       language: 'en-US',
       selector: 'body'
     }
+  }
+
+  reload () {
+    this.app = this._requireApp(this.entry)
+    this.appType = this._getAppType(this.app)
+    this.routes = this._listRoutes(this.app)
   }
 
   render (route, done) {
@@ -34,6 +44,10 @@ module.exports = class ServerRender {
     }
   }
 
+  close () {
+    this.require.remove()
+  }
+
   _getAppType (app) {
     if (choo.is(app)) return 'choo'
     else return 'default'
@@ -41,7 +55,7 @@ module.exports = class ServerRender {
 
   _requireApp (entry) {
     try {
-      return freshRequire(entry)
+      return this._freshRequire(entry, { console: this.consoleInstance })
     } catch (err) {
       var failedRequire = err.message === `Cannot find module '${entry}'`
       if (!failedRequire) {
@@ -52,37 +66,36 @@ module.exports = class ServerRender {
     }
   }
 
+  // Clear the cache, and require the file again.
+  _freshRequire (file, vars) {
+    clearRequireAndChildren(file)
+    return this.require(file, vars)
+  }
+
   _listRoutes (app) {
     if (this.appType === 'choo') return choo.listRoutes(this.app)
     return ['/']
   }
 }
 
-// Clear the cache, and require the file again.
-function freshRequire (file) {
-  clearRequireAndChildren(file)
-  var exports = require(file)
-  return exports
+function clearRequireAndChildren (key) {
+  if (!require.cache[key]) return
 
-  function isNotNativeModulePath (file) {
-    return /\.node$/.test(file.id) === false
+  require.cache[key].children
+    .filter(isNotNativeModulePath)
+    .filter(isNotInNodeModules)
+    .forEach(function (child) {
+      clearRequireAndChildren(child.id)
+    })
+
+  debug('clearing require cache for %s', key)
+  delete require.cache[key]
+
+  function isNotNativeModulePath (module) {
+    return /\.node$/.test(module.id) === false
   }
 
-  function isNotInNodeModules (file) {
-    return /node_modules/.test(file.id) === false
-  }
-
-  function clearRequireAndChildren (key) {
-    if (!require.cache[key]) return
-
-    require.cache[key].children
-      .filter(isNotNativeModulePath)
-      .filter(isNotInNodeModules)
-      .forEach(function (child) {
-        clearRequireAndChildren(child.id)
-      })
-
-    debug('clearing require cache for %s', key)
-    delete require.cache[key]
+  function isNotInNodeModules (module) {
+    return /node_modules/.test(module.id) === false
   }
 }
