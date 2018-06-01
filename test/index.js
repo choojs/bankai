@@ -8,3 +8,6 @@ require('./http')
 require('./manifest')
 require('./script')
 require('./style')
+
+// CLI tests
+require('./build')

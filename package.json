@@ -73,7 +73,7 @@
     "send": "^0.16.1",
     "server-router": "^6.0.0",
     "sheetify": "^7.1.0",
-    "split-require": "^3.0.1",
+    "split-require": "^3.1.1",
     "split2": "^2.2.0",
     "strip-ansi": "^4.0.0",
     "tfilter": "^1.0.1",
@@ -90,9 +90,11 @@
     "choo": "^6.8.0",
     "choo-devtools": "^2.3.3",
     "choo-service-worker": "^2.4.0",
+    "read-file-tree": "^1.1.0",
     "standard": "^11.0",
     "tachyons": "^4.9.1",
     "tape": "^4.8.0",
-    "tmp": "github:raszi/node-tmp#310c60f"
+    "tmp": "github:raszi/node-tmp#310c60f",
+    "write-file-tree": "^1.0.0"
   }
 }
