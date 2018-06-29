@@ -36,6 +36,11 @@ function start (entry, opts) {
     if (name === 'styles:bundle') emitter.emit('styles:bundle', node)
   })
 
+  router.route(/^\/(favicon\.)(ico|png|gif)$/, function (req, res, params) {
+    var filename = params[1] + params[2]
+    pump(send(req, filename), res)
+  })
+
   router.route(/^\/manifest\.json$/, function (req, res, params) {
     compiler.manifest(function (err, node) {
       if (err) {

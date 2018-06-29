@@ -12,6 +12,7 @@ var ServerRender = require('./ssr')
 
 var assetsNode = require('./lib/graph-assets')
 var documentNode = require('./lib/graph-document')
+var faviconNode = require('./lib/graph-favicon')
 var manifestNode = require('./lib/graph-manifest')
 var reloadNode = require('./lib/graph-reload')
 var scriptNode = require('./lib/graph-script')
@@ -100,12 +101,13 @@ function Bankai (entry, opts) {
   })
 
   // Insert nodes into the graph.
-  var documentDependencies = [ 'assets:list', 'manifest:bundle', 'styles:bundle', 'scripts:bundle' ]
+  var documentDependencies = [ 'assets:list', 'manifest:bundle', 'styles:bundle', 'scripts:bundle', 'favicon:bundle' ]
 
   if (opts.reload) {
     documentDependencies.push('reload:bundle')
     this.graph.node('reload', reloadNode)
   }
+  this.graph.node('favicon', faviconNode)
   this.graph.node('assets', assetsNode)
   this.graph.node('documents', documentDependencies, documentNode)
   this.graph.node('manifest', manifestNode)
