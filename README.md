@@ -59,8 +59,7 @@ your browser.
   <summary>
     <b>How does this work?</b>
   </summary>
-  For HTTPS to 
-  on <code>localhost</code>, we must sign a TLS certificate
+  For HTTPS to run on <code>localhost</code>, we must sign a TLS certificate
   locally. This is better known as a "self-signed certificate". Browsers
   actively check for certificates from uknown providers, and warn you (for good
   reason!) In our case, however, it's safe to ignore.
