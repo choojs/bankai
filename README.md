@@ -136,7 +136,7 @@ care how we do this: it's lots of glue code, and not necessarily pretty. But it
 can be useful to know which optimizations we apply. This is a list:
 
 ### JavaScript
-- __nanohtml:__ Optimize `choo` HTML code so it run significantly faster in the
+- __nanohtml:__ Optimize `choo` HTML code so it runs significantly faster in the
   browser.
 - __glslify:__ Adds a module system to GLSL shaders.
 - __brfs:__ Statically inline calls to `fs.readFile()`. Useful to ship assets
