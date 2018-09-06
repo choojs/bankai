@@ -4,8 +4,17 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 9.15.0
+* Add favicon. (#502)
+  A `favicon.ico` in the root of your project will be used as the icon for your
+  app!
+* Prevent infinite redirect behind a reverse proxy. (#510)
+* Fix documentation typo. (#505)
+
+Thanks @ZhouHansen, @mjstahl and @jekrb!
+
 ## 9.14.0
-* Add console paonel. (#468)
+* Add console panel. (#468)
   With `bankai start`, press "2" to switch to the console output.
   Press "1" to switch to the main output.
 
