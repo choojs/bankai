@@ -1,6 +1,6 @@
 var EventEmitter = require('events').EventEmitter
 var gzipMaybe = require('http-gzip-maybe')
-var assert = require('assert')
+var assert = require('assert').strict
 var path = require('path')
 var pump = require('pump')
 var send = require('send')

@@ -1,7 +1,7 @@
 var Emitter = require('events').EventEmitter
 var debug = require('debug')('bankai')
+var assert = require('assert').strict
 var graph = require('buffer-graph')
-var assert = require('assert')
 var path = require('path')
 var pino = require('pino')
 
