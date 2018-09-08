@@ -136,39 +136,39 @@ care how we do this: it's lots of glue code, and not necessarily pretty. But it
 can be useful to know which optimizations we apply. This is a list:
 
 ### JavaScript
-- __nanohtml:__ Optimize `choo` HTML code so it runs significantly faster in the
+- __[nanohtml][]:__ Optimize `choo` HTML code so it runs significantly faster in the
   browser.
-- __glslify:__ Adds a module system to GLSL shaders.
-- __brfs:__ Statically inline calls to `fs.readFile()`. Useful to ship assets
+- __[glslify][]:__ Adds a module system to GLSL shaders.
+- __[brfs][]:__ Statically inline calls to `fs.readFile()`. Useful to ship assets
   in the browser.
-- __envify:__ Allow environment variables to be used in the bundle. Especially
+- __[envify][]:__ Allow environment variables to be used in the bundle. Especially
   useful in combination with minification, which removes unused code paths.
-- __split-require:__ Lazy load parts of your application using the
+- __[split-require][]:__ Lazy load parts of your application using the
   [`require('split-require')`][split-require] function.
-- __babelify:__ Bring the latest browser features to _all_ browsers. See
+- __[babelify][]:__ Bring the latest browser features to _all_ browsers. See
   [our babel section](#babel) for more details.
 
-And bankai uses tinyify, which adds the following optimizations:
+And bankai uses [tinyify][], which adds the following optimizations:
 
-- __browser-pack-flat:__ Remove function wrappers from the bundle, making
+- __[browser-pack-flat][]:__ Remove function wrappers from the bundle, making
   the result faster to run and easier to minify.
-- __bundle-collapser:__ Remove all pathnames from inside the bundle, and
+- __[bundle-collapser][]:__ Remove all pathnames from inside the bundle, and
   replace them with IDs. This not only makes bundles smaller, it prevents
   details from your local dev setup leaking.
-- __common-shakeify:__ Remove unused JavaScript code from the bundle. Best
+- __[common-shakeify][]:__ Remove unused JavaScript code from the bundle. Best
   known as _dead code elimination_ or _tree shaking_.
-- __unassertify:__ Remove all `require('assert')` statements from the code.
+- __[unassertify][]:__ Remove all `require('assert')` statements from the code.
   Only applied for production builds.
-- __uglifyify:__ Minify the bundle.
+- __[uglifyify][]:__ Minify the bundle.
 
 ### CSS
-- __sheetify:__ extract all inline CSS from JavaScript, and include it in
+- __[sheetify][]:__ extract all inline CSS from JavaScript, and include it in
   `bundle.js`.
-- __purifyCSS:__ removes unused CSS from the project.
-- __cleanCSS:__ minify the bundle.
+- __[purifyCSS][purify-css]:__ removes unused CSS from the project.
+- __[cleanCSS][clean-css]:__ minify the bundle.
 
 ### HTML
-- __inline-critical-css:__ extract all crititical CSS for a page into the
+- __[inline-critical-css][]:__ extract all crititical CSS for a page into the
   `<head>` of the document. This means that every page will be able to render
   after the first roundtrip, which makes for super snappy pages.
 - __async load scripts:__ loads scripts in the background using the
@@ -363,10 +363,24 @@ Close all file watchers.
 ## License
 Apache License 2.0
 
-[sheetify]: https://github.com/stackcss/sheetify
+[babelify]: https://github.com/babel/babelify
+[brfs]: https://github.com/browserify/brfs
+[browser-pack-flat]: https://github.com/goto-bus-stop/browser-pack-flat
+[browserify]: https://github.com/browserify/browserify
+[bundle-collapser]: https://github.com/substack/bundle-collapser
+[clean-css]: https://github.com/jakubpawlowicz/clean-css
+[common-shakeify]: https://github.com/browserify/common-shakeify
 [documentify]: https://github.com/stackhtml/documentify
-[browserify]: https://github.com/substack/node-browserify
+[envify]: https://github.com/hughsk/envify
+[glslify]: https://github.com/glslify/glslify
+[inline-critical-css]: https://github.com/stackcss/inline-critical-css
+[nanohtml]: https://github.com/choojs/nanohtml
+[purify-css]: https://github.com/purifycss/purifycss
+[sheetify]: https://github.com/stackcss/sheetify
 [split-require]: https://github.com/goto-bus-stop/split-require
+[tinyify]: https://github.com/browserify/tinyify
+[uglifyify]: https://github.com/hughsk/uglifyify
+[unassertify]: https://github.com/unassert-js/unassertify
 
 [0]: https://img.shields.io/badge/stability-experimental-orange.svg?style=flat-square
 [1]: https://nodejs.org/api/documentation.html#documentation_stability_index
