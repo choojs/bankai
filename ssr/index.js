@@ -1,14 +1,14 @@
 var requireWithGlobal = require('require-with-global')
 var debug = require('debug')('bankai.server-render')
 var Console = require('console').Console
-var assert = require('assert').strict
 var through = require('through2')
+var assert = require('assert')
 
 var choo = require('./choo')
 
 module.exports = class ServerRender {
   constructor (entry) {
-    assert.equal(typeof entry, 'string', 'bankai/ssr/index.js: entry should be type string')
+    assert.strictEqual(typeof entry, 'string', 'bankai/ssr/index.js: entry should be type string')
 
     this.entry = entry
     this.error = null
