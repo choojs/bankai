@@ -83,7 +83,7 @@ tape('outputs split bundles', function (assert) {
 
     // maybe these should use globs instead of hardcoded hashes
     // eg glob.sync('dist/*/bundle.js')
-    assert.ok(fs.existsSync(path.join(output, '3372223d6e7a953f', 'bundle.js')))
+    assert.ok(fs.existsSync(path.join(output, '102124f5fbe2468e', 'bundle.js')))
     assert.notEqual(read(path.join(output, '98abfdc06765c024', 'bundle-2.js')).indexOf('THIS IS A'), -1)
     assert.notEqual(read(path.join(output, 'd045ba5484611349', 'bundle-3.js')).indexOf('THIS IS B'), -1)
   })
