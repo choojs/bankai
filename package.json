@@ -75,7 +75,7 @@
     "sheetify": "^7.1.0",
     "split-require": "^3.1.1",
     "split2": "^3.0.0",
-    "strip-ansi": "^4.0.0",
+    "strip-ansi": "^5.0.0",
     "tfilter": "^1.0.1",
     "through2": "^2.0.3",
     "tinyify": "^2.4.0",
