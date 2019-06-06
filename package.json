@@ -57,7 +57,7 @@
     "nanoraf": "^3.0.1",
     "nanotiming": "^7.2.0",
     "on-idle": "^3.1.4",
-    "opn": "^5.3.0",
+    "open": "^6.3.0",
     "p-wait-all": "^1.0.0",
     "pino": "^4.10.4",
     "pino-colada": "^1.4.2",
