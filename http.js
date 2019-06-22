@@ -13,8 +13,8 @@ module.exports = start
 function start (entry, opts) {
   opts = opts || {}
 
-  assert.equal(typeof entry, 'string', 'bankai/http: entry should be type string')
-  assert.equal(typeof opts, 'object', 'bankai/http: opts should be type object')
+  assert.strictEqual(typeof entry, 'string', 'bankai/http: entry should be type string')
+  assert.strictEqual(typeof opts, 'object', 'bankai/http: opts should be type object')
 
   opts = Object.assign({ reload: true }, opts)
   var compiler = bankai(entry, opts)

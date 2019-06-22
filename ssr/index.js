@@ -8,7 +8,7 @@ var choo = require('./choo')
 
 module.exports = class ServerRender {
   constructor (entry) {
-    assert.equal(typeof entry, 'string', 'bankai/ssr/index.js: entry should be type string')
+    assert.strictEqual(typeof entry, 'string', 'bankai/ssr/index.js: entry should be type string')
 
     this.entry = entry
     this.error = null

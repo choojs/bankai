@@ -30,9 +30,9 @@ function Bankai (entry, opts) {
   this.local = localization(opts.language || 'en-US')
   this.log = pino(opts.logStream || process.stdout)
 
-  assert.equal(typeof entry, 'string', 'bankai: entry should be type string')
+  assert.strictEqual(typeof entry, 'string', 'bankai: entry should be type string')
   assert.ok(path.isAbsolute(entry), 'bankai: entry should be an absolute path. Received: ' + entry)
-  assert.equal(typeof opts, 'object', 'bankai: opts should be type object')
+  assert.strictEqual(typeof opts, 'object', 'bankai: opts should be type object')
 
   var self = this
   var methods = [
@@ -142,8 +142,8 @@ function Bankai (entry, opts) {
 Bankai.prototype = Object.create(Emitter.prototype)
 
 Bankai.prototype.scripts = function (filename, cb) {
-  assert.equal(typeof filename, 'string')
-  assert.equal(typeof cb, 'function')
+  assert.strictEqual(typeof filename, 'string')
+  assert.strictEqual(typeof cb, 'function')
   var stepName = 'scripts'
   var edgeName = filename.split('.')[0]
   var self = this
@@ -155,8 +155,8 @@ Bankai.prototype.scripts = function (filename, cb) {
 }
 
 Bankai.prototype.styles = function (filename, cb) {
-  assert.equal(typeof filename, 'string')
-  assert.equal(typeof cb, 'function')
+  assert.strictEqual(typeof filename, 'string')
+  assert.strictEqual(typeof cb, 'function')
   var stepName = 'styles'
   var edgeName = filename.split('.')[0]
   var self = this
@@ -168,8 +168,8 @@ Bankai.prototype.styles = function (filename, cb) {
 }
 
 Bankai.prototype.documents = function (url, cb) {
-  assert.equal(typeof url, 'string')
-  assert.equal(typeof cb, 'function')
+  assert.strictEqual(typeof url, 'string')
+  assert.strictEqual(typeof cb, 'function')
 
   var filename = url.split('?')[0]
 
@@ -185,7 +185,7 @@ Bankai.prototype.documents = function (url, cb) {
 }
 
 Bankai.prototype.manifest = function (cb) {
-  assert.equal(typeof cb, 'function')
+  assert.strictEqual(typeof cb, 'function')
   var stepName = 'manifest'
   var edgeName = 'bundle'
   var self = this
@@ -197,7 +197,7 @@ Bankai.prototype.manifest = function (cb) {
 }
 
 Bankai.prototype.serviceWorker = function (cb) {
-  assert.equal(typeof cb, 'function')
+  assert.strictEqual(typeof cb, 'function')
   var stepName = 'service-worker'
   var edgeName = 'bundle'
   var self = this
@@ -209,8 +209,8 @@ Bankai.prototype.serviceWorker = function (cb) {
 }
 
 Bankai.prototype.assets = function (filename, cb) {
-  assert.equal(typeof filename, 'string')
-  assert.equal(typeof cb, 'function')
+  assert.strictEqual(typeof filename, 'string')
+  assert.strictEqual(typeof cb, 'function')
   var stepName = 'assets'
   var self = this
   this.queue[stepName].add(function () {
@@ -222,9 +222,9 @@ Bankai.prototype.assets = function (filename, cb) {
 }
 
 Bankai.prototype.sourceMaps = function (stepName, edgeName, cb) {
-  assert.equal(typeof stepName, 'string')
-  assert.equal(typeof edgeName, 'string')
-  assert.equal(typeof cb, 'function')
+  assert.strictEqual(typeof stepName, 'string')
+  assert.strictEqual(typeof edgeName, 'string')
+  assert.strictEqual(typeof cb, 'function')
   edgeName = /\.map$/.test(edgeName) ? edgeName : edgeName + '.map'
   var self = this
   var data = self.graph.data[stepName][edgeName]
