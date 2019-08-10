@@ -76,8 +76,10 @@ module.exports.render = function (app, route, cb) {
     var res = { state: state }
     res.body = app.toString(route, state)
     delete res.state._experimental_prefetch // State needs to be serializable.
-    if (state.title) res.title = state.title
-    if (state.language) res.language = state.language
+    var title = state.title || app.state.title // Support for choo@6
+    var lang = state.language || app.state.language // Support for choo@6
+    if (title) res.title = title
+    if (lang) res.language = lang
     if (app.selector) res.selector = app.selector
     cb(null, res)
   }
