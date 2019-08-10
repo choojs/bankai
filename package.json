@@ -15,9 +15,6 @@
     "debug": "DEBUG='*' ./bin.js start -q example"
   },
   "keywords": [],
-  "peerDependencies": {
-    "choo": "7.x"
-  },
   "dependencies": {
     "@choojs/findup": "^0.2.0",
     "ansi-diff": "^1.0.10",
