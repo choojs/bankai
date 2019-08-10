@@ -221,6 +221,7 @@ JavaScript, no extra configuration is needed.
 }
 ```
 
+
 ### Custom HTML
 By default, Bankai starts with an empty HTML document, injecting the tags
 mentioned [above](#html). You can also create a custom template as `index.html`,
@@ -244,6 +245,59 @@ module.exports = app.mount('#app')
 </body>
 ...
 ```
+
+### Injecting headers - favicon.ico, CDNs, manifests etc...
+
+You might be looking to use some of the fantastic third party libraries or tools out there. Take the [font-awesome](https://fontawesome.com/) library for example, but there are plenty of others. To do so, you typically need to include additional css or js libraries in your ```<head>```. And you can do this by setting up your documentify transform.
+
+In this example, you will need to add a "documentify" transform which specifies a js file used, but you will also need a couple of extra npm libraries which you can install with:
+
+```bash
+npm i hstream dedent
+```
+
+Now in ```package.json```, add the following transform:
+
+```json
+"documentify": {
+    "transform": [
+      [
+        "./lib/document.js",
+        {
+          "order": "end"
+        }
+      ]
+    ]
+  },
+```
+
+In this example, we are storing the transform in a folder called ```lib```, which you will need to create, and create a ```document.js``` file in it. Edit the file called ```document.js``` and put the following transform code in it:
+
+```js
+var dedent = require('dedent')
+var hyperstream = require('hstream')
+
+module.exports = document
+
+function document () {
+  return hyperstream({
+    'meta[name="viewport"]': {
+      content: 'width=device-width, initial-scale=1, viewport-fit=cover'
+    },
+    head: {
+      _prependHtml: dedent`
+      <link rel="manifest" href="manifest.json">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+      `,
+      _appendHtml: dedent`
+        <link rel="shortcut icon" href="/favicon.ico">
+      `
+    }
+  })
+}
+```
+
+This example now enables Bankai to generate an ```index.html``` file which has a link to the font-awesome css cdn, a ```manifest.json``` file, and a ```favicon.ico``` file ready for deployment.
 
 ### Service Workers
 Bankai comes with support for service workers. You can place a service worker
