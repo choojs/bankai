@@ -53,7 +53,7 @@
     "minimist": "^1.2.0",
     "mkdirp": "^0.5.1",
     "nanohtml": "^1.2.4",
-    "nanologger": "^1.3.1",
+    "nanologger": "^2.0.0",
     "nanoraf": "^3.0.1",
     "nanotiming": "^7.2.0",
     "on-idle": "^3.1.4",
@@ -82,14 +82,14 @@
     "v8-compile-cache": "^2.0.0",
     "wasm-brotli": "^1.0.2",
     "watchify": "^3.10.0",
-    "wayfarer": "^6.6.3"
+    "wayfarer": "^7.0.0"
   },
   "devDependencies": {
     "a-module-with-babelrc": "^1.0.0",
     "assert-html": "^1.1.5",
-    "choo": "^6.8.0",
-    "choo-devtools": "^2.3.3",
-    "choo-service-worker": "^2.4.0",
+    "choo": "^7.0.0",
+    "choo-devtools": "^3.0.0",
+    "choo-service-worker": "^3.0.0",
     "read-file-tree": "^1.1.0",
     "standard": "^12.0.1",
     "tachyons": "^4.9.1",

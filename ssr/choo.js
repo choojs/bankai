@@ -55,10 +55,6 @@ module.exports.listRoutes = function (app) {
 //
 // NOTE: state is never passed in it seems. Funky fn signature, this should be
 // fixed.
-//
-// NOTE: Choo currently doesn't use the passed-in state as the base. It probably
-// should, so we can treat the state as the only stateful bits, and the rest is
-// just context.
 
 module.exports.render = function (app, route, cb) {
   var state = {}
@@ -80,8 +76,10 @@ module.exports.render = function (app, route, cb) {
     var res = { state: state }
     res.body = app.toString(route, state)
     delete res.state._experimental_prefetch // State needs to be serializable.
-    if (app.state.title) res.title = app.state.title
-    if (app.state.language) res.language = app.state.language
+    var title = state.title || app.state.title // Support for choo@6
+    var lang = state.language || app.state.language // Support for choo@6
+    if (title) res.title = title
+    if (lang) res.language = lang
     if (app.selector) res.selector = app.selector
     cb(null, res)
   }
