@@ -1,7 +1,11 @@
+language: node_js
+os:
+  - "linux"
+  - "windows"
+dist: xenial
 node_js:
+  - "12"
   - "10"
   - "8"
   - "6"
-sudo: false
-language: node_js
 script: "npm run test"
