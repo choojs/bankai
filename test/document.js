@@ -22,6 +22,7 @@ tape('renders some HTML', function (assert) {
         <meta name="theme-color" content=#fff>
         <title></title>
         <link rel="preload" as="style" href="/__STYLE_HASH__/bundle.css" onload="this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="/__STYLE_HASH__/bundle.css"></noscript>
       </head>
       <body></body>
     </html>
@@ -60,7 +61,7 @@ tape('renders some HTML', function (assert) {
 
     compiler.styles('bundle.css', function (err, res) {
       assert.ifError(err, 'no err bundling style')
-      expected = expected.replace('__STYLE_HASH__', res.hash.toString('hex').slice(0, 16))
+      expected = expected.replace(/__STYLE_HASH__/g, res.hash.toString('hex').slice(0, 16))
       expected = expected.replace('__STYLE_INTEGRITY__', res.hash.toString('base64'))
     })
   })
@@ -81,6 +82,7 @@ tape('server render choo apps', function (assert) {
         <meta name="theme-color" content=#fff>
         <title></title>
         <link rel="preload" as="style" href="/__STYLE_HASH__/bundle.css" onload="this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="/__STYLE_HASH__/bundle.css"></noscript>
       </head>
       <body>
         meow
@@ -133,7 +135,7 @@ tape('server render choo apps', function (assert) {
     compiler.styles('bundle.css', function (err, res) {
       assert.ifError(err, 'no err bundling style')
       assert.ifError(err)
-      expected = expected.replace('__STYLE_HASH__', res.hash.toString('hex').slice(0, 16))
+      expected = expected.replace(/__STYLE_HASH__/g, res.hash.toString('hex').slice(0, 16))
       expected = expected.replace('__STYLE_INTEGRITY__', res.hash.toString('base64'))
     })
   })
@@ -154,6 +156,7 @@ tape('server render choo apps with root set', function (assert) {
         <meta name="theme-color" content=#fff>
         <title></title>
         <link rel="preload" as="style" href="some-custom-root/__STYLE_HASH__/bundle.css" onload="this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="some-custom-root/__STYLE_HASH__/bundle.css"></noscript>
       </head>
       <body>
         meow
@@ -206,7 +209,7 @@ tape('server render choo apps with root set', function (assert) {
     compiler.styles('bundle.css', function (err, res) {
       assert.ifError(err, 'no err bundling style')
       assert.ifError(err)
-      expected = expected.replace('__STYLE_HASH__', res.hash.toString('hex').slice(0, 16))
+      expected = expected.replace(/__STYLE_HASH__/g, res.hash.toString('hex').slice(0, 16))
       expected = expected.replace('__STYLE_INTEGRITY__', res.hash.toString('base64'))
     })
   })
