@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 9.15.3
+* Migrate Windows tests to Travis from Appveyor. (#530)
+* Load CSS normally if JavaScript is disabled. (#531, #535)
+
+Thanks @auggod!
+
+## 9.15.2
+* Support Choo v7. (#527)
+* Add some examples using `documentify`. (#528)
+
+Thanks @tornqvist and @shotlom!
+
 ## 9.15.1
 * Linkify all the transforms in the documentation. (#514)
 * Replace deprecated package `opn` by `open`. (#525)
