@@ -26,6 +26,7 @@ a project setup from scratch :sparkles:.
 
   Options:
 
+    -b, --base        prepend a base URL to assets
     -d, --debug       output lots of logs
     -h, --help        print usage
     -q, --quiet       don't output any logs
